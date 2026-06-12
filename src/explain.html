@@ -51,9 +51,10 @@
   html[data-theme="light"] .narrative::-webkit-scrollbar-thumb              { background: #b8b4ae; }
   html[data-theme="light"] body.teach-mode .detail::-webkit-scrollbar-thumb { background: #b8b4ae; }
   * { box-sizing: border-box; margin: 0; }
-  html { height: 100%; }
+  html { height: 100%; min-height: 0; }
   body {
     height: 100%;
+    min-height: 0;
     background: var(--bg);
     color: var(--text);
     font: 12.5px/1.5 system-ui, sans-serif;
@@ -109,14 +110,21 @@
 
   /* ── Chord card strip ── */
   .cards-outer {
-    display: flex; flex-direction: column; gap: 6px; flex-shrink: 0;
+    display: flex; flex-direction: column; gap: 6px;
+    flex: 0 0 auto; max-height: 150px; min-height: 0;
   }
   .cards {
     display: flex; flex-wrap: wrap; gap: 6px;
+    max-height: 116px; min-height: 0; overflow-y: auto;
+    padding-right: 4px; scrollbar-color: var(--line2) transparent;
   }
+  .cards::-webkit-scrollbar { width: 6px; }
+  .cards::-webkit-scrollbar-track { background: transparent; }
+  .cards::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
   .card {
     background: var(--panel); border: 1px solid var(--line); border-radius: 5px;
-    padding: 8px 10px 7px 13px; min-width: 80px; position: relative;
+    padding: 8px 10px 7px 13px; min-width: 80px; max-width: 170px;
+    flex: 1 1 92px; max-height: 104px; overflow: hidden; position: relative;
     cursor: pointer; user-select: none; transition: border-color 0.1s;
   }
   .card:hover { border-color: var(--line2); }
@@ -140,6 +148,11 @@
   .pill.borrowed  { background: #2d1f44; color: var(--borrow); }
   .pill.secondary { background: #1a2a3a; color: var(--second); }
   .warnline { color: var(--warn); font-size: 10px; margin-top: 3px; }
+  .infoline { color: var(--dim); font-size: 10px; margin-top: 3px; }
+  .card .warnline,
+  .card .infoline {
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
 
   /* ── Pagination ── */
   .pg {
@@ -157,15 +170,16 @@
 
   /* ── Detail panel ── */
   .detail {
-    flex-shrink: 0;
+    flex: 0 1 190px;
     background: var(--panel2); border: 1px solid var(--line2); border-radius: 5px;
     padding: 11px 13px 10px;
-    min-height: 110px;
+    min-height: 96px; max-height: 32vh;
     overflow-y: auto;
+    scrollbar-color: var(--line2) transparent;
   }
-  .detail::-webkit-scrollbar { width: 4px; }
+  .detail::-webkit-scrollbar { width: 6px; }
   .detail::-webkit-scrollbar-track { background: transparent; }
-  .detail::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+  .detail::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
   .detail-empty { color: var(--dim); font-size: 12px; }
   .detail-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 7px; }
   .detail-cname { font-size: 15px; font-weight: 600; }
@@ -213,11 +227,12 @@
   body.teach-mode .detail {
     flex: 1;
     min-height: 0;
+    max-height: none;
     overflow-y: auto;
   }
-  body.teach-mode .detail::-webkit-scrollbar { width: 4px; }
+  body.teach-mode .detail::-webkit-scrollbar { width: 6px; }
   body.teach-mode .detail::-webkit-scrollbar-track { background: transparent; }
-  body.teach-mode .detail::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+  body.teach-mode .detail::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
   body.teach-mode .narrative { display: none; }
 
   .teach-section { margin-bottom: 12px; }
@@ -246,7 +261,11 @@
     background: var(--panel); border: 1px solid var(--line); border-radius: 5px;
     padding: 9px 12px;
     overflow-y: auto;
+    scrollbar-color: var(--line2) transparent;
   }
+  .narrative::-webkit-scrollbar { width: 6px; }
+  .narrative::-webkit-scrollbar-track { background: transparent; }
+  .narrative::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
   .narrative-title {
     font-size: 10px; font-weight: 600; letter-spacing: 0.06em;
     text-transform: uppercase; color: var(--dim2); margin-bottom: 6px;
@@ -326,7 +345,7 @@ var pageSize = 8;
 // ── Theme toggle ──────────────────────────────────────────────────────────
 (function() {
   var KEY = "ta-theme";
-  var saved = "dark";
+  var saved = "light";
   try { saved = localStorage.getItem(KEY) || "dark"; } catch(e) {}
   document.documentElement.setAttribute("data-theme", saved);
   var btn = document.getElementById("theme-btn");
@@ -395,37 +414,43 @@ var INTERVAL_LABELS = {
 
 var QUALITY_DESC = {
   "major":       "Bright and stable. The major 3rd gives it an uplifting, resolved character.",
-  "minor":       "Dark and stable. The minor 3rd creates an introspective, melancholic quality — but still grounded.",
+  "minor":       "Dark and stable. The minor 3rd creates an introspective, melancholic quality, but still grounded.",
   "dominant7":   "Tense and directional. The tritone between the 3rd and ♭7th creates an intense pull toward resolution a perfect 5th down.",
-  "major7":      "Lush and sophisticated. The major 7th (one semitone below the octave) adds a floating color — tension without urgency.",
-  "minor7":      "Mellow and jazzy. A minor chord softened by the ♭7th — common in jazz, soul, and R&B.",
-  "diminished":  "Very tense. Two interlocking tritones make this chord unstable from every angle — it needs to move.",
+  "major7":      "Lush and sophisticated. The major 7th (one semitone below the octave) adds a floating color: tension without urgency.",
+  "minor7":      "Mellow and jazzy. A minor chord softened by the ♭7th: common in jazz, soul, and R&B.",
+  "diminished":  "Very tense. Two interlocking tritones make this chord unstable from every angle: it needs to move.",
   "half-dim7":   "Half-diminished (ø7). Tense but less brittle than a full dim7. Typically used as iiø7 in minor keys or as a passing chord.",
   "dim7":        "Maximally symmetric tension. Every interval is equal (3 semitones apart), producing cascading tritones. Resolves ambiguously in any direction.",
-  "augmented":   "Ambiguous and unresolved. The augmented 5th (♯5) splits the octave into two equal major 3rds — no clear resolution direction.",
-  "sus2":        "Open and neutral. Replaces the 3rd with a 2nd — neither major nor minor. Often resolves by moving to the 3rd.",
+  "augmented":   "Ambiguous and unresolved. The augmented 5th (♯5) splits the octave into two equal major 3rds: no clear resolution direction.",
+  "sus2":        "Open and neutral. Replaces the 3rd with a 2nd: neither major nor minor. Often resolves by moving to the 3rd.",
   "sus4":        "Suspended. The 4th leans downward toward the major 3rd, implying motion. Classic in rock builds.",
   "major6":      "Warm and slightly jazzy. The added 6th softens the brightness of the major chord.",
-  "minor6":      "Bittersweet. The natural 6th on a minor chord creates a distinctive tension — characteristic of jazz minor harmony.",
+  "minor6":      "Bittersweet. The natural 6th on a minor chord creates a distinctive tension: characteristic of jazz minor harmony.",
   "major9":      "Rich and expansive. The 9th extends the major 7th chord one step further into color territory.",
   "minor9":      "Deep and cinematic. The 9th adds color above the minor 7th without changing its melancholic core.",
   "dominant9":   "Dominant energy with added color. The 9th enriches the V7 sound while preserving its pull to resolution.",
-  "add9":        "Bright with texture. A major chord plus the 9th — no 7th, so it retains the major triad's clarity.",
+  "add9":        "Bright with texture. A major chord plus the 9th: no 7th, so it retains the major triad's clarity.",
+  "minor11":     "Wide and open. A minor 7th chord with 9th and 11th colors, common in modal, jazz, soul, and cinematic harmony.",
+  "dominant11":  "Dominant tension with a suspended upper color. The 11th adds width while the 3rd and 7th keep the dominant pull active.",
+  "major13":     "Expansive and polished. A major 7th color extended up to the 13th for a smooth jazz or fusion sound.",
+  "minor13":     "Dark but spacious. A minor 7th color with the 13th added for a more modern, less closed minor sound.",
+  "dominant13":  "Dominant pull with a bright 13th on top. Common in jazz, funk, soul, and gospel dominant chords.",
+  "dominant7sus4": "Suspended dominant. It keeps the dominant 7th tension but replaces the 3rd with the 4th, delaying the resolution.",
 };
 
 var FN_DESC = {
-  "tonic":       "Tonic function — this is home. The ear hears it as a resting point, a place of arrival.",
-  "subdominant": "Subdominant function — creates gentle motion away from the tonic. Sets the stage for the dominant or returns directly home.",
-  "dominant":    "Dominant function — maximum harmonic tension. The ear expects this to resolve down a perfect 5th to the tonic.",
+  "tonic":       "Tonic function: this is home. The ear hears it as a resting point, a place of arrival.",
+  "subdominant": "Subdominant function: creates gentle motion away from the tonic. Sets the stage for the dominant or returns directly home.",
+  "dominant":    "Dominant function: maximum harmonic tension. The ear expects this to resolve down a perfect 5th to the tonic.",
 };
 
 var DEGREE_DESC = {
-  "I":    "The tonic — home base. The most stable chord in the key; where progressions want to begin and end.",
-  "II":   "The supertonic (ii). Almost always moves to V — the ii–V motion is ubiquitous in jazz and classical music. Subdominant function.",
-  "III":  "The mediant (iii). A tonic substitute — shares two notes with I. Often used as a passing chord between I and IV.",
+  "I":    "The tonic: home base. The most stable chord in the key; where progressions want to begin and end.",
+  "II":   "The supertonic (ii). Almost always moves to V: the ii to V motion is ubiquitous in jazz and classical music. Subdominant function.",
+  "III":  "The mediant (iii). A tonic substitute: shares two notes with I. Often used as a passing chord between I and IV.",
   "IV":   "The subdominant. Creates departure from the tonic. Both the plagal direction (IV→I) and the pre-dominant direction (IV→V) are common.",
-  "V":    "The dominant — the primary tension chord. Its pull back to I is the driving force of tonal harmony. With a 7th, it becomes even more directional.",
-  "VI":   "The submediant (vi). The relative minor — shares two notes with I and IV, making it a versatile tonic substitute with a darker color.",
+  "V":    "The dominant: the primary tension chord. Its pull back to I is the driving force of tonal harmony. With a 7th, it becomes even more directional.",
+  "VI":   "The submediant (vi). The relative minor: shares two notes with I and IV, making it a versatile tonic substitute with a darker color.",
   "VII":  "The leading tone chord. Built on the 7th scale degree, which is one semitone below the octave and strongly wants to resolve upward to the tonic.",
 };
 
@@ -434,7 +459,11 @@ function beatLabel(s) {
   var b = Math.round(s.start);
   var e = Math.round(s.end);
   if (e - b <= 1) return "beat " + (b + 1);
-  return "beats " + (b + 1) + "–" + e;
+  return "beats " + (b + 1) + " to " + e;
+}
+
+function hasHardWarning(s) {
+  return !!(s.outliers && s.outliers.some(function(o) { return o.severity === "warn"; }));
 }
 
 function extractBaseDegree(label) {
@@ -481,7 +510,7 @@ function buildSpellHtml(s) {
 
 // ── Key badges ─────────────────────────────────────────────────────────────
 document.getElementById("title").textContent =
-  "Explain Harmony — " + (DATA.clipName || "Untitled");
+  "Explain Harmony: " + (DATA.clipName || "Untitled");
 document.getElementById("sub").textContent =
   DATA.segments.length + " chord segment" + (DATA.segments.length !== 1 ? "s" : "") +
   " · " + DATA.noteCount + " notes";
@@ -528,19 +557,21 @@ function renderCards() {
     var i = start + pi;
     var div = document.createElement("div");
     var cls = "card";
-    if (s.outliers && s.outliers.length) cls += " clash";
+    if (hasHardWarning(s)) cls += " clash";
     if (i === selectedIdx) cls += " active";
     div.className = cls;
 
     var html = "";
     if (s.fn) html += '<div class="fnbar fn-' + s.fn + '"></div>';
-    html += '<div class="cname">' + esc(s.chordName || "—") + "</div>";
+    html += '<div class="cname">' + esc(s.chordName || "None") + "</div>";
     if (s.roman) html += '<div class="roman">' + esc(s.roman.label) + "</div>";
     html += '<div class="beats">' + esc(beatLabel(s)) + "</div>";
     if (s.roman && s.roman.borrowed)  html += '<span class="pill borrowed">borrowed</span>';
     if (s.roman && s.roman.secondary) html += '<span class="pill secondary">2° dom.</span>';
     if (s.outliers) s.outliers.forEach(function(o) {
-      html += '<div class="warnline">' + esc(o.name) + ' out of key</div>';
+      var cls = o.severity === "warn" ? "warnline" : "infoline";
+      html += '<div class="' + cls + '">' + esc(o.name) + ' · ' +
+        esc(o.explanation || 'Outside the key.') + '</div>';
     });
     div.innerHTML = html;
 
@@ -577,9 +608,12 @@ function renderAnalysisDetail(s) {
   }
 
   var qDesc  = QUALITY_DESC[s.quality] || "";
-  var fnDesc = s.fn ? FN_DESC[s.fn] : "";
+  var isSecondary = !!(s.roman && s.roman.secondary);
+  var isBorrowed = !!(s.roman && s.roman.borrowed);
+  var isSpecialRoman = isSecondary || isBorrowed;
+  var fnDesc = !isSpecialRoman && s.fn ? FN_DESC[s.fn] : "";
   var baseDeg = s.roman ? extractBaseDegree(s.roman.label) : null;
-  var degDesc = baseDeg ? (DEGREE_DESC[baseDeg] || "") : "";
+  var degDesc = !isSpecialRoman && baseDeg ? (DEGREE_DESC[baseDeg] || "") : "";
 
   var specialHtml = "";
   if (s.roman && s.roman.borrowed) {
@@ -589,13 +623,13 @@ function renderAnalysisDetail(s) {
       (DATA.key.scaleName === "major" ? "minor" : "major") +
       ' key. Swapping in chords from the parallel mode adds darker or brighter color without fully leaving the key.' +
       '</div>';
-  } else if (s.roman && s.roman.secondary) {
+  } else if (isSecondary) {
     var tgt = extractSecondaryTarget(s.roman.label);
     specialHtml =
       '<div class="special secondary-note">' +
       '<b>Secondary dominant:</b> A V7 applied to ' + esc(tgt || "a non-tonic degree") +
       '. Temporarily treats ' + esc(tgt || "that chord") +
-      ' as a local tonic — a brief detour that adds momentum.' +
+      ' as a local tonic: a brief detour that adds momentum.' +
       '</div>';
   }
 
@@ -619,7 +653,7 @@ function renderAnalysisDetail(s) {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-// TEACH ME MODE — prose-based explanation using actual chord notes + key
+// TEACH ME MODE: prose-based explanation using actual chord notes + key
 // ══════════════════════════════════════════════════════════════════════════════
 
 function renderTeachDetail(s) {
@@ -643,7 +677,7 @@ function renderTeachDetail(s) {
     fnBadge +
   '</div>';
 
-  // Interval row (same in both modes — visual anchor)
+  // Interval row (same in both modes: visual anchor)
   html += buildSpellHtml(s);
 
   // ── 1. Anatomy ────────────────────────────────────────────────────────────
@@ -693,15 +727,15 @@ function buildAnatomyText(s) {
 
   var A = {
     "major":
-      "The defining feature here is the <strong>major 3rd</strong> — " + third +
+      "The defining feature here is the <strong>major 3rd</strong>: " + third +
       " sits 4 semitones above " + root + ". " +
       "That 4-semitone gap is what your brain reads as bright and uplifting. " +
-      "Compress it by one semitone and you'd have a minor chord — same root, same fifth, " +
+      "Compress it by one semitone and you'd have a minor chord: same root, same fifth, " +
       "but the personality flips completely from uplifting to introspective. " +
       "One semitone is the entire distance between major and minor.",
 
     "minor":
-      "The defining interval is the <strong>minor 3rd</strong> — " + third +
+      "The defining interval is the <strong>minor 3rd</strong>: " + third +
       " sits 3 semitones above " + root + ", one semitone closer than a major 3rd. " +
       "That single semitone compression is everything: your brain hears the deviation " +
       "from the natural harmonic series (which favors major 3rd relationships) " +
@@ -709,67 +743,92 @@ function buildAnatomyText(s) {
       "Stretch it back out one semitone and you'd have a major chord.",
 
     "dominant7":
-      "This is a <strong>dominant 7th</strong> chord — the most functionally powerful chord in tonal music. " +
+      "This is a <strong>dominant 7th</strong> chord: the most functionally powerful chord in tonal music. " +
       "The tension comes from a <strong>tritone</strong> hidden inside: the interval between " +
-      third + " (major 3rd) and " + seventh + " (minor 7th) spans exactly 6 semitones — half an octave. " +
+      third + " (major 3rd) and " + seventh + " (minor 7th) spans exactly 6 semitones: half an octave. " +
       "Tritones are maximally dissonant: their frequency ratio is approximately √2:1, which never resolves " +
-      "to a simple integer relationship. Your ear doesn't just hear tension — it hears a demand to move, " +
+      "to a simple integer relationship. Your ear doesn't just hear tension: it hears a demand to move, " +
       "usually down a perfect 5th. That demand is what drives tonal harmony forward.",
 
     "major7":
-      "A <strong>major 7th</strong> chord adds " + seventh + " — one semitone below the octave — to a major triad. " +
+      "A <strong>major 7th</strong> chord adds " + seventh + ", one semitone below the octave, to a major triad. " +
       "That proximity to the root without being the root creates a floating quality: " +
       "close to home, but not quite there. It's tension without urgency, sophistication without instability. " +
       "Ubiquitous in jazz and bossa nova for exactly this reason.",
 
     "minor7":
-      "This combines the minor chord's darkness with " + seventh + " — a minor 7th above the root. " +
+      "This combines the minor chord's darkness with " + seventh + ", a minor 7th above the root. " +
       "The added 7th softens the minor chord slightly and opens it up harmonically. " +
       "Minor 7ths are the core color of jazz and soul harmony: emotionally rich, " +
       "stable enough to rest on, interesting enough to keep moving.",
 
     "diminished":
       "Every interval in a diminished chord is a minor 3rd, including the outermost interval " +
-      "from " + root + " to " + fifth + " — a tritone instead of the usual perfect 5th. " +
+      "from " + root + " to " + fifth + ", a tritone instead of the usual perfect 5th. " +
       "The result is maximum instability from every angle. " +
-      "There's no resting position, no stable relationship — only tension that needs to resolve, " +
+      "There's no resting position, no stable relationship: only tension that needs to resolve, " +
       "almost always by moving up one semitone.",
 
     "augmented":
       "An augmented chord stretches the 5th up one semitone to " + fifth +
-      " — an augmented 5th. " +
+      ": an augmented 5th. " +
       "This creates two equal major 3rds stacked on each other, dividing the octave symmetrically. " +
       "The symmetry eliminates any sense of a clear root: every note sounds equally central. " +
-      "The effect is ambiguous and dreamlike — untethered rather than tense.",
+      "The effect is ambiguous and dreamlike: untethered rather than tense.",
 
     "sus4":
-      "A suspended 4th replaces the expected 3rd with " + third + " — a perfect 4th above the root. " +
+      "A suspended 4th replaces the expected 3rd with " + third + ", a perfect 4th above the root. " +
       "The 4th 'leans' toward the major 3rd (just one semitone below it), " +
       "creating a characteristic suspended, expectant feeling. " +
       "The ear knows the 3rd is coming; it just hasn't arrived yet. " +
       "That suspended expectation is the entire personality of this chord.",
 
     "sus2":
-      "A suspended 2nd replaces the 3rd with " + third + " — a major 2nd above the root. " +
+      "A suspended 2nd replaces the 3rd with " + third + ", a major 2nd above the root. " +
       "Without a 3rd, the chord is neither major nor minor: open, spacious, and harmonically neutral. " +
       "Often used to create ambiguity between modes, or to give a progression room to breathe.",
 
     "half-dim7":
       "A half-diminished chord (also written ø7) has a diminished triad at its core " +
-      "— the tritone from " + root + " to " + fifth + " — but softened by " + seventh +
+      "the tritone from " + root + " to " + fifth + ", but softened by " + seventh +
       " (a minor 7th rather than the diminished 7th of a full dim7). " +
       "Tense but less brittle, with a characteristically melancholic color. " +
       "Most often heard as the ii chord in minor keys (the iiø7).",
 
     "dim7":
       "A fully diminished 7th chord stacks four minor 3rds, creating cascading tritones. " +
-      "Every interval is equal (3 semitones apart), making the chord completely symmetrical — " +
+      "Every interval is equal (3 semitones apart), making the chord completely symmetrical: " +
       "it has no preferred root, no stable relationship, and resolves ambiguously in any direction. " +
       "Maximum tension with maximum ambiguity.",
+
+    "minor11":
+      "A <strong>minor 11th</strong> stretches a minor 7th chord upward with the 9th and 11th. " +
+      "Those upper notes make the chord feel less closed and more modal. " +
+      "It is especially common when the harmony wants minor color without a hard resolution demand.",
+
+    "dominant11":
+      "A <strong>dominant 11th</strong> extends the dominant 7th sound with 9th and 11th color. " +
+      "The 3rd and 7th still create dominant pull, while the 11th adds a suspended, wider sound above it.",
+
+    "major13":
+      "A <strong>major 13th</strong> extends a major 7th chord with upper color tones. " +
+      "The 13th adds brightness and width without making the chord feel as urgent as a dominant chord.",
+
+    "minor13":
+      "A <strong>minor 13th</strong> keeps the minor 7th core but adds a bright 13th above it. " +
+      "That mixture creates a modern minor sound: dark at the base, open at the top.",
+
+    "dominant13":
+      "A <strong>dominant 13th</strong> is an expanded dominant chord. " +
+      "The 3rd and 7th create the pull, while the 13th adds a bright top color often heard in jazz, funk, soul, and gospel.",
+
+    "dominant7sus4":
+      "A <strong>7sus4</strong> chord keeps the dominant 7th but replaces the 3rd with the 4th. " +
+      "That suspension delays whether the chord is major or minor, then often resolves by moving the 4th down to the 3rd.",
   };
 
   return A[quality] ||
-    ("<strong>" + esc(s.chordName) + "</strong> — " +
+    ("<strong>" + esc(s.chordName) + "</strong>: " +
      esc(QUALITY_DESC[quality] || "a chord with a distinctive harmonic character."));
 }
 
@@ -786,48 +845,51 @@ function buildRoleText(s) {
   var tonicChord = rootName + (isMinor ? "m" : "");
   var chordName  = esc(s.chordName);
 
+  // Borrowed chords get their own modal interchange explanation below.
+  if (roman.borrowed) return "";
+
   // Secondary dominants get their own explanation
   if (roman.secondary) {
     var target = extractSecondaryTarget(label);
-    return "In " + keyLabel + ", this chord isn't playing a standard diatonic role — " +
+    return "In " + keyLabel + ", this chord isn't playing a standard diatonic role: " +
       "it's acting as the <strong>dominant of " + esc(target || "another chord") + "</strong>. " +
       "It temporarily points to " + esc(target || "the next chord") + " as a local home, " +
       "then the progression moves on. " +
-      "Secondary dominants work because V→I is the strongest harmonic motion available — " +
+      "Secondary dominants work because V→I is the strongest harmonic motion available: " +
       "by applying it to any chord in the key, you create a brief local resolution there.";
   }
 
   var R = {
     "I":
-      "In " + keyLabel + ", " + chordName + " is the <strong>tonic (I)</strong> — home base. " +
+      "In " + keyLabel + ", " + chordName + " is the <strong>tonic (I)</strong>: home base. " +
       "Every harmonic journey in this key begins and ends here. " +
       "This is the point of rest, resolution, arrival. " +
-      "When the progression returns to this chord, the ear hears 'done' — even temporarily.",
+      "When the progression returns to this chord, the ear hears 'done': even temporarily.",
 
     "II":
       "In " + keyLabel + ", " + chordName + " is the <strong>II chord (supertonic)</strong>. " +
       "It has a subdominant quality: a gentle first step away from home, " +
       "without the full pull of the dominant. " +
-      "The ii→V→I motion is one of the most fundamental sequences in all of harmony — " +
+      "The ii→V→I motion is one of the most fundamental sequences in all of harmony: " +
       "subdominant departs, dominant builds tension, tonic resolves it. " +
       "Learn that three-chord sequence and you'll hear it in everything from Bach to jazz.",
 
     "III":
       "In " + keyLabel + ", " + chordName + " is the <strong>III chord (mediant)</strong>. " +
-      "It acts as a tonic substitute — sharing two notes with the I chord gives it a similar stability, " +
+      "It acts as a tonic substitute: sharing two notes with the I chord gives it a similar stability, " +
       "but with a different color. " +
       "Often used as a pivot chord, connecting I and IV with a smooth bass line movement.",
 
     "IV":
-      "In " + keyLabel + ", " + chordName + " is the <strong>IV chord (subdominant)</strong> — " +
+      "In " + keyLabel + ", " + chordName + " is the <strong>IV chord (subdominant)</strong>: " +
       "the first meaningful step away from home. " +
       "It creates a sense of departure: not tense enough to demand resolution like a dominant, " +
       "but clearly in motion. It can resolve directly back to I (the plagal 'Amen' cadence), " +
       "or continue to V to build more tension. " +
-      "The subdominant is the counterweight to the dominant — together, they bracket the tonic.",
+      "The subdominant is the counterweight to the dominant; together, they bracket the tonic.",
 
     "V":
-      "In " + keyLabel + ", " + chordName + " is the <strong>V chord (dominant)</strong> — " +
+      "In " + keyLabel + ", " + chordName + " is the <strong>V chord (dominant)</strong>: " +
       "music theory's tension chord. " +
       "Its root sits a perfect 5th above " + rootName + ", and that descending 5th motion back to the tonic " +
       "is one of the strongest harmonic pulls your ear recognizes. " +
@@ -835,15 +897,15 @@ function buildRoleText(s) {
       "This is the chord that makes the ear lean forward, expecting resolution.",
 
     "VI":
-      "In " + keyLabel + ", " + chordName + " is the <strong>VI chord (submediant)</strong> — " +
+      "In " + keyLabel + ", " + chordName + " is the <strong>VI chord (submediant)</strong>: " +
       "the relative " + (isMinor ? "major" : "minor") + ". " +
       "It shares two notes with the I chord, making it a natural pivot: similar in feeling to home, " +
       "but with a " + (isMinor ? "brighter" : "darker") + " color. " +
-      "Progressions often use the VI to vary the emotional arc — a familiar face wearing different clothes.",
+      "Progressions often use the VI to vary the emotional arc; a familiar face wearing different clothes.",
 
     "VII":
       "In " + keyLabel + ", " + chordName + " is the <strong>VII chord (leading-tone chord)</strong>. " +
-      "Built on the 7th scale degree — the note one semitone below the tonic — " +
+      "Built on the 7th scale degree: the note one semitone below the tonic: " +
       "it has an unusually strong directional pull upward to the I chord. " +
       "In major keys it's naturally diminished (very tense); in minor keys it's often major " +
       "(the raised 7th from harmonic minor). Either way, it almost always resolves to I.",
@@ -851,7 +913,7 @@ function buildRoleText(s) {
 
   return R[baseDeg] ||
     "In " + keyLabel + ", " + chordName + " (" + esc(label) + ") " +
-    "adds harmonic color that sits outside the strictly diatonic chords — " +
+    "adds harmonic color that sits outside the strictly diatonic chords: " +
     "contributing variety and emotional depth to the progression.";
 }
 
@@ -864,11 +926,11 @@ function buildSpecialTeachText(s) {
   var chordName = esc(s.chordName);
 
   if (s.roman.borrowed) {
-    return chordName + " doesn't appear in <strong>" + esc(key.label) + "</strong> naturally — " +
+    return chordName + " doesn't appear in <strong>" + esc(key.label) + "</strong> naturally: " +
       "it comes from <strong>" + parallel + "</strong>, the same root but the opposite mode. " +
       "This technique is called <strong>modal interchange</strong> (or parallel mode borrowing): " +
       "you reach into the parallel key, borrow one of its chords, then return home. " +
-      "The borrowed chord stands out because one or more of its notes are outside the home scale — " +
+      "The borrowed chord stands out because one or more of its notes are outside the home scale: " +
       "but because the root movement stays familiar, the ear accepts it. " +
       "It sounds 'different but right.' " +
       "Modal interchange is one of the most effective tools for adding unexpected color " +
@@ -879,12 +941,12 @@ function buildSpecialTeachText(s) {
     var target = extractSecondaryTarget(s.roman.label) || "another chord";
     return "A <strong>secondary dominant</strong> is a V chord that resolves somewhere other than the tonic. " +
       "Here, " + chordName + " is acting as V of <strong>" + esc(target) + "</strong>. " +
-      "For one moment, it makes " + esc(target) + " sound like home — " +
+      "For one moment, it makes " + esc(target) + " sound like home: " +
       "a mini V→I cadence embedded inside the larger progression. " +
       "Secondary dominants work because the V→I relationship is acoustically strong: " +
       "the tritone resolves inward, the bass drops a 5th, and the ear hears arrival. " +
       "By applying that mechanism to any chord in the key, you create forward momentum " +
-      "and a feeling of harmonic sophistication — like the progression has its own internal logic.";
+      "and a feeling of harmonic sophistication: like the progression has its own internal logic.";
   }
 
   return "";
@@ -912,24 +974,34 @@ function buildNarrative(segments) {
 
   var parts = [];
 
-  if (hasSeq(["II","V","I"])) {
-    parts.push("<b>ii–V–I cadence</b> — the cornerstone of jazz and tonal harmony. The ii chord (subdominant) sets up expectation; V7 builds tension through its tritone; I resolves home. Learn this one — it's everywhere.");
+  if (DATA.resolutionSuggestions && DATA.resolutionSuggestions.length) {
+    DATA.resolutionSuggestions.forEach(function(s) {
+      parts.push("<b>Try next: " + esc(s.label) + "</b>: " + esc(s.reason));
+    });
+  }
+
+  if (DATA.progressions && DATA.progressions.length) {
+    DATA.progressions.forEach(function(p) {
+      parts.push("<b>" + esc(p.pattern) + "</b>: " + esc(p.description));
+    });
+  } else if (hasSeq(["II","V","I"])) {
+    parts.push("<b>ii to V to I cadence</b>: the cornerstone of jazz and tonal harmony. The ii chord (subdominant) sets up expectation; V7 builds tension through its tritone; I resolves home. Learn this one: it's everywhere.");
   } else if (hasSeq(["I","V","VI","IV"])) {
-    parts.push("<b>I–V–vi–IV</b> — one of the most-used progressions in modern music. Stable tonic → dominant energy → darker relative minor → subdominant color → repeat.");
+    parts.push("<b>I to V to vi to IV</b>: one of the most-used progressions in modern music. Stable tonic → dominant energy → darker relative minor → subdominant color → repeat.");
   } else if (hasSeq(["I","VI","IV","V"])) {
-    parts.push("<b>I–vi–IV–V</b> — the 50s/doo-wop progression. Tonic stability, a pivot to the relative minor, subdominant departure, then the dominant drives home.");
+    parts.push("<b>I to vi to IV to V</b>: the 50s/doo-wop progression. Tonic stability, a pivot to the relative minor, subdominant departure, then the dominant drives home.");
   } else if (hasSeq(["VI","IV","I","V"])) {
-    parts.push("<b>vi–IV–I–V</b> — a rotation of the four-chord pop progression, starting on the relative minor. Opens with melancholy that brightens when I arrives.");
+    parts.push("<b>vi to IV to I to V</b>: a rotation of the four-chord pop progression, starting on the relative minor. Opens with melancholy that brightens when I arrives.");
   } else if (hasSeq(["I","IV","V"])) {
-    parts.push("<b>I–IV–V</b> — the three primary harmonic functions in a single motion. The backbone of blues, rock, folk, and country.");
+    parts.push("<b>I to IV to V</b>: the three primary harmonic functions in a single motion. The backbone of blues, rock, folk, and country.");
   } else if (hasSeq(["IV","I"])) {
-    parts.push("Ends with a <b>IV→I plagal cadence</b> — the \"Amen\" cadence. Softer and more archaic-feeling than V→I; the subdominant resolves without the sharp pull of a dominant.");
+    parts.push("Ends with a <b>IV→I plagal cadence</b>: the \"Amen\" cadence. Softer and more archaic-feeling than V→I; the subdominant resolves without the sharp pull of a dominant.");
   } else if (hasSeq(["V","I"])) {
-    parts.push("Ends with an <b>authentic cadence (V→I)</b> — the most definitive harmonic arrival in western music. The dominant's tritone resolves, and the descending 5th root motion confirms the tonic.");
+    parts.push("Ends with an <b>authentic cadence (V→I)</b>: the most definitive harmonic arrival in western music. The dominant's tritone resolves, and the descending 5th root motion confirms the tonic.");
   }
 
   if (hasBorrowed) {
-    parts.push("The <b>borrowed chord(s)</b> are modal interchange — chords lifted from the parallel " + (DATA.key.scaleName === "major" ? "minor" : "major") + " key. This technique lets you pull in unexpected harmonic color while staying rooted in the key. Scaler often suggests these as 'outside' options.");
+    parts.push("The <b>borrowed chord(s)</b> are modal interchange: chords lifted from the parallel " + (DATA.key.scaleName === "major" ? "minor" : "major") + " key. This technique lets you pull in unexpected harmonic color while staying rooted in the key. Scaler often suggests these as 'outside' options.");
   }
   if (hasSecondary) {
     parts.push("<b>Secondary dominants</b> create brief local resolutions by treating a non-tonic chord as a temporary home and approaching it with its own V7. Each one is a micro-cadence that adds momentum and a feeling of harmonic sophistication.");
@@ -937,11 +1009,11 @@ function buildNarrative(segments) {
 
   if (!parts.length) {
     if (lastFn === "tonic") {
-      parts.push("The progression resolves to a <b>tonic chord</b> — a sense of arrival and completion. Even without a named template, the ear recognizes the return to stability.");
+      parts.push("The progression resolves to a <b>tonic chord</b>: a sense of arrival and completion. Even without a named template, the ear recognizes the return to stability.");
     } else if (lastFn === "dominant") {
-      parts.push("The progression ends on a <b>dominant chord</b> — an open, unresolved feeling. This is a half cadence: it leaves the listener in suspense, expecting continuation.");
+      parts.push("The progression ends on a <b>dominant chord</b>: an open, unresolved feeling. This is a half cadence: it leaves the listener in suspense, expecting continuation.");
     } else {
-      parts.push("A less common harmonic path. Each chord's function — tonic (rest), subdominant (departure), dominant (tension) — shapes the emotional arc. The colored bar on each card shows its role.");
+      parts.push("A less common harmonic path. Tonic means rest, subdominant means departure, and dominant means tension. Those functions shape the emotional arc. The colored bar on each card shows each chord's role.");
     }
   }
 

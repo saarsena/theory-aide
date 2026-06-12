@@ -225,7 +225,7 @@ var DATA = __AUDIT_JSON__;
 // ── Theme toggle ──────────────────────────────────────────────────────────
 (function() {
   var KEY = "ta-theme";
-  var saved = "dark";
+  var saved = "light";
   try { saved = localStorage.getItem(KEY) || "dark"; } catch(e) {}
   document.documentElement.setAttribute("data-theme", saved);
   var btn = document.getElementById("theme-btn");
@@ -258,13 +258,13 @@ function esc(s) {
 function adviceFor(r) {
   if (r.severity === "ok") {
     if (!r.inferredKey) return "Clip has too few notes for key inference.";
-    if (!DATA.scaleMode) return "Scale Mode is off — showing inferred key only.";
+    if (!DATA.scaleMode) return "Scale Mode is off: showing inferred key only.";
     return "Inferred key is compatible with the session key. No issues.";
   }
   if (r.severity === "warn") {
     if (r.outOfKeyPercent > 8) {
       return r.outOfKeyPercent + "% of notes fall outside " + (DATA.liveKey ? DATA.liveKey.label : "the key") +
-        ". These may be intentional passing tones or chromatic decorations — " +
+        ". These may be intentional passing tones or chromatic decorations: " +
         "review the clip if you suspect unintended dissonance.";
     }
     return "Inferred key is closely related to the session key (e.g. relative major/minor, dominant). " +
@@ -273,7 +273,7 @@ function adviceFor(r) {
   // error
   if (!r.inferredKey) {
     return "Could not detect a clear key in this clip. It may contain very sparse " +
-      "or highly chromatic content — check for accidental notes or stray MIDI.";
+      "or highly chromatic content: check for accidental notes or stray MIDI.";
   }
   if (r.outOfKeyPercent > 25) {
     return r.outOfKeyPercent + "% of notes fall outside " +
@@ -304,7 +304,7 @@ document.getElementById("sub").textContent =
     el.innerHTML = '<span class="key-badge">Session key: <b>' +
       esc(DATA.liveKey.label) + '</b></span>';
   } else {
-    el.innerHTML = '<span class="no-key">Scale Mode off — showing inferred keys only</span>';
+    el.innerHTML = '<span class="no-key">Scale Mode off: showing inferred keys only</span>';
   }
 })();
 
@@ -419,14 +419,14 @@ function renderResults() {
         '</div>' +
         '<div class="row-detail">' +
           '<div class="detail-grid">' +
-            '<dt>Inferred key</dt><dd>' + esc(r.inferredKey || "—") + '</dd>' +
+            '<dt>Inferred key</dt><dd>' + esc(r.inferredKey || "None") + '</dd>' +
             (DATA.liveKey
               ? '<dt>Session key</dt><dd>' + esc(DATA.liveKey.label) + '</dd>'
               : '') +
             '<dt>Notes out of key</dt><dd>' +
               (DATA.scaleMode
                 ? r.outOfKeyCount + ' / ' + r.noteCount + ' (' + r.outOfKeyPercent + '%)'
-                : '—') +
+                : 'None') +
             '</dd>' +
             '<dt>Location</dt><dd>' + esc(loc) + ' · ' +
               (r.isArrangement ? "Arrangement" : "Session") + '</dd>' +

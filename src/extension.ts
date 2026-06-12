@@ -20,6 +20,7 @@ import explainHtml   from "./explain.html";
 import referenceHtml from "./reference.html";
 import auditHtml     from "./audit.html";
 import primerHtml    from "./primer.html";
+import nextHtml      from "./next.html";
 
 type Ctx = ExtensionContext<"1.0.0">;
 
@@ -302,6 +303,29 @@ export function activate(activation: ActivationContext) {
         "theory.primer",
     );
 
+    // ── What Next: arrangement workflow after finding a good idea ─────────
+
+    context.commands.registerCommand("theory.whatNext", (_arg: unknown) =>
+        void (async () => {
+            await showHtml(context, nextHtml, "__NEXT_JSON__", {}, 820, 700);
+        })().catch(err => {
+            console.error("[theory-aide] what next failed:", err);
+            void showMessage(context, "Error", "Failed to open What Do I Do Next.");
+        }),
+    );
+
+    void context.ui.registerContextMenuAction(
+        "Scene",
+        "What Do I Do Next?…",
+        "theory.whatNext",
+    );
+
+    void context.ui.registerContextMenuAction(
+        "MidiClip",
+        "What Do I Do Next?…",
+        "theory.whatNext",
+    );
+
 
     // ── Session Audit: set-wide harmonic lint ─────────────────────────
 
@@ -369,7 +393,7 @@ export function activate(activation: ActivationContext) {
                     const { notes, start, end } = clipNotes(task.clip, task.trackName);
                     if (!notes.length) continue;
 
-                    // Neutral inference — no liveKey so we see what the clip *itself* suggests
+                    // Neutral inference: no liveKey so we see what the clip *itself* suggests
                     const analysis = analyzeTimeline(notes, start, end);
                     const bestKey = analysis.keyCandidates[0];
 

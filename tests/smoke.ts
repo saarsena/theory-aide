@@ -2,7 +2,7 @@
 // Golden values follow the chordgen-m4l / Composition Aide conventions.
 
 import { Chord, Scale, recognizeChord, noteName } from "../src/theory/core.js";
-import { inferKey, romanForChord, harmonicFunction } from "../src/theory/analyzer.js";
+import { inferKey, romanForChord, harmonicFunction, detectProgressions, type RomanLabel } from "../src/theory/analyzer.js";
 import { analyzeTimeline, type TimedNote } from "../src/theory/timeline.js";
 
 let failures = 0;
@@ -29,6 +29,14 @@ check("recognize Am7 when A is the bass",
     recognizeChord([57, 60, 64, 67], 1)[0]?.chord.name, "Am7");
 check("recognize C6 when C is the bass",
     recognizeChord([48, 57, 64, 67], 1)[0]?.chord.name, "C6");
+check("recognize Cadd9",
+    recognizeChord([60, 64, 67, 74], 1)[0]?.chord.name, "Cadd9");
+check("recognize Dm11",
+    recognizeChord([50, 53, 57, 60, 64, 67], 1)[0]?.chord.name, "Dm11");
+check("recognize G13",
+    recognizeChord([55, 59, 62, 65, 69, 76], 1)[0]?.chord.name, "G13");
+check("recognize G7sus4",
+    recognizeChord([55, 60, 62, 65], 1)[0]?.chord.name, "G7sus4");
 
 // ── Key inference ────────────────────────────────────────────────────
 
@@ -52,6 +60,18 @@ check("A7 in C = V7/ii", romanForChord(new Chord(9, "dominant7"), cMajor),
 check("function of F in C", harmonicFunction(new Chord(5, "major"), cMajor), "subdominant");
 check("function of G in C", harmonicFunction(new Chord(7, "major"), cMajor), "dominant");
 
+function r(label: string): RomanLabel {
+    return { label, borrowed: label.startsWith("b"), secondary: label.includes("/") };
+}
+check("detect ii-V-I", detectProgressions([r("ii7"), r("V7"), r("I")]).map(p => p.pattern), ["ii-V-I"]);
+check("detect I-V-vi-IV", detectProgressions([r("I"), r("V"), r("vi"), r("IV")]).map(p => p.pattern), ["I-V-vi-IV"]);
+check("detect I-vi-IV-V", detectProgressions([r("I"), r("vi"), r("IV"), r("V")]).map(p => p.pattern), ["I-vi-IV-V"]);
+check("detect vi-IV-I-V", detectProgressions([r("vi"), r("IV"), r("I"), r("V")]).map(p => p.pattern), ["vi-IV-I-V"]);
+check("detect i-bVII-bVI", detectProgressions([r("i"), r("bVII"), r("bVI")]).map(p => p.pattern), ["i-bVII-bVI"]);
+check("detect I-IV-V", detectProgressions([r("I"), r("IV"), r("V")]).map(p => p.pattern), ["I-IV-V"]);
+check("detect authentic cadence", detectProgressions([r("V7"), r("I")]).map(p => p.pattern), ["V-I"]);
+check("detect plagal cadence", detectProgressions([r("IV"), r("I")]).map(p => p.pattern), ["IV-I"]);
+
 // ── Timeline analysis ────────────────────────────────────────────────
 
 // Two tracks spelling C | F | G | C over 8 beats (2 beats per chord),
@@ -74,12 +94,16 @@ const tl = analyzeTimeline(notes, 0, 8);
 check("timeline chord sequence", tl.segments.map(s => s.chordName), ["C", "F", "G", "C"]);
 check("timeline key", tl.key.label, "C major");
 check("timeline romans", tl.segments.map(s => s.roman?.label), ["I", "IV", "V", "I"]);
+check("timeline progression labels", tl.progressions.map(p => p.pattern), ["I-IV-V"]);
 const fSeg = tl.segments[1];
 check("clash detected on F segment", fSeg?.outliers.map(o => o.name), ["F#"]);
 check("clash attributed to Bass", fSeg?.outliers[0]?.tracks, ["Bass"]);
 const cSeg = tl.segments[0];
 check("no clash on C segment", cSeg?.outliers.length, 0);
 check("tracks captured", tl.trackNames.sort(), ["Bass", "Keys"]);
+check("hard clash classified", fSeg?.outliers[0]?.kind, "hard_clash");
+check("hard clash explanation", fSeg?.outliers[0]?.severity, "warn");
+check("clash segment has higher tension", (fSeg?.tension ?? 0) > (cSeg?.tension ?? 0), true);
 
 // Live-key override: same notes, analyzed under Live's A minor.
 const aMinor = new Scale(9, "natural_minor");
@@ -90,6 +114,70 @@ check("live key used", tl2.key.source, "live");
 // C, F, G are the diatonic III, VI, VII of A natural minor.
 check("romans relative to A minor", tl2.segments.map(s => s.roman?.label),
     ["III", "VI", "VII", "III"]);
+
+const cMajorLive = { root: 0, scale: cMajor, label: "C major" };
+const borrowedFlatInC = analyzeTimeline([
+    n(63, 0, 1, "Keys"), n(67, 0, 1, "Keys"), n(70, 0, 1, "Keys"),
+], 0, 1, { liveKey: cMajorLive });
+check("borrowed flat chord spelling", borrowedFlatInC.segments[0]?.chordName, "Eb");
+check("borrowed flat chord tones", borrowedFlatInC.segments[0]?.chordToneNames, ["Eb", "G", "Bb"]);
+check("borrowed flat roman", borrowedFlatInC.segments[0]?.roman,
+    { label: "bIII", borrowed: true, secondary: false });
+
+const d7InC = analyzeTimeline([
+    n(50, 0, 2, "Keys"), n(54, 0, 2, "Keys"), n(57, 0, 2, "Keys"), n(60, 0, 2, "Keys"),
+], 0, 2, { liveKey: cMajorLive });
+check("outside-key chord tone classified",
+    d7InC.segments[0]?.outliers.map(o => [o.name, o.kind, o.severity]),
+    [["F#", "chord_tone_outside_key", "info"]]);
+check("secondary dominant resolution suggested",
+    d7InC.resolutionSuggestions.map(s => [s.label, s.targetRoman, s.targetChord]),
+    [["D7 -> G", "V", "G"]]);
+
+const cWithPassingTone = analyzeTimeline([
+    n(60, 0, 1, "Keys"), n(64, 0, 1, "Keys"), n(67, 0, 1, "Keys"), n(61, 0.1, 0.15, "Lead"),
+], 0, 1, { liveKey: cMajorLive });
+check("passing tone classified",
+    cWithPassingTone.segments[0]?.outliers.map(o => [o.name, o.kind, o.severity]),
+    [["C#", "passing_tone", "info"]]);
+
+const cWithWeakAdd9 = analyzeTimeline([
+    n(60, 0, 1, "Keys"), n(64, 0, 1, "Keys"), n(67, 0, 1, "Keys"), n(74, 0.1, 0.15, "Lead"),
+], 0, 1, { liveKey: cMajorLive });
+check("weak add9 does not overlabel triad", cWithWeakAdd9.segments[0]?.chordName, "C");
+
+const cWithStrongAdd9 = analyzeTimeline([
+    n(60, 0, 1, "Keys"), n(64, 0, 1, "Keys"), n(67, 0, 1, "Keys"), n(74, 0, 1, "Lead"),
+], 0, 1, { liveKey: cMajorLive });
+check("strong add9 labels chord color", cWithStrongAdd9.segments[0]?.chordName, "Cadd9");
+
+const gInC = analyzeTimeline([
+    n(55, 0, 2, "Keys"), n(59, 0, 2, "Keys"), n(62, 0, 2, "Keys"),
+], 0, 2, { liveKey: cMajorLive });
+check("dominant ending resolution suggested",
+    gInC.resolutionSuggestions.map(s => [s.label, s.targetRoman, s.targetChord]),
+    [["G -> C", "I", "C"]]);
+
+const cLydianColor = analyzeTimeline([
+    n(60, 0, 1, "Keys"), n(64, 0, 1, "Keys"), n(67, 0, 1, "Keys"), n(66, 0, 1, "Lead"),
+], 0, 1, { liveKey: cMajorLive });
+check("lydian color detected", cLydianColor.modalColors.map(m => [m.mode, m.note]), [["lydian", "F#"]]);
+
+const cMixolydianColor = analyzeTimeline([
+    n(60, 0, 1, "Keys"), n(64, 0, 1, "Keys"), n(67, 0, 1, "Keys"), n(70, 0, 1, "Lead"),
+], 0, 1, { liveKey: cMajorLive });
+check("mixolydian color detected", cMixolydianColor.modalColors.map(m => [m.mode, m.note]), [["mixolydian", "Bb"]]);
+
+const aMinorLive = { root: 9, scale: aMinor, label: "A minor" };
+const aDorianColor = analyzeTimeline([
+    n(57, 0, 1, "Keys"), n(60, 0, 1, "Keys"), n(64, 0, 1, "Keys"), n(66, 0, 1, "Lead"),
+], 0, 1, { liveKey: aMinorLive });
+check("dorian color detected", aDorianColor.modalColors.map(m => [m.mode, m.note]), [["dorian", "F#"]]);
+
+const aPhrygianColor = analyzeTimeline([
+    n(57, 0, 1, "Keys"), n(60, 0, 1, "Keys"), n(64, 0, 1, "Keys"), n(58, 0, 1, "Lead"),
+], 0, 1, { liveKey: aMinorLive });
+check("phrygian color detected", aPhrygianColor.modalColors.map(m => [m.mode, m.note]), [["phrygian", "Bb"]]);
 
 console.log(failures ? `\n${failures} failure(s)` : "\nall ok");
 process.exit(failures ? 1 : 0);

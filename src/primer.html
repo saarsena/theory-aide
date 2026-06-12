@@ -244,7 +244,7 @@
     <p>When Scaler generates a chord progression, it's pattern-matching against centuries of accumulated theory. <strong>Theory Aide's job is to decode what it generated and explain why those choices work, grounded in the physics and psychology of sound, not arbitrary rules.</strong></p>
 
     <div class="callout blue">
-      <strong>Theory is a description of physics + culture.</strong> Some of it (consonance, the octave) is universal, shared across almost all musical cultures because it emerges from the mathematics of vibrating strings. Some of it (the major scale, the ii–V–I, the 4/4 time signature) is culturally inherited: patterns that Western music developed over the last 500 years. Both kinds are worth understanding.
+      <strong>Theory is a description of physics + culture.</strong> Some of it (consonance, the octave) is universal, shared across almost all musical cultures because it emerges from the mathematics of vibrating strings. Some of it (the major scale, the ii to V to I, the 4/4 time signature) is culturally inherited: patterns that Western music developed over the last 500 years. Both kinds are worth understanding.
     </div>
   </div>
 
@@ -364,7 +364,7 @@ var DATA = __PRIMER_JSON__;
 // ── Theme toggle ──────────────────────────────────────────────────────────
 (function() {
   var KEY = "ta-theme";
-  var saved = "dark";
+  var saved = "light";
   try { saved = localStorage.getItem(KEY) || "dark"; } catch(e) {}
   document.documentElement.setAttribute("data-theme", saved);
   var btn = document.getElementById("theme-btn");
@@ -578,7 +578,7 @@ function findLcmFreq(f1, f2) {
     "You're working in " + key.label + ". Here are the " + DATA.scaleNotes.length +
     " notes that define this scale, picked from the 12 available, and why they work together.";
 
-  // Piano keyboard (two octaves: C4–C6)
+  // Piano keyboard (two octaves: C4 to C6)
   buildPiano(DATA.scaleNotes, key.root);
 
   // Step formula

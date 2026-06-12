@@ -160,6 +160,200 @@ function scalePatternExists(name: string): boolean {
     }
 }
 
+// ── Progression labelling ───────────────────────────────────────────
+
+export interface ProgressionMatch {
+    label: string;
+    pattern: string;
+    description: string;
+    startSegment: number;
+    endSegment: number;
+}
+
+interface ProgressionTemplate {
+    degrees: string[];
+    pattern: string;
+    label: string;
+    description: string;
+}
+
+const PROGRESSION_TEMPLATES: ProgressionTemplate[] = [
+    {
+        degrees: ["II", "V", "I"],
+        pattern: "ii-V-I",
+        label: "ii-V-I cadence",
+        description: "A classic subdominant-to-dominant-to-tonic resolution: setup, tension, arrival.",
+    },
+    {
+        degrees: ["I", "V", "VI", "IV"],
+        pattern: "I-V-vi-IV",
+        label: "four-chord pop loop",
+        description: "Stable tonic, dominant lift, relative-minor color, then subdominant motion back around.",
+    },
+    {
+        degrees: ["I", "VI", "IV", "V"],
+        pattern: "I-vi-IV-V",
+        label: "50s progression",
+        description: "A doo-wop loop: tonic, relative minor, subdominant departure, dominant return.",
+    },
+    {
+        degrees: ["VI", "IV", "I", "V"],
+        pattern: "vi-IV-I-V",
+        label: "minor-start pop loop",
+        description: "A rotation of the pop loop that opens on the darker relative minor before brightening.",
+    },
+    {
+        degrees: ["I", "bVII", "bVI"],
+        pattern: "i-bVII-bVI",
+        label: "minor modal descent",
+        description: "A descending borrowed-color move common in rock, electronic, and cinematic minor harmony.",
+    },
+    {
+        degrees: ["I", "IV", "V"],
+        pattern: "I-IV-V",
+        label: "primary-chord progression",
+        description: "The three core functions in one path: tonic, subdominant, dominant.",
+    },
+    {
+        degrees: ["V", "I"],
+        pattern: "V-I",
+        label: "authentic cadence",
+        description: "The strongest tonal arrival: dominant tension resolving back to the tonic.",
+    },
+    {
+        degrees: ["IV", "I"],
+        pattern: "IV-I",
+        label: "plagal cadence",
+        description: "A softer subdominant-to-tonic arrival, often called the Amen cadence.",
+    },
+];
+
+function progressionDegree(label: string): string | null {
+    const local = label.split("/")[0] ?? "";
+    const match = local.match(/^([b#]?)([ivIV]+)/);
+    if (!match) return null;
+    const accidental = match[1] ?? "";
+    const roman = (match[2] ?? "").toUpperCase();
+    if (!roman) return null;
+    return accidental + roman;
+}
+
+function overlapsUsed(start: number, end: number, used: Set<number>): boolean {
+    for (let i = start; i <= end; i++) {
+        if (used.has(i)) return true;
+    }
+    return false;
+}
+
+export function detectProgressions(romans: readonly (RomanLabel | null)[]): ProgressionMatch[] {
+    const degrees = romans.map(r => r ? progressionDegree(r.label) : null);
+    const matches: ProgressionMatch[] = [];
+    const used = new Set<number>();
+
+    for (const template of PROGRESSION_TEMPLATES) {
+        for (let start = 0; start <= degrees.length - template.degrees.length; start++) {
+            const end = start + template.degrees.length - 1;
+            if (overlapsUsed(start, end, used)) continue;
+
+            const ok = template.degrees.every((degree, offset) =>
+                degrees[start + offset] === degree);
+            if (!ok) continue;
+
+            for (let i = start; i <= end; i++) used.add(i);
+            matches.push({
+                label: template.label,
+                pattern: template.pattern,
+                description: template.description,
+                startSegment: start,
+                endSegment: end,
+            });
+        }
+    }
+
+    return matches.sort((a, b) => a.startSegment - b.startSegment || a.endSegment - b.endSegment);
+}
+
+// ── Resolution suggestions ─────────────────────────────────────────
+
+export interface ResolutionSuggestion {
+    label: string;
+    fromSegment: number;
+    fromChord: string;
+    targetRoman: string;
+    targetChord: string;
+    reason: string;
+}
+
+const ROMAN_TO_INDEX: Record<string, number> = {
+    I: 0,
+    II: 1,
+    III: 2,
+    IV: 3,
+    V: 4,
+    VI: 5,
+    VII: 6,
+};
+
+function romanDegreeIndex(label: string): number | null {
+    const match = label.match(/[ivIV]+/);
+    if (!match) return null;
+    return ROMAN_TO_INDEX[match[0].toUpperCase()] ?? null;
+}
+
+function secondaryTarget(label: string): string | null {
+    const parts = label.split("/");
+    return parts.length > 1 ? (parts[1] ?? null) : null;
+}
+
+function diatonicChordName(scale: Scale, degreeIdx: number, useFlats: boolean): string | null {
+    const chord = buildDiatonicChords(scale, false)[degreeIdx];
+    return chord ? chord.getName(useFlats) : null;
+}
+
+export function suggestResolutionForEnding(
+    roman: RomanLabel | null,
+    fn: HarmonicFunction,
+    scale: Scale,
+    fromSegment: number,
+    fromChord: string | null,
+    useFlats = false,
+): ResolutionSuggestion[] {
+    if (!roman || !fromChord) return [];
+
+    if (roman.secondary) {
+        const targetRoman = secondaryTarget(roman.label);
+        const targetIdx = targetRoman ? romanDegreeIndex(targetRoman) : null;
+        const targetChord = targetIdx === null ? null : diatonicChordName(scale, targetIdx, useFlats);
+        if (!targetRoman || !targetChord) return [];
+
+        return [{
+            label: `${fromChord} -> ${targetChord}`,
+            fromSegment,
+            fromChord,
+            targetRoman,
+            targetChord,
+            reason: `${roman.label} is a secondary dominant. It points at ${targetRoman} as a temporary home.`,
+        }];
+    }
+
+    const baseIdx = romanDegreeIndex(roman.label);
+    if (baseIdx === 4 || fn === "dominant") {
+        const targetChord = diatonicChordName(scale, 0, useFlats);
+        if (!targetChord) return [];
+
+        return [{
+            label: `${fromChord} -> ${targetChord}`,
+            fromSegment,
+            fromChord,
+            targetRoman: "I",
+            targetChord,
+            reason: "This ends on dominant function, so the ear usually expects a return to the tonic.",
+        }];
+    }
+
+    return [];
+}
+
 // ── Harmonic function ───────────────────────────────────────────────
 
 export type HarmonicFunction = "tonic" | "subdominant" | "dominant" | null;

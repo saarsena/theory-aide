@@ -82,6 +82,12 @@
   .fn-tonic       { background: var(--tonic); }
   .fn-subdominant { background: var(--subdom); }
   .fn-dominant    { background: var(--dom); }
+  .tension-wrap { flex-shrink: 0; height: 18px; overflow-x: auto; overflow-y: hidden; }
+  .tension-wrap::-webkit-scrollbar { height: 4px; }
+  .tension-wrap::-webkit-scrollbar-track { background: transparent; }
+  .tension-wrap::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 2px; }
+  .tension { display: flex; gap: 2px; height: 12px; align-items: stretch; }
+  .tension-cell { border-radius: 2px; flex-shrink: 0; min-width: 48px; }
 
   /* ── Table ── */
   .table-wrap { flex: 1; min-height: 0; overflow: hidden; }
@@ -95,6 +101,7 @@
   .pill.secondary { background: #2d3a4d; color: #8fc1ff; }
   .pill.fn { background: var(--panel); border: 1px solid var(--line); color: var(--dim); }
   .warnline { color: var(--warn); font-size: 11.5px; }
+  .infoline { color: var(--dim); font-size: 11.5px; }
   .dimtext { color: var(--dim); }
 
   /* ── Pager ── */
@@ -130,6 +137,7 @@
   </div>
 
   <div class="strip-wrap"><div class="strip" id="strip"></div></div>
+  <div class="tension-wrap" title="Tension score"><div class="tension" id="tension"></div></div>
 
   <div class="table-wrap">
     <table>
@@ -165,7 +173,7 @@ var currentPage = 0;
 // ── Theme toggle ──────────────────────────────────────────────────────────
 (function() {
   var KEY = "ta-theme";
-  var saved = "dark";
+  var saved = "light";
   try { saved = localStorage.getItem(KEY) || "dark"; } catch(e) {}
   document.documentElement.setAttribute("data-theme", saved);
   var btn = document.getElementById("theme-btn");
@@ -203,10 +211,13 @@ function fnLabel(fn) {
        : fn === "subdominant" ? "S · subdominant"
        : fn === "dominant" ? "D · dominant" : "";
 }
+function hasHardWarning(s) {
+  return !!(s.outliers && s.outliers.some(function(o) { return o.severity === "warn"; }));
+}
 
 // ── Header ────────────────────────────────────────────────────────────
 document.getElementById("sub").textContent =
-  "Bars " + bars(DATA.rangeStart) + " – " + bars(DATA.rangeEnd) + "  ·  " +
+  "Bars " + bars(DATA.rangeStart) + " to " + bars(DATA.rangeEnd) + "  ·  " +
   DATA.trackNames.length + " track(s): " + DATA.trackNames.join(", ") +
   "  ·  " + DATA.noteCount + " notes";
 
@@ -218,22 +229,29 @@ if (DATA.key.source === "live" && DATA.inferredAgrees === false && DATA.keyCandi
   keyHtml += '<span class="keybadge mismatch">⚠ content suggests ' +
     esc(DATA.keyCandidates[0].label) + "</span>";
 }
+if (DATA.modalColors && DATA.modalColors.length) {
+  keyHtml += DATA.modalColors.map(function(m) {
+    return '<span class="keybadge">Modal color: <b>' + esc(m.mode) +
+      '</b> ' + esc(m.note) + '</span>';
+  }).join("");
+}
 keysEl.innerHTML = keyHtml;
 
 // ── Chord strip ───────────────────────────────────────────────────────
 var PX_PER_BEAT = 26;
 var stripEl = document.getElementById("strip");
+var tensionEl = document.getElementById("tension");
 var stripCells = [];
 
 DATA.segments.forEach(function(s, idx) {
   var div = document.createElement("div");
   var dur = Math.max(s.end - s.start, 0.5);
-  div.className = "seg" + (s.outliers.length ? " clash" : "");
+  div.className = "seg" + (hasHardWarning(s) ? " clash" : "");
   div.style.width = Math.max(48, Math.round(dur * PX_PER_BEAT)) + "px";
   var fnClass = s.fn ? " fn-" + s.fn : "";
   div.innerHTML =
     (s.fn ? '<div class="fnbar' + fnClass + '"></div>' : "") +
-    '<div class="chord">' + esc(s.chordName || "—") + "</div>" +
+    '<div class="chord">' + esc(s.chordName || "None") + "</div>" +
     '<div class="roman">' + esc(s.roman ? s.roman.label : "") + "</div>" +
     '<div class="beats">' + bars(s.start) + "</div>";
   div.addEventListener("click", function() {
@@ -242,6 +260,14 @@ DATA.segments.forEach(function(s, idx) {
   });
   stripEl.appendChild(div);
   stripCells.push(div);
+
+  var t = document.createElement("div");
+  t.className = "tension-cell";
+  t.style.width = div.style.width;
+  t.style.background = s.tension >= 70 ? "var(--warn)" : s.tension >= 35 ? "var(--dom)" : "var(--tonic)";
+  t.style.opacity = String(0.25 + Math.min(100, s.tension || 0) / 135);
+  t.title = "Tension " + (s.tension || 0) + " of 100, density " + (s.density || 0);
+  tensionEl.appendChild(t);
 });
 
 // ── Table + pagination ────────────────────────────────────────────────
@@ -262,13 +288,15 @@ function renderPage() {
     if (s.fn)                         pills += '<span class="pill fn">' + fnLabel(s.fn) + "</span>";
     var warn = s.outliers.length
       ? s.outliers.map(function(o) {
-          return '<div class="warnline">' + esc(o.name) + " out of key — " +
+          var cls = o.severity === "warn" ? "warnline" : "infoline";
+          return '<div class="' + cls + '">' + esc(o.name) + ": " +
+                 esc(o.explanation || "Outside the key.") + ": " +
                  esc(o.tracks.join(", ")) + "</div>";
         }).join("")
-      : '<span class="dimtext">—</span>';
+      : '<span class="dimtext">None</span>';
     tr.innerHTML =
-      "<td>" + bars(s.start) + "–" + bars(s.end) + "</td>" +
-      "<td><b>" + esc(s.chordName || "—") + "</b></td>" +
+      "<td>" + bars(s.start) + " to " + bars(s.end) + "</td>" +
+      "<td><b>" + esc(s.chordName || "None") + "</b></td>" +
       '<td class="roman">' + esc(s.roman ? s.roman.label : "") + "</td>" +
       "<td>" + pills + "</td>" +
       '<td class="dimtext">' + esc(s.pcNames.join(" ")) + "</td>" +
@@ -281,7 +309,7 @@ function renderPage() {
   if (totalPages > 1) {
     document.getElementById("page-info").textContent =
       "Page " + (currentPage + 1) + " of " + totalPages +
-      "  ·  segments " + (pageStart + 1) + "–" + pageEnd;
+      "  ·  segments " + (pageStart + 1) + " to " + pageEnd;
     document.getElementById("prev").disabled = currentPage === 0;
     document.getElementById("next").disabled = currentPage >= totalPages - 1;
   }
@@ -289,7 +317,7 @@ function renderPage() {
   stripCells.forEach(function(cell, idx) {
     var onPage = idx >= pageStart && idx < pageEnd;
     cell.classList.toggle("onpage", onPage);
-    cell.classList.toggle("clash", DATA.segments[idx].outliers.length > 0);
+    cell.classList.toggle("clash", hasHardWarning(DATA.segments[idx]));
   });
   if (stripCells[pageStart]) {
     stripCells[pageStart].scrollIntoView({ inline: "start", block: "nearest" });
@@ -304,9 +332,22 @@ function changePage(delta) {
 document.getElementById("prev").addEventListener("click", function() { changePage(-1); });
 document.getElementById("next").addEventListener("click", function() { changePage(1); });
 
-document.getElementById("cands").textContent = DATA.keyCandidates.length > 1
-  ? "Also considered: " + DATA.keyCandidates.slice(1, 3).map(function(k) { return k.label; }).join("  ·  ")
-  : "";
+var footerBits = [];
+if (DATA.progressions && DATA.progressions.length) {
+  footerBits.push("Progressions: " + DATA.progressions.map(function(p) {
+    return p.pattern + " (" + p.label + ")";
+  }).join("  ·  "));
+}
+if (DATA.resolutionSuggestions && DATA.resolutionSuggestions.length) {
+  footerBits.push("Try next: " + DATA.resolutionSuggestions.map(function(s) {
+    return s.label;
+  }).join("  ·  "));
+}
+if (DATA.keyCandidates.length > 1) {
+  footerBits.push("Also considered: " +
+    DATA.keyCandidates.slice(1, 3).map(function(k) { return k.label; }).join("  ·  "));
+}
+document.getElementById("cands").textContent = footerBits.join("  ·  ");
 
 renderPage();
 </script>

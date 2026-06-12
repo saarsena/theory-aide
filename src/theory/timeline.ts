@@ -7,11 +7,15 @@ import { Chord, Scale, mod12, noteName, recognizeChord } from "./core.js";
 import {
     KeyCandidate,
     RomanLabel,
+    ProgressionMatch,
+    ResolutionSuggestion,
     HarmonicFunction,
+    detectProgressions,
     harmonicFunction,
     inferKey,
     romanForChord,
     keyLabel,
+    suggestResolutionForEnding,
 } from "./analyzer.js";
 
 /** A note placed on an absolute beat timeline, tagged with its source track. */
@@ -25,11 +29,19 @@ export interface TimedNote {
     track: string;
 }
 
+function chordDisplayUsesFlats(roman: RomanLabel | null, keyUseFlats: boolean): boolean {
+    if (roman?.borrowed && roman.label.includes("b")) return true;
+    return keyUseFlats;
+}
+
 export interface Outlier {
     pc: number;
     name: string;
     /** True when the note is outside the key scale entirely (not just the chord). */
     outOfKey: boolean;
+    kind: "passing_tone" | "chord_extension" | "chord_tone_outside_key" | "hard_clash";
+    severity: "info" | "warn";
+    explanation: string;
     tracks: string[];
 }
 
@@ -53,6 +65,16 @@ export interface Segment {
     quality: string | null;
     /** Note names of chord tones in root-position order. */
     chordToneNames: string[];
+    /** Compact 0 to 100 estimate of harmonic tension for visualization. */
+    tension: number;
+    /** Number of distinct sounding pitch classes in the segment. */
+    density: number;
+}
+
+export interface ModalColor {
+    mode: "dorian" | "phrygian" | "lydian" | "mixolydian";
+    note: string;
+    description: string;
 }
 
 export interface TimelineAnalysis {
@@ -70,6 +92,12 @@ export interface TimelineAnalysis {
     scaleNotes: number[];
     /** Note names of the key scale. */
     scaleNoteNames: string[];
+    /** Common progression/cadence matches found in consecutive segments. */
+    progressions: ProgressionMatch[];
+    /** Likely next-chord moves when the selected range ends unresolved. */
+    resolutionSuggestions: ResolutionSuggestion[];
+    /** Characteristic modal notes found against the chosen key center. */
+    modalColors: ModalColor[];
 }
 
 interface Slice {
@@ -88,6 +116,96 @@ interface Slice {
 /** Pitch classes weaker than this fraction of the strongest one are treated
  *  as passing tones and excluded from chord matching (but still reported). */
 const PASSING_TONE_RATIO = 0.2;
+
+function classifyOutlier(
+    pc: number,
+    weight: number,
+    maxWeight: number,
+    chord: Chord | null,
+    inChord: boolean,
+): Pick<Outlier, "kind" | "severity" | "explanation"> {
+    if (chord && inChord) {
+        return {
+            kind: "chord_tone_outside_key",
+            severity: "info",
+            explanation: "Outside the key, but it belongs to the detected chord. This is color, not a clash.",
+        };
+    }
+
+    if (weight < maxWeight * PASSING_TONE_RATIO) {
+        return {
+            kind: "passing_tone",
+            severity: "info",
+            explanation: "Brief or lightly weighted against the harmony, so it may be a passing tone or ornament.",
+        };
+    }
+
+    if (chord) {
+        const interval = mod12(pc - chord.root);
+        if ([2, 5, 9, 10, 11].includes(interval)) {
+            return {
+                kind: "chord_extension",
+                severity: "info",
+                explanation: "Outside the triad shape, but it resembles an added chord color such as a 9th, 11th, 13th, or 7th.",
+            };
+        }
+    }
+
+    return {
+        kind: "hard_clash",
+        severity: "warn",
+        explanation: "Outside both the key and detected chord, and strong enough to sound like a real clash.",
+    };
+}
+
+function tensionForSegment(
+    chord: Chord | null,
+    pcs: readonly number[],
+    outliers: readonly Outlier[],
+): number {
+    let score = Math.max(0, pcs.length - 3) * 8;
+
+    for (const outlier of outliers) {
+        score += outlier.severity === "warn" ? 35 : 10;
+    }
+
+    if (chord) {
+        if (["diminished", "dim7"].includes(chord.quality)) score += 50;
+        else if (chord.quality === "half-dim7") score += 45;
+        else if (chord.quality === "augmented") score += 40;
+        else if (chord.quality.startsWith("dominant")) score += 35;
+        else if (["major7", "minor7", "major9", "minor9", "add9"].includes(chord.quality)) score += 15;
+        else if (["minor11", "dominant11", "major13", "minor13", "dominant13"].includes(chord.quality)) score += 25;
+    }
+
+    return Math.min(100, Math.round(score));
+}
+
+function detectModalColors(
+    notePcs: readonly number[],
+    key: TimelineAnalysis["key"],
+    useFlats: boolean,
+): ModalColor[] {
+    const pcs = new Set(notePcs.map(mod12));
+    const root = key.root;
+    const found: ModalColor[] = [];
+
+    const add = (mode: ModalColor["mode"], pc: number, preferFlats: boolean, description: string) => {
+        if (pcs.has(mod12(pc))) {
+            found.push({ mode, note: noteName(pc, preferFlats || useFlats), description });
+        }
+    };
+
+    if (key.scaleName === "major") {
+        add("lydian", root + 6, false, "Raised 4th color against a major key center.");
+        add("mixolydian", root + 10, true, "Flat 7th color against a major key center.");
+    } else if (key.scaleName === "natural_minor") {
+        add("dorian", root + 9, false, "Natural 6th color against a minor key center.");
+        add("phrygian", root + 1, true, "Flat 2nd color against a minor key center.");
+    }
+
+    return found;
+}
 
 function buildSlices(
     notes: readonly TimedNote[],
@@ -265,18 +383,24 @@ export function analyzeTimeline(
         const pcs = [...weights.entries()]
             .sort((a, b) => b[1] - a[1])
             .map(([pc]) => pc);
+        const maxWeight = weights.size ? Math.max(...weights.values()) : 0;
 
         const chord = first.chord;
         const chordPcs = chord ? new Set(chord.pitchClasses) : null;
+        const roman = chord ? romanForChord(chord, scale) : null;
+        const chordUseFlats = chordDisplayUsesFlats(roman, useFlats);
 
         const outliers: Outlier[] = [];
         for (const pc of pcs) {
-            if (scale.contains(pc)) continue;
-            if (chordPcs?.has(pc)) continue;
+            const inKey = scale.contains(pc);
+            const inChord = chordPcs?.has(pc) ?? false;
+            if (inKey) continue;
+            const classification = classifyOutlier(pc, weights.get(pc) ?? 0, maxWeight, chord, inChord);
             outliers.push({
                 pc,
                 name: noteName(pc, useFlats),
                 outOfKey: true,
+                ...classification,
                 tracks: [...(pcTracks.get(pc) ?? [])].sort(),
             });
         }
@@ -288,21 +412,35 @@ export function analyzeTimeline(
             start: first.start,
             end: last.end,
             chord,
-            chordName: chord ? chord.getName(useFlats) : null,
+            chordName: chord ? chord.getName(chordUseFlats) : null,
             confidence: first.confidence,
-            roman: chord ? romanForChord(chord, scale) : null,
+            roman,
             fn: chord ? harmonicFunction(chord, scale) : null,
             pcs,
-            pcNames: pcs.map(pc => noteName(pc, useFlats)),
+            pcNames: pcs.map(pc => noteName(pc, chordUseFlats)),
             outliers,
             tracks: [...segTracks].sort(),
             intervals: chord ? chord.intervals : [],
             quality: chord ? chord.quality : null,
             chordToneNames: chord
-                ? chord.intervals.map(iv => noteName(mod12(chord.root + iv), useFlats))
+                ? chord.intervals.map(iv => noteName(mod12(chord.root + iv), chordUseFlats))
                 : [],
+            tension: tensionForSegment(chord, pcs, outliers),
+            density: pcs.length,
         });
     }
+
+    const lastSegment = segments[segments.length - 1] ?? null;
+    const resolutionSuggestions = lastSegment
+        ? suggestResolutionForEnding(
+            lastSegment.roman,
+            lastSegment.fn,
+            scale,
+            segments.length - 1,
+            lastSegment.chordName,
+            useFlats,
+        )
+        : [];
 
     return {
         rangeStart,
@@ -318,5 +456,8 @@ export function analyzeTimeline(
         noteCount: notes.length,
         scaleNotes: scale.notes,
         scaleNoteNames: scale.notes.map(pc => noteName(pc, useFlats)),
+        progressions: detectProgressions(segments.map(s => s.roman)),
+        resolutionSuggestions,
+        modalColors: detectModalColors(notes.map(n => n.pitch), key, useFlats),
     };
 }

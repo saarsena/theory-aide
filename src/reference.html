@@ -288,7 +288,7 @@ var DATA = __REFERENCE_JSON__;
 // ── Theme ─────────────────────────────────────────────────────────────
 (function() {
   var KEY = "ta-theme";
-  var saved = "dark";
+  var saved = "light";
   try { saved = localStorage.getItem(KEY) || "dark"; } catch(e) {}
   document.documentElement.setAttribute("data-theme", saved);
   var btn = document.getElementById("theme-btn");
@@ -343,7 +343,7 @@ var root    = DATA.key.root || 0;
   var el = document.getElementById("keysrc");
   el.innerHTML = DATA.key.source === "live"
     ? '<span class="keybadge"><b>' + esc(DATA.key.label) + '</b></span>'
-    : '<span class="no-key-warn">Scale Mode off — showing C major defaults</span>';
+    : '<span class="no-key-warn">Scale Mode off: showing C major defaults</span>';
 })();
 
 // ════════════════════════════════════════════════════════════
@@ -399,7 +399,7 @@ function buildPiano(scalePCs, rootPC) {
   var stepNames = {2:"W", 1:"H", 3:"W+H"};
   var stepFlags = {2:"w", 1:"h", 3:"m"};
   var formulaHtml = formula.map(function(s, i) {
-    return (i ? '<span class="step-sep">–</span>' : '') +
+    return (i ? '<span class="step-sep"> to </span>' : '') +
            '<span class="step ' + (stepFlags[s]||"") + '">' + (stepNames[s]||s) + '</span>';
   }).join("");
 
@@ -443,21 +443,21 @@ function buildPiano(scalePCs, rootPC) {
 
 var JAZZ_NOTES_MAJOR = [
   "Tonic home. Land on <strong>maj7</strong> in jazz. Extensions: maj9, 6/9, maj7♯11 (Lydian color).",
-  "Pre-dominant workhorse. <strong>ii7–V7–Imaj7</strong> is the jazz cadence — ii almost always moves to V7. Extensions: m9, m11.",
-  "Tonic substitute — shares two notes with I. Good passing chord in I–iii–IV. Rarely used as a goal.",
-  "Subdominant anchor. <strong>IV–I</strong> (plagal) feels archaic; <strong>IV–V–I</strong> is ubiquitous. Minor iv (borrowed) adds darker color.",
-  "Dominant: the tritone between the 3rd and ♭7 demands resolution. Always <strong>V7</strong> in jazz. Alterations — V7♭9, V7♯9, V7♭13 — sharpen the pull.",
+  "Pre-dominant workhorse. <strong>ii7 to V7 to Imaj7</strong> is the jazz cadence: ii almost always moves to V7. Extensions: m9, m11.",
+  "Tonic substitute: shares two notes with I. Good passing chord in I to iii to IV. Rarely used as a goal.",
+  "Subdominant anchor. <strong>IV to I</strong> (plagal) feels archaic; <strong>IV to V to I</strong> is ubiquitous. Minor iv (borrowed) adds darker color.",
+  "Dominant: the tritone between the 3rd and ♭7 demands resolution. Always <strong>V7</strong> in jazz. Alterations: V7♭9, V7♯9, V7♭13: sharpen the pull.",
   "Relative minor. Tonic substitute sharing two notes with I and IV. Provides a darker pivot without leaving the key.",
-  "Leading-tone chord. Strong pull to I via the built-in tritone. In jazz V7♭9 contains this dim7 as a subset — often preferred.",
+  "Leading-tone chord. Strong pull to I via the built-in tritone. In jazz V7♭9 contains this dim7 as a subset: often preferred.",
 ];
 var JAZZ_NOTES_MINOR = [
   "Tonic home. Land on <strong>m7</strong> (or m(maj7) for harmonic color). Extensions: m9, m11.",
-  "Pre-dominant in minor. <strong>iiø7–V7–i</strong> is the jazz minor cadence. The ø7 is darker than a plain m7.",
-  "Relative major — same notes as the key's relative major tonic. Used in descending bass lines and as a brightness pivot.",
-  "Minor subdominant (iv). Diatonic here; heavily used in classical minor cadences (iv–V–i).",
-  "Natural minor has a minor v, but <strong>harmonic minor raises the 7th</strong> to create a major V — that leading tone is what pulls back to i.",
-  "Major chord on ♭6. Relative major's IV. Adds brightness inside minor; common in i–VI–III–VII loops.",
-  "Subtonic (♭VII). No leading-tone pull. Natural minor loop staple — rock, modal. Contrast with the raised 7th in harmonic minor.",
+  "Pre-dominant in minor. <strong>iiø7 to V7 to i</strong> is the jazz minor cadence. The ø7 is darker than a plain m7.",
+  "Relative major: same notes as the key's relative major tonic. Used in descending bass lines and as a brightness pivot.",
+  "Minor subdominant (iv). Diatonic here; heavily used in classical minor cadences (iv to V to i).",
+  "Natural minor has a minor v, but <strong>harmonic minor raises the 7th</strong> to create a major V: that leading tone is what pulls back to i.",
+  "Major chord on ♭6. Relative major's IV. Adds brightness inside minor; common in i to VI to III to VII loops.",
+  "Subtonic (♭VII). No leading-tone pull. Natural minor loop staple: rock, modal. Contrast with the raised 7th in harmonic minor.",
 ];
 var JAZZ_NOTES = isMinor ? JAZZ_NOTES_MINOR : JAZZ_NOTES_MAJOR;
 
@@ -495,34 +495,34 @@ var FN_LABEL = { tonic:"Tonic", subdominant:"Subdominant", dominant:"Dominant" }
 // ════════════════════════════════════════════════════════════
 
 var MAJOR_PROGS = [
-  { indices:[1,4,0], name:"ii–V–I",
-    desc:"The jazz cadence. <strong>ii7–V7–Imaj7</strong> is the engine of jazz harmony. The tritone in V7 resolves inward to I. Appears in hundreds of jazz standards in every key." },
-  { indices:[0,5,1,4], name:"I–vi–ii–V",
-    desc:"<strong>Rhythm Changes</strong> A section — Gershwin's 'I Got Rhythm' and hundreds of standards. In jazz: Imaj7–vi7–ii7–V7. The vi provides a smooth minor pivot before the ii–V cadence." },
-  { indices:[0,4,5,3], name:"I–V–vi–IV",
+  { indices:[1,4,0], name:"ii to V to I",
+    desc:"The jazz cadence. <strong>ii7 to V7 to Imaj7</strong> is the engine of jazz harmony. The tritone in V7 resolves inward to I. Appears in hundreds of jazz standards in every key." },
+  { indices:[0,5,1,4], name:"I to vi to ii to V",
+    desc:"<strong>Rhythm Changes</strong> A section: Gershwin's 'I Got Rhythm' and hundreds of standards. In jazz: Imaj7 to vi7 to ii7 to V7. The vi provides a smooth minor pivot before the ii to V cadence." },
+  { indices:[0,4,5,3], name:"I to V to vi to IV",
     desc:"The pop/rock workhorse. Same four chords as most of the Western pop canon. The vi gives brief melancholy; IV sets up the return to I." },
-  { indices:[0,3,4,0], name:"I–IV–V–I",
+  { indices:[0,3,4,0], name:"I to IV to V to I",
     desc:"Three primary harmonic functions in one cycle. Blues, folk, and rock backbone. All notes in these three chords belong to the major scale." },
-  { indices:[0,3,1,4], name:"I–IV–ii–V",
-    desc:"Pre-dominant elaboration. Both IV and ii are subdominant-function chords — stacking them before V builds extra harmonic momentum. Common in jazz heads." },
-  { indices:[0,2,3,4], name:"I–iii–IV–V",
-    desc:"Ascending bass line feel. The iii acts as a tonic substitute stepping stone between I and IV. Adds sophistication over a plain I–IV–V." },
-  { indices:[5,3,0,4], name:"vi–IV–I–V",
+  { indices:[0,3,1,4], name:"I to IV to ii to V",
+    desc:"Pre-dominant elaboration. Both IV and ii are subdominant-function chords: stacking them before V builds extra harmonic momentum. Common in jazz heads." },
+  { indices:[0,2,3,4], name:"I to iii to IV to V",
+    desc:"Ascending bass line feel. The iii acts as a tonic substitute stepping stone between I and IV. Adds sophistication over a plain I to IV to V." },
+  { indices:[5,3,0,4], name:"vi to IV to I to V",
     desc:"Rotation of the four-chord pop progression. Opens with a melancholic minor character that brightens on I. The relative minor start adds emotional weight." },
 ];
 
 var MINOR_PROGS = [
-  { indices:[1,4,0], name:"iiø7–V7–i",
+  { indices:[1,4,0], name:"iiø7 to V7 to i",
     desc:"The <strong>jazz minor cadence</strong>. The half-diminished iiø7 is the standard pre-dominant in jazz minor. The V7 uses the raised 7th from harmonic minor for a strong leading-tone pull." },
-  { indices:[0,3,4,0], name:"i–iv–V–i",
+  { indices:[0,3,4,0], name:"i to iv to V to i",
     desc:"Classical <strong>harmonic minor cadence</strong>. The major V (raised ♯7 scale degree) creates a powerful pull back to i. Defines Baroque and Romantic minor-key writing." },
-  { indices:[0,6,5,4], name:"i–VII–VI–V",
-    desc:"<strong>Andalusian cadence</strong> — a descending chromatic bass line. Flamenco, classic rock, and film scores. The bass moves by step: root → ♭VII → ♭VI → V." },
-  { indices:[0,6,5,6], name:"i–VII–VI–VII",
-    desc:"Natural minor loop. Stays entirely in natural minor — no raised 7th, so V remains minor. Common in rock, metal, and modal contexts." },
-  { indices:[0,5,2,6], name:"i–VI–III–VII",
+  { indices:[0,6,5,4], name:"i to VII to VI to V",
+    desc:"<strong>Andalusian cadence</strong>: a descending chromatic bass line. Flamenco, classic rock, and film scores. The bass moves by step: root → ♭VII → ♭VI → V." },
+  { indices:[0,6,5,6], name:"i to VII to VI to VII",
+    desc:"Natural minor loop. Stays entirely in natural minor: no raised 7th, so V remains minor. Common in rock, metal, and modal contexts." },
+  { indices:[0,5,2,6], name:"i to VI to III to VII",
     desc:"Descending bass line in natural minor: i → ♭VI → ♭III → ♭VII. Appears in progressive rock and Aeolian-mode compositions." },
-  { indices:[0,3,6,2], name:"i–iv–VII–III",
+  { indices:[0,3,6,2], name:"i to iv to VII to III",
     desc:"Modal minor cycle. Pure natural minor, no harmonic minor raised 7th. Dorian-friendly. Used in jazz minor contexts and modal compositions." },
 ];
 
@@ -534,7 +534,7 @@ var PROGS = isMinor ? MINOR_PROGS : MAJOR_PROGS;
   PROGS.forEach(function(p) {
     var actualChords = p.indices.map(function(i) {
       return triads[i] ? esc(triads[i].chordName) : "?";
-    }).join(" – ");
+    }).join(" to ");
     html +=
       '<div class="prog-row">' +
         '<div class="prog-head">' +
@@ -558,24 +558,24 @@ var PROGS = isMinor ? MINOR_PROGS : MAJOR_PROGS;
   // ── Borrowed chords ──────────────────────────────────────────
   var borrowed = isMinor ? [
     { degree:"IV",  offset:5,  quality:"major",
-      note:"Borrowed from parallel <strong>major</strong>. The raised 3rd creates a brighter subdominant than the diatonic iv — adds unexpected light." },
+      note:"Borrowed from parallel <strong>major</strong>. The raised 3rd creates a brighter subdominant than the diatonic iv: adds unexpected light." },
     { degree:"V",   offset:7,  quality:"major",
       note:"<strong>Harmonic minor</strong> raises the 7th to create a major V. That leading tone is what gives harmonic minor its strong pull back to i." },
     { degree:"bII", offset:1,  quality:"major",
-      note:"<strong>Neapolitan</strong>. Flat-2nd major chord — a chromatic pre-dominant. Approaches V with dramatic color. Heavy use in jazz and classical." },
+      note:"<strong>Neapolitan</strong>. Flat-2nd major chord: a chromatic pre-dominant. Approaches V with dramatic color. Heavy use in jazz and classical." },
     { degree:"I",   offset:0,  quality:"major",
-      note:"<strong>Picardy third</strong> — ending on the parallel major tonic. Archaic and powerful; lifts a minor piece to an unexpectedly bright resolution." },
+      note:"<strong>Picardy third</strong>: ending on the parallel major tonic. Archaic and powerful; lifts a minor piece to an unexpectedly bright resolution." },
   ] : [
     { degree:"iv",   offset:5,  quality:"minor",
-      note:"<strong>Minor subdominant</strong> from parallel minor. Darkened IV — one of the most natural borrowed chords in pop and ballads. iv–I or iv–V–I." },
+      note:"<strong>Minor subdominant</strong> from parallel minor. Darkened IV: one of the most natural borrowed chords in pop and ballads. iv to I or iv to V to I." },
     { degree:"bVII", offset:10, quality:"major",
-      note:"<strong>Mixolydian ♭VII</strong>. Major chord one whole step below the tonic. No leading-tone pull — feels open. Rock and pop staple." },
+      note:"<strong>Mixolydian ♭VII</strong>. Major chord one whole step below the tonic. No leading-tone pull: feels open. Rock and pop staple." },
     { degree:"bVI",  offset:8,  quality:"major",
-      note:"From parallel minor. Dramatic, cinematic. The <strong>bVI–bVII–I</strong> motion is the 'epic rock resolution'. Film score bread and butter." },
+      note:"From parallel minor. Dramatic, cinematic. The <strong>bVI to bVII to I</strong> motion is the 'epic rock resolution'. Film score bread and butter." },
     { degree:"bIII", offset:3,  quality:"major",
-      note:"From parallel minor. Adds dark color without leaving the tonal center. Common in chromatic bass motion: I–bIII–IV." },
+      note:"From parallel minor. Adds dark color without leaving the tonal center. Common in chromatic bass motion: I to bIII to IV." },
     { degree:"bII",  offset:1,  quality:"major",
-      note:"<strong>Neapolitan</strong>. Flat-2nd major — jarring chromatic pre-dominant. Approaches V or I with a dramatic half-step bass resolution." },
+      note:"<strong>Neapolitan</strong>. Flat-2nd major: jarring chromatic pre-dominant. Approaches V or I with a dramatic half-step bass resolution." },
   ];
 
   var borrowHtml = borrowed.map(function(b) {
@@ -617,12 +617,12 @@ var PROGS = isMinor ? MINOR_PROGS : MAJOR_PROGS;
   }).join("");
 
   el.innerHTML =
-    '<div class="sec-title">Modal interchange — from parallel ' + (isMinor ? "major" : "minor") + '</div>' +
+    '<div class="sec-title">Modal interchange: from parallel ' + (isMinor ? "major" : "minor") + '</div>' +
     '<div class="two-col">' + borrowHtml + '</div>' +
     '<div class="sec-title" style="margin-top:14px">Secondary dominants</div>' +
     '<div class="two-col">' + secHtml + '</div>' +
     '<div class="trisub-box">' +
-      '<strong>Tritone substitution:</strong> Any V7 can be replaced by the dominant 7th whose root sits a tritone (♭5) away — ' +
+      '<strong>Tritone substitution:</strong> Any V7 can be replaced by the dominant 7th whose root sits a tritone (♭5) away: ' +
       'both chords share the same tritone interval, so the resolution still works. ' +
       'The tritone sub creates a descending chromatic bass line into the target: ' +
       'instead of approaching from a 5th above, you approach from a half step above. ' +
@@ -634,24 +634,24 @@ var PROGS = isMinor ? MINOR_PROGS : MAJOR_PROGS;
 // ── TAB 5: Modes ──────────────────────────────────────────────
 // ════════════════════════════════════════════════════════════
 
-// Mode definitions indexed 0–6 as Ionian through Locrian.
+// Mode definitions indexed 0 to 6 as Ionian through Locrian.
 // colorSt: semitones above the mode's root for the characteristic "color note".
-// null = Ionian (no single color note — it is the baseline).
+// null = Ionian (no single color note: it is the baseline).
 var MODE_DEFS = [
   { name: "Ionian",     alt: "Major",           colorSt: null, colorLbl: null,
-    jazz: "The baseline major. Tonic maj7 chords. In jazz, <strong>Lydian</strong> is often preferred over Ionian — the ♯4 floats instead of pulling toward V." },
+    jazz: "The baseline major. Tonic maj7 chords. In jazz, <strong>Lydian</strong> is often preferred over Ionian: the ♯4 floats instead of pulling toward V." },
   { name: "Dorian",     alt: "Minor (♮6)",      colorSt: 9,   colorLbl: "♮6",
     jazz: "The <strong>jazz minor</strong> mode. Use over ii7 and any sustained minor chord. The raised 6th (vs Aeolian's ♭6) gives it a brighter, more open character." },
   { name: "Phrygian",   alt: "Minor (♭2)",      colorSt: 1,   colorLbl: "♭2",
     jazz: "Over iii7 or as a dark static color. The ♭2 creates the flamenco/metal edge. Rare in bebop but central to modal and world-music contexts." },
   { name: "Lydian",     alt: "Major (♯4)",      colorSt: 6,   colorLbl: "♯4",
-    jazz: "<strong>The jazz major mode.</strong> Over IVmaj7 or Imaj7. The ♯4 (tritone above root) floats over a major chord with no tendency to resolve — pure color." },
+    jazz: "<strong>The jazz major mode.</strong> Over IVmaj7 or Imaj7. The ♯4 (tritone above root) floats over a major chord with no tendency to resolve: pure color." },
   { name: "Mixolydian", alt: "Dominant (♭7)",   colorSt: 10,  colorLbl: "♭7",
     jazz: "<strong>The dominant mode.</strong> Use over V7 and any dominant chord. The ♭7 is exactly what a dominant chord implies. Backbone of blues, rock, and jazz improv over dominant." },
   { name: "Aeolian",   alt: "Natural Minor",   colorSt: 8,   colorLbl: "♭6",
     jazz: "Over vi7 or minor tonic in non-jazz contexts. The ♭6 is darker than Dorian. Rock and pop's default minor; Dorian is more common in jazz for its brighter 6th." },
   { name: "Locrian",   alt: "Half-dim (♭2,♭5)", colorSt: 6,  colorLbl: "♭5",
-    jazz: "Over viiø7 (half-diminished) chords — technically correct but rarely improvised. The ♭5 makes it the most unstable mode. More a theoretical position than a sound." },
+    jazz: "Over viiø7 (half-diminished) chords: technically correct but rarely improvised. The ♭5 makes it the most unstable mode. More a theoretical position than a sound." },
 ];
 
 // Degree-to-mode-index mapping for major (Ionian root) and minor (Aeolian root)

@@ -1,0 +1,226 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  :root {
+    --bg: #181818; --panel: #222; --panel2: #282828; --line: #363636;
+    --text: #d8d8d8; --dim: #8c8c8c; --accent: #ffaa2b;
+    --tonic: #5b9bd5; --subdom: #6fbf73; --dom: #e08f4f;
+  }
+  html[data-theme="light"] {
+    --bg: #f2f0ec; --panel: #e8e6e2; --panel2: #dedbd7; --line: #c8c4bd;
+    --text: #1c1c1c; --dim: #666; --accent: #a06800;
+    --tonic: #1855a0; --subdom: #2a7a30; --dom: #a05010;
+  }
+  html[data-theme="light"] p,
+  html[data-theme="light"] li { color: #404040; }
+  html[data-theme="light"] .card { background: #e3e0dc; }
+  html[data-theme="light"] .content::-webkit-scrollbar-thumb { background: #b8b4ae; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    background: var(--bg); color: var(--text);
+    font: 13px/1.6 system-ui, sans-serif;
+    display: flex; flex-direction: column; gap: 10px;
+    padding: 16px 20px 12px;
+  }
+  .hd { flex-shrink: 0; display: flex; align-items: center; gap: 12px; }
+  h1 { font-size: 16px; font-weight: 650; }
+  .sub { color: var(--dim); font-size: 12px; }
+  .theme-btn {
+    margin-left: auto; background: transparent; color: var(--dim);
+    border: 1px solid var(--line); border-radius: 4px;
+    padding: 3px 10px; cursor: pointer; font-size: 11px;
+  }
+  .theme-btn:hover { color: var(--text); }
+  .content {
+    flex: 1; min-height: 0; overflow-y: auto; padding-right: 6px;
+    scrollbar-color: var(--line) transparent;
+  }
+  .content::-webkit-scrollbar { width: 6px; }
+  .content::-webkit-scrollbar-track { background: transparent; }
+  .content::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+  h2 { font-size: 15px; margin: 18px 0 7px; color: var(--accent); }
+  h2:first-child { margin-top: 0; }
+  h3 { font-size: 12.5px; margin: 12px 0 5px; color: var(--text); }
+  p { color: #c8c8c8; margin-bottom: 9px; }
+  ul, ol { margin: 7px 0 11px 20px; padding: 0; color: #c8c8c8; }
+  li { margin-bottom: 6px; }
+  strong { color: var(--text); font-weight: 650; }
+  code { color: var(--accent); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+  .lede {
+    border-left: 3px solid var(--accent); padding-left: 12px;
+    color: var(--text); font-size: 14px; margin-bottom: 14px;
+  }
+  .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .card {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 6px; padding: 11px 12px;
+  }
+  .card h3 { margin-top: 0; color: var(--accent); }
+  .pill {
+    display: inline-block; border: 1px solid var(--line); border-radius: 4px;
+    padding: 1px 7px; margin: 2px 3px 2px 0; color: var(--dim); font-size: 11px;
+  }
+  .flow { display: grid; gap: 7px; margin: 10px 0 12px; }
+  .step {
+    background: var(--panel2); border: 1px solid var(--line);
+    border-left: 3px solid var(--accent); border-radius: 5px;
+    padding: 9px 11px;
+  }
+  .step b { color: var(--accent); }
+  .tone-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .tone { padding: 4px 8px; border-radius: 4px; background: var(--panel2); border: 1px solid var(--line); }
+  .tone.t { border-color: var(--tonic); }
+  .tone.s { border-color: var(--subdom); }
+  .tone.d { border-color: var(--dom); }
+  .footer { flex-shrink: 0; display: flex; justify-content: flex-end; }
+  .close-btn {
+    background: #2f2f2f; color: #ddd; border: 1px solid #444;
+    border-radius: 4px; padding: 5px 22px; cursor: pointer; font-size: 13px;
+  }
+  html[data-theme="light"] .close-btn { background: #dedad4; color: var(--text); border-color: #b0ada8; }
+  @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="hd">
+  <div>
+    <h1>What Do I Do Next?</h1>
+    <div class="sub">Turning one good progression, melody, or bass line into the next part of a song</div>
+  </div>
+  <button class="theme-btn" id="theme-btn">Light</button>
+</div>
+
+<div class="content">
+  <p class="lede">
+    When you generate something you like, do not immediately ask for a totally new idea. First identify what is working, then create a related contrast. Songs usually move forward by changing one or two musical dimensions while keeping the rest familiar.
+  </p>
+
+  <h2>Freeze The Idea</h2>
+  <p>Loop the part and write down the facts. You are trying to learn what the idea is, not whether it is theoretically fancy.</p>
+  <div class="grid">
+    <div class="card">
+      <h3>Keep</h3>
+      <ul>
+        <li>Key or tonal center</li>
+        <li>Main chord loop</li>
+        <li>One memorable rhythm</li>
+        <li>One signature interval, hook, or bass movement</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Label</h3>
+      <ul>
+        <li>Does it feel like home, lift, tension, or release?</li>
+        <li>Is the energy low, medium, or high?</li>
+        <li>Is the section sparse, full, dark, bright, stable, or unstable?</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>Decide The Job Of The Next Section</h2>
+  <p>I find it useful to pick a lane. If there is oncoming traffic, as in it sounds awful and nothing works, pick another. You have choices.</p>
+  <p>You can:</p>
+  <div class="tone-row">
+    <span class="tone t">Continue the groove</span>
+    <span class="tone s">Open up</span>
+    <span class="tone d">Build tension</span>
+    <span class="tone t">Resolve</span>
+    <span class="tone s">Contrast</span>
+    <span class="tone d">Prepare the drop or chorus</span>
+  </div>
+  <p>Or metaphorically break everything, pick up the pieces, and move on with the verse.</p>
+
+  <h2>Change One Big Thing</h2>
+  <p>If you change everything, it sounds like a new song. If you change nothing, it loops forever. Change one big thing and one small thing.</p>
+  <div class="flow">
+    <div class="step"><b>Harmony:</b> keep the bass rhythm, but move to a related chord start such as vi, IV, ii, or V.</div>
+    <div class="step"><b>Melody:</b> keep the rhythm, but move the notes higher, lower, or answer the phrase in shorter fragments.</div>
+    <div class="step"><b>Bass:</b> keep the chords, but simplify the bass for a verse or make it more active for a build.</div>
+    <div class="step"><b>Texture:</b> keep the notes, but change instrumentation, octave, density, or drum activity.</div>
+  </div>
+
+  <h2>Common Next Moves</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>From a loop to a verse</h3>
+      <p>Remove notes. Use fewer drums. Let the bass and vocal space define the section. If the generated progression is busy, use only its first two chords or a pad version.</p>
+    </div>
+    <div class="card">
+      <h3>From a loop to a chorus</h3>
+      <p>Raise the melody range. Add chord tones on top. Make the bass land harder on roots. Keep the same harmonic DNA, but make the rhythm and register feel larger.</p>
+    </div>
+    <div class="card">
+      <h3>From a loop to a pre chorus</h3>
+      <p>Increase dominant function, rhythmic subdivision, or repetition. End on V, V7, or a suspended chord so the chorus feels necessary.</p>
+    </div>
+    <div class="card">
+      <h3>From a loop to a bridge</h3>
+      <p>Use a relative key, borrowed chord, or modal color. Reduce the hook at first, then bring it back as recognition.</p>
+    </div>
+  </div>
+
+  <h2>The Four Reliable Strategies</h2>
+  <ol>
+    <li><strong>Rotate the progression.</strong> Start the same chords from a different point. <code>I V vi IV</code> can become <code>vi IV I V</code> for a more minor opening.</li>
+    <li><strong>Borrow one chord.</strong> Replace one diatonic chord with a borrowed color such as bVII, iv, bVI, or bIII.</li>
+    <li><strong>Answer the melody.</strong> Keep the rhythm of the hook, but move the contour in the opposite direction.</li>
+    <li><strong>Change density.</strong> Verse is fewer notes. Chorus is more register and support. Build is repetition plus rising tension.</li>
+  </ol>
+
+  <h2>A Practical Session Workflow</h2>
+  <div class="flow">
+    <div class="step"><b>Duplicate the clip.</b> Never overwrite the first idea.</div>
+    <div class="step"><b>Mute half the notes.</b> Find the simplest version that still has the identity.</div>
+    <div class="step"><b>Create an answer phrase.</b> Use the same rhythm, but change the last note or last chord.</div>
+    <div class="step"><b>Make three versions.</b> One smaller, one bigger, one weirder.</div>
+    <div class="step"><b>Arrange A B A.</b> If returning to A feels good after B, the new section works.</div>
+  </div>
+
+  <h2>Quick Diagnosis</h2>
+  <p>If the new part sounds unrelated, you changed too many dimensions. Keep the rhythm or bass shape. If it sounds boring, you changed too few dimensions. Change register, density, or harmonic function. If it sounds wrong but interesting, check whether the wrong note is a passing tone, extension, borrowed color, or true clash.</p>
+
+  <h2>What Theory Aide Can Help You Ask</h2>
+  <p>Use Harmonic Timeline to compare the current idea and the next section. Look for:</p>
+  <ul>
+    <li>Does the key stay the same, or does the new section imply a related center?</li>
+    <li>Does the tension strip rise into a chorus or drop into a verse?</li>
+    <li>Are the same modal colors showing up, or did the new section introduce a new color?</li>
+    <li>Does the section end unresolved, and does the suggested next chord point back to your main idea?</li>
+  </ul>
+</div>
+
+<div class="footer">
+  <button class="close-btn" id="close">Close</button>
+</div>
+
+<script>
+var DATA = __NEXT_JSON__;
+(function() {
+  var KEY = "ta-theme";
+  var saved = "light";
+  try { saved = localStorage.getItem(KEY) || "dark"; } catch(e) {}
+  document.documentElement.setAttribute("data-theme", saved);
+  var btn = document.getElementById("theme-btn");
+  btn.textContent = saved === "dark" ? "Light" : "Dark";
+  btn.addEventListener("click", function() {
+    var next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    try { localStorage.setItem(KEY, next); } catch(e) {}
+    btn.textContent = next === "dark" ? "Light" : "Dark";
+  });
+})();
+function closeDialog() {
+  var msg = { method: "close_and_send", params: ["null"] };
+  if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.live)
+    window.webkit.messageHandlers.live.postMessage(msg);
+  else if (window.chrome && window.chrome.webview)
+    window.chrome.webview.postMessage(msg);
+}
+document.getElementById("close").addEventListener("click", closeDialog);
+document.addEventListener("keydown", function(e) { if (e.key === "Escape") closeDialog(); });
+</script>
+</body>
+</html>

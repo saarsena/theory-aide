@@ -23,9 +23,16 @@ export const CHORD_QUALITIES: Record<string, readonly number[]> = {
     "minor9":      [0, 3, 7, 10, 14],
     "dominant9":   [0, 4, 7, 10, 14],
     "add9":        [0, 4, 7, 14],
+    // Elevenths and thirteenths
+    "minor11":     [0, 3, 7, 10, 14, 17],
+    "dominant11":  [0, 4, 7, 10, 14, 17],
+    "major13":     [0, 4, 7, 11, 14, 21],
+    "minor13":     [0, 3, 7, 10, 14, 21],
+    "dominant13":  [0, 4, 7, 10, 14, 21],
     // Suspensions
     "sus2":        [0, 2, 7],
     "sus4":        [0, 5, 7],
+    "dominant7sus4": [0, 5, 7, 10],
 };
 
 export const QUALITY_TO_SUFFIX: Record<string, string> = {
@@ -46,6 +53,12 @@ export const QUALITY_TO_SUFFIX: Record<string, string> = {
     "minor9":     "m9",
     "dominant9":  "9",
     "add9":       "add9",
+    "minor11":    "m11",
+    "dominant11": "11",
+    "major13":    "maj13",
+    "minor13":    "m13",
+    "dominant13": "13",
+    "dominant7sus4": "7sus4",
 };
 
 export const SCALE_PATTERNS: Record<string, readonly number[]> = {

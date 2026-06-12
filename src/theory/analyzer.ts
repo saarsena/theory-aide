@@ -21,11 +21,11 @@ export interface KeyCandidate {
     label: string;
 }
 
-export function keyLabel(root: number, scaleName: string): string {
+export function keyLabel(root: number, scaleName: string, useFlats = false): string {
     const suffix = scaleName === "natural_minor"
         ? " minor"
         : ` ${scaleName.replace(/_/g, " ")}`;
-    return `${noteName(root)}${suffix}`;
+    return `${noteName(root, useFlats)}${suffix}`;
 }
 
 /** 1.0 if every pitch class of the chord lives in the scale, proportional

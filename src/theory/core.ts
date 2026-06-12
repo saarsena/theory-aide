@@ -43,14 +43,11 @@ export class Scale {
         for (const step of pattern) {
             notes.push(mod12((notes[notes.length - 1] ?? 0) + step));
         }
-        // Drop the wrap-around note when it lands back on the root.
         this._notes = notes[notes.length - 1] === this.root
             ? notes.slice(0, -1)
             : notes;
     }
 
-    /** Build a scale directly from semitone offsets (e.g. Live's
-     *  Song.scaleIntervals) when no named pattern matches. */
     static fromIntervals(root: number, intervals: readonly number[], name = "custom"): Scale {
         return new Scale(root, name, intervals.map(iv => mod12(root + iv)));
     }
@@ -63,7 +60,6 @@ export class Scale {
         return this._notes.length;
     }
 
-    /** 1-indexed; wraps mod degreeCount. */
     noteAtDegree(degree: number): number {
         const n = this.degreeCount;
         return this._notes[(((degree - 1) % n) + n) % n] ?? this.root;
@@ -90,7 +86,6 @@ export class Chord {
     get intervals(): number[] {
         const known = CHORD_QUALITIES[this.quality];
         if (known) return known.slice();
-        // Fallback: dashed-intervals string like "0-2-4" from matchQuality.
         return this.quality.split("-").map(x => parseInt(x, 10));
     }
 
@@ -104,13 +99,17 @@ export class Chord {
         return this.pitchClasses[0] ?? this.root;
     }
 
-    get name(): string {
+    getName(useFlats = false): string {
         const suffix = QUALITY_TO_SUFFIX[this.quality] ?? this.quality;
-        let base = noteName(this.root) + suffix;
+        let base = noteName(this.root, useFlats) + suffix;
         if (this.inversion && this.bassNote !== this.root) {
-            base += "/" + noteName(this.bassNote);
+            base += "/" + noteName(this.bassNote, useFlats);
         }
         return base;
+    }
+
+    get name(): string {
+        return this.getName(false);
     }
 }
 

@@ -11,6 +11,7 @@ import {
     harmonicFunction,
     inferKey,
     romanForChord,
+    keyLabel,
 } from "./analyzer.js";
 
 /** A note placed on an absolute beat timeline, tagged with its source track. */
@@ -92,13 +93,23 @@ function buildSlices(
     notes: readonly TimedNote[],
     rangeStart: number,
     rangeEnd: number,
-    sliceBeats: number,
 ): Slice[] {
+    const times = new Set<number>();
+    times.add(rangeStart);
+    times.add(rangeEnd);
+
+    for (const note of notes) {
+        if (note.start >= rangeStart && note.start < rangeEnd) times.add(note.start);
+        if (note.end > rangeStart && note.end <= rangeEnd) times.add(note.end);
+    }
+
+    const sortedTimes = Array.from(times).sort((a, b) => a - b);
     const slices: Slice[] = [];
-    for (let t = rangeStart; t < rangeEnd - 1e-9; t += sliceBeats) {
+
+    for (let i = 0; i < sortedTimes.length - 1; i++) {
         slices.push({
-            start: t,
-            end: Math.min(t + sliceBeats, rangeEnd),
+            start: sortedTimes[i]!,
+            end: sortedTimes[i + 1]!,
             weights: new Map(),
             pcTracks: new Map(),
             bassPitch: null,
@@ -108,21 +119,24 @@ function buildSlices(
     }
 
     for (const note of notes) {
-        const firstIdx = Math.max(0, Math.floor((note.start - rangeStart) / sliceBeats));
-        for (let i = firstIdx; i < slices.length; i++) {
-            const slice = slices[i];
-            if (!slice || slice.start >= note.end) break;
+        for (const slice of slices) {
+            if (slice.start >= note.end || slice.end <= note.start) continue;
+
             const overlap = Math.min(slice.end, note.end) - Math.max(slice.start, note.start);
             if (overlap <= 1e-9) continue;
+
             const pc = mod12(note.pitch);
             const weight = overlap * (note.velocity / 100);
+
             slice.weights.set(pc, (slice.weights.get(pc) ?? 0) + weight);
+
             let trackSet = slice.pcTracks.get(pc);
             if (!trackSet) {
                 trackSet = new Set();
                 slice.pcTracks.set(pc, trackSet);
             }
             trackSet.add(note.track);
+
             if (slice.bassPitch === null || note.pitch < slice.bassPitch) {
                 slice.bassPitch = note.pitch;
             }
@@ -131,16 +145,18 @@ function buildSlices(
 
     for (const slice of slices) {
         if (!slice.weights.size) continue;
+
         const maxWeight = Math.max(...slice.weights.values());
         const strongPcs = [...slice.weights.entries()]
             .filter(([, w]) => w >= maxWeight * PASSING_TONE_RATIO)
             .map(([pc]) => pc);
-        // Feed actual pitches so the bass note can mark the inversion: the
-        // bass pitch first (recognizeChord uses min()), others in any octave.
+
         const bassPc = slice.bassPitch !== null ? mod12(slice.bassPitch) : null;
         const pitches = strongPcs.map(pc => pc === bassPc ? pc : pc + 12);
+
         const matches = recognizeChord(pitches, 1);
         const best = matches[0];
+
         if (best && strongPcs.length >= 2) {
             slice.chord = best.chord;
             slice.confidence = best.score;
@@ -156,7 +172,7 @@ function mergeSlices(slices: Slice[]): Slice[][] {
     let currentName: string | null | undefined;
 
     for (const slice of slices) {
-        const name = slice.chord ? slice.chord.name : null;
+        const name = slice.chord ? slice.chord.getName() : null;
         if (current.length && name === currentName) {
             current.push(slice);
         } else {
@@ -170,10 +186,17 @@ function mergeSlices(slices: Slice[]): Slice[][] {
 }
 
 export interface AnalyzeTimelineOptions {
-    /** Beats per analysis slice. */
-    sliceBeats?: number;
-    /** Live's key, when Scale Mode is on. Takes precedence over inference. */
     liveKey?: { root: number; scale: Scale; label: string } | undefined;
+}
+
+function keyUsesFlats(root: number, scaleName: string): boolean {
+    if (scaleName === "major") {
+        return [5, 10, 3, 8, 1, 6].includes(mod12(root));
+    }
+    if (scaleName === "natural_minor") {
+        return [2, 7, 0, 5, 10, 3, 8].includes(mod12(root));
+    }
+    return false;
 }
 
 export function analyzeTimeline(
@@ -182,11 +205,9 @@ export function analyzeTimeline(
     rangeEnd: number,
     options: AnalyzeTimelineOptions = {},
 ): TimelineAnalysis {
-    const sliceBeats = options.sliceBeats ?? 1;
-    const slices = buildSlices(notes, rangeStart, rangeEnd, sliceBeats);
+    const slices = buildSlices(notes, rangeStart, rangeEnd);
     const groups = mergeSlices(slices);
 
-    // Infer the key from the segment chords (post-merge = harmonic rhythm).
     const segmentChords = groups
         .map(g => g[0]?.chord)
         .filter((c): c is Chord => !!c);
@@ -217,6 +238,7 @@ export function analyzeTimeline(
         key = { root: 0, scaleName: "major", label: "C major", source: "inferred" };
     }
 
+    const useFlats = keyUsesFlats(key.root, key.scaleName);
     const trackNames = [...new Set(notes.map(n => n.track))];
     const segments: Segment[] = [];
 
@@ -225,7 +247,6 @@ export function analyzeTimeline(
         const last = group[group.length - 1];
         if (!first || !last) continue;
 
-        // Re-accumulate weights and track sets across the whole segment.
         const weights = new Map<number, number>();
         const pcTracks = new Map<number, Set<string>>();
         for (const slice of group) {
@@ -248,16 +269,13 @@ export function analyzeTimeline(
         const chord = first.chord;
         const chordPcs = chord ? new Set(chord.pitchClasses) : null;
 
-        // Flag notes outside the key that aren't tones of the recognized
-        // chord — chord tones of a borrowed chord are intentional color,
-        // not clashes.
         const outliers: Outlier[] = [];
         for (const pc of pcs) {
             if (scale.contains(pc)) continue;
             if (chordPcs?.has(pc)) continue;
             outliers.push({
                 pc,
-                name: noteName(pc),
+                name: noteName(pc, useFlats),
                 outOfKey: true,
                 tracks: [...(pcTracks.get(pc) ?? [])].sort(),
             });
@@ -270,19 +288,18 @@ export function analyzeTimeline(
             start: first.start,
             end: last.end,
             chord,
-            chordName: chord ? chord.name : null,
+            chordName: chord ? chord.getName(useFlats) : null,
             confidence: first.confidence,
             roman: chord ? romanForChord(chord, scale) : null,
             fn: chord ? harmonicFunction(chord, scale) : null,
             pcs,
-            pcNames: pcs.map(pc => noteName(pc)),
+            pcNames: pcs.map(pc => noteName(pc, useFlats)),
             outliers,
             tracks: [...segTracks].sort(),
             intervals: chord ? chord.intervals : [],
             quality: chord ? chord.quality : null,
-            // Root-position order regardless of inversion — correct for educational display.
             chordToneNames: chord
-                ? chord.intervals.map(iv => noteName(mod12(chord.root + iv)))
+                ? chord.intervals.map(iv => noteName(mod12(chord.root + iv), useFlats))
                 : [],
         });
     }
@@ -292,11 +309,14 @@ export function analyzeTimeline(
         rangeEnd,
         segments,
         keyCandidates,
-        key,
+        key: {
+            ...key,
+            label: keyLabel(key.root, key.scaleName, useFlats),
+        },
         inferredAgrees,
         trackNames,
         noteCount: notes.length,
         scaleNotes: scale.notes,
-        scaleNoteNames: scale.notes.map(pc => noteName(pc)),
+        scaleNoteNames: scale.notes.map(pc => noteName(pc, useFlats)),
     };
 }

@@ -189,7 +189,7 @@ export interface AnalyzeTimelineOptions {
     liveKey?: { root: number; scale: Scale; label: string } | undefined;
 }
 
-function keyUsesFlats(root: number, scaleName: string): boolean {
+export function keyUsesFlats(root: number, scaleName: string): boolean {
     if (scaleName === "major") {
         return [5, 10, 3, 8, 1, 6].includes(mod12(root));
     }

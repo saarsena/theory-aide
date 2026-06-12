@@ -12,8 +12,8 @@ import {
 
 import { Scale, buildDiatonicChords, noteName } from "./theory/core.js";
 import { LIVE_SCALE_TO_PATTERN, NOTE_NAMES_SHARP, SCALE_PATTERNS } from "./theory/data.js";
-import { analyzeTimeline, type TimedNote, type TimelineAnalysis } from "./theory/timeline.js";
-import { romanForChord, harmonicFunction } from "./theory/analyzer.js";
+import { analyzeTimeline, type TimedNote, type TimelineAnalysis, keyUsesFlats } from "./theory/timeline.js";
+import { romanForChord, harmonicFunction, keyLabel } from "./theory/analyzer.js";
 
 import timelineHtml  from "./timeline.html";
 import explainHtml   from "./explain.html";
@@ -48,13 +48,13 @@ function showMessage(context: Ctx, title: string, body: string): Promise<string>
 /** Live's key (when Scale Mode is on) as an analysis Scale; null otherwise. */
 function liveKey(song: Song<"1.0.0">): { root: number; scale: Scale; label: string } | null {
     if (!song.scaleMode) return null;
-    const root = song.rootNote;
+    const root = Number(song.rootNote);
     const liveName = song.scaleName;
     const pattern = LIVE_SCALE_TO_PATTERN[liveName];
     const scale = pattern
         ? new Scale(root, pattern)
-        : Scale.fromIntervals(root, song.scaleIntervals, liveName);
-    const rootName = NOTE_NAMES_SHARP[((root % 12) + 12) % 12] ?? "?";
+        : Scale.fromIntervals(root, song.scaleIntervals.map(Number), liveName);
+    const rootName = noteName(root);
     return { root, scale, label: `${rootName} ${liveName}` };
 }
 
@@ -67,9 +67,9 @@ const PC_TO_COF = [0, 7, 2, 9, 4, 11, 6, 1, 8, 3, 10, 5] as const;
  *  Relative major/minor pairs share the same CoF position (distance 0). */
 function cofDist(root1: number, scale1: string, root2: number, scale2: string): number {
     const adj1 = scale1.includes("minor") ? (root1 + 3) % 12 : root1;
-    const adj2 = scale2.includes("minor") ? (root2 + 3) % 12 : root2;
+    const adj2 = scale2.includes("minor") ? (root2 + 3) : root2;
     const p1 = PC_TO_COF[((adj1 % 12) + 12) % 12] ?? 0;
-    const p2 = PC_TO_COF[((adj2 % 12) + 12) % 12] ?? 0;
+    const p2 = PC_TO_COF[((Number(adj2) % 12) + 12) % 12] ?? 0;
     const d = Math.abs(p1 - p2);
     return Math.min(d, 12 - d);
 }
@@ -204,8 +204,10 @@ export function activate(activation: ActivationContext) {
 
             const analysis = runAnalysis(song, notes, rangeStart, rangeEnd);
             await showHtml(context, timelineHtml, "__TIMELINE_JSON__", analysis, 960, 640);
-        })(arg as ArrangementSelection).catch(err =>
-            console.error("[theory-aide] timeline failed:", err)),
+        })(arg as ArrangementSelection).catch(err => {
+            console.error("[theory-aide] timeline failed:", err);
+            void showMessage(context, "Error", "Failed to run Harmonic Timeline analysis.");
+        }),
     );
 
     void context.ui.registerContextMenuAction(
@@ -217,8 +219,9 @@ export function activate(activation: ActivationContext) {
     // ── Explain Clip: Roman numerals in Live's current key ───────────
 
     context.commands.registerCommand("theory.explainClip", (arg: unknown) =>
-        void (async (handle: Handle) => {
-            const obj = context.getObjectFromHandle(handle, DataModelObject);
+        void (async () => {
+            if (!arg) return;
+            const obj = context.getObjectFromHandle(arg as Handle, DataModelObject);
             if (!(obj instanceof MidiClip)) return;
 
             const clip = obj as MidiClip<"1.0.0">;
@@ -231,8 +234,10 @@ export function activate(activation: ActivationContext) {
             const analysis = runAnalysis(song, notes, start, end);
             const data = { ...analysis, clipName: clip.name || "Untitled clip" };
             await showHtml(context, explainHtml, "__EXPLAIN_JSON__", data, 760, 700);
-        })(arg as Handle).catch(err =>
-            console.error("[theory-aide] explain failed:", err)),
+        })().catch(err => {
+            console.error("[theory-aide] explain failed:", err);
+            void showMessage(context, "Error", "Failed to run Explain Harmony analysis.");
+        }),
     );
 
     void context.ui.registerContextMenuAction(
@@ -247,8 +252,10 @@ export function activate(activation: ActivationContext) {
         void (async () => {
             const refData = buildReferenceData(song);
             await showHtml(context, referenceHtml, "__REFERENCE_JSON__", refData, 820, 700);
-        })().catch(err =>
-            console.error("[theory-aide] reference failed:", err)),
+        })().catch(err => {
+            console.error("[theory-aide] reference failed:", err);
+            void showMessage(context, "Error", "Failed to open Theory Reference.");
+        }),
     );
 
     void context.ui.registerContextMenuAction(
@@ -268,15 +275,19 @@ export function activate(activation: ActivationContext) {
     context.commands.registerCommand("theory.primer", (_arg: unknown) =>
         void (async () => {
             const lk = liveKey(song);
+            const useFlats = lk ? keyUsesFlats(lk.root, lk.scale.patternName) : false;
             const primerData = lk
                 ? {
                     key: { root: lk.root, scaleName: lk.scale.patternName, label: lk.label },
                     scaleNotes: lk.scale.notes,
-                    scaleNoteNames: lk.scale.notes.map(pc => noteName(pc)),
+                    scaleNoteNames: lk.scale.notes.map(pc => noteName(pc, useFlats)),
                 }
                 : { key: null, scaleNotes: [], scaleNoteNames: [] };
             await showHtml(context, primerHtml, "__PRIMER_JSON__", primerData, 840, 660);
-        })().catch(err => console.error("[theory-aide] primer failed:", err)),
+        })().catch(err => {
+            console.error("[theory-aide] primer failed:", err);
+            void showMessage(context, "Error", "Failed to open Music Theory Primer.");
+        }),
     );
 
     void context.ui.registerContextMenuAction(
@@ -290,6 +301,7 @@ export function activate(activation: ActivationContext) {
         "Music Theory Primer…",
         "theory.primer",
     );
+
 
     // ── Session Audit: set-wide harmonic lint ─────────────────────────
 
@@ -473,9 +485,11 @@ function buildReferenceData(song: Song<"1.0.0">): ReferenceData {
     const triads   = buildDiatonicChords(scale, false);
     const sevenths = buildDiatonicChords(scale, true);
 
+    const useFlats = keyUsesFlats(root, scaleName);
+
     const toInfo = (chord: ReturnType<typeof buildDiatonicChords>[0]): DiatonicChordInfo => ({
         roman:     romanForChord(chord, scale).label,
-        chordName: chord.name,
+        chordName: chord.getName(useFlats),
         quality:   chord.quality,
         fn:        harmonicFunction(chord, scale),
     });
@@ -484,7 +498,7 @@ function buildReferenceData(song: Song<"1.0.0">): ReferenceData {
 
     return {
         key:          { root, scaleName, label, source },
-        scaleNoteNames: scale.notes.map(pc => noteName(pc)),
+        scaleNoteNames: scale.notes.map(pc => noteName(pc, useFlats)),
         scaleNotes:   scale.notes,
         scaleFormula: pattern ? [...pattern] : [],
         triads:       triads.map(toInfo),

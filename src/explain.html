@@ -108,9 +108,11 @@
   .snote.root { background: #302800; border-color: #5c4a00; color: var(--accent); font-weight: 600; }
 
   /* ── Chord card strip ── */
+  .cards-outer {
+    display: flex; flex-direction: column; gap: 6px; flex-shrink: 0;
+  }
   .cards {
     display: flex; flex-wrap: wrap; gap: 6px;
-    flex-shrink: 0;
   }
   .card {
     background: var(--panel); border: 1px solid var(--line); border-radius: 5px;
@@ -139,13 +141,31 @@
   .pill.secondary { background: #1a2a3a; color: var(--second); }
   .warnline { color: var(--warn); font-size: 10px; margin-top: 3px; }
 
+  /* ── Pagination ── */
+  .pg {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 4px; padding: 3px 6px; align-self: flex-start;
+  }
+  .pg-btn {
+    background: transparent; border: none; color: var(--dim);
+    font-size: 14px; cursor: pointer; padding: 0 4px; border-radius: 2px;
+  }
+  .pg-btn:hover:not(:disabled) { background: var(--line); color: var(--text); }
+  .pg-btn:disabled { opacity: 0.3; cursor: default; }
+  .pg-info { font-size: 10.5px; color: var(--dim2); min-width: 60px; text-align: center; }
+
   /* ── Detail panel ── */
   .detail {
     flex-shrink: 0;
     background: var(--panel2); border: 1px solid var(--line2); border-radius: 5px;
     padding: 11px 13px 10px;
     min-height: 110px;
+    overflow-y: auto;
   }
+  .detail::-webkit-scrollbar { width: 4px; }
+  .detail::-webkit-scrollbar-track { background: transparent; }
+  .detail::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
   .detail-empty { color: var(--dim); font-size: 12px; }
   .detail-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 7px; }
   .detail-cname { font-size: 15px; font-weight: 600; }
@@ -272,7 +292,14 @@
 </div>
 
 <div class="scalenotes" id="scalenotes"></div>
-<div class="cards"  id="cards"></div>
+<div class="cards-outer">
+  <div class="cards" id="cards"></div>
+  <div class="pg" id="pg" style="display:none">
+    <button class="pg-btn" id="pg-prev">&lsaquo;</button>
+    <span class="pg-info" id="pg-info">Page 1 of 1</span>
+    <button class="pg-btn" id="pg-next">&rsaquo;</button>
+  </div>
+</div>
 <div class="detail" id="detail"><div class="detail-empty">Click a chord to learn about it.</div></div>
 <div class="narrative" id="narrative"></div>
 
@@ -293,6 +320,8 @@
 var DATA = __EXPLAIN_JSON__;
 var teachMode = false;
 var selectedIdx = -1;
+var currentPage = 0;
+var pageSize = 8;
 
 // ── Theme toggle ──────────────────────────────────────────────────────────
 (function() {
@@ -474,9 +503,29 @@ document.getElementById("cands").textContent = DATA.keyCandidates.length > 1
 
 // ── Chord cards ────────────────────────────────────────────────────────────
 function renderCards() {
+  var total = DATA.segments.length;
+  var pageCount = Math.ceil(total / pageSize);
+  if (currentPage >= pageCount) currentPage = Math.max(0, pageCount - 1);
+
+  var pgEl = document.getElementById("pg");
+  if (pageCount > 1) {
+    pgEl.style.display = "flex";
+    document.getElementById("pg-info").textContent = "Page " + (currentPage + 1) + " of " + pageCount;
+    document.getElementById("pg-prev").disabled = currentPage === 0;
+    document.getElementById("pg-next").disabled = currentPage === pageCount - 1;
+  } else {
+    pgEl.style.display = "none";
+  }
+
   var container = document.getElementById("cards");
   container.innerHTML = "";
-  DATA.segments.forEach(function(s, i) {
+  
+  var start = currentPage * pageSize;
+  var end = Math.min(start + pageSize, total);
+  var pageSegments = DATA.segments.slice(start, end);
+
+  pageSegments.forEach(function(s, pi) {
+    var i = start + pi;
     var div = document.createElement("div");
     var cls = "card";
     if (s.outliers && s.outliers.length) cls += " clash";
@@ -503,6 +552,19 @@ function renderCards() {
     container.appendChild(div);
   });
 }
+
+document.getElementById("pg-prev").addEventListener("click", function() {
+  if (currentPage > 0) {
+    currentPage--;
+    renderCards();
+  }
+});
+document.getElementById("pg-next").addEventListener("click", function() {
+  if (currentPage < Math.ceil(DATA.segments.length / pageSize) - 1) {
+    currentPage++;
+    renderCards();
+  }
+});
 
 // ══════════════════════════════════════════════════════════════════════════════
 // ANALYSIS DETAIL MODE

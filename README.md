@@ -1,10 +1,14 @@
 # Theory Aide
 
 A session-aware harmonic lens for Ableton Live, built on the Extensions SDK
-(1.0.0-beta.0). Theory Aide **reads** the harmony already in your set — across all
-tracks at once — and explains it. It is designed to complement generators like Scaler
-and Composition Aide, not replace them: they write chords, Theory Aide understands
-what got written. See [DESIGN.md](DESIGN.md) for the full positioning and roadmap.
+(1.0.0-beta.0). Theory Aide **reads** the harmony already in your set across all
+tracks at once and attempts to explains it. It is designed to complement generators like Scaler, not replace them. This is not a generator, it is a reference / teaching aide.
+
+See [DESIGN.md](DESIGN.md) for the full positioning and roadmap.
+
+![11](11.png)
+![22](22.png)
+![33](33.png)
 
 **No Python required.** The entire theory engine is TypeScript, bundled into
 `dist/extension.js`.

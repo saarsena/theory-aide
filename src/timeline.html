@@ -31,6 +31,7 @@
   html[data-theme="light"] button.close-btn   { background: #dedad4; border-color: #b0ada8; color: var(--text); }
   html[data-theme="light"] button.close-btn:hover { background: #d0ccc6; }
   html[data-theme="light"] .strip-wrap::-webkit-scrollbar-thumb { background: #b8b4ae; }
+  html[data-theme="light"] .table-wrap::-webkit-scrollbar-thumb { background: #b8b4ae; }
 
   * { box-sizing: border-box; margin: 0; }
   html, body { height: 100%; overflow: hidden; }
@@ -56,6 +57,26 @@
     cursor: pointer; color: var(--dim);
   }
   .theme-btn:hover { color: var(--text); border-color: var(--dim); }
+
+  /* ── Range comparison ── */
+  .compare {
+    flex-shrink: 0;
+    display: none;
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    background: var(--panel);
+    padding: 8px 10px;
+    gap: 10px;
+  }
+  .compare.show { display: grid; grid-template-columns: 1fr 1fr 1.2fr; }
+  .compare-title {
+    color: var(--dim); font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;
+  }
+  .compare-main { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .compare-meta { color: var(--dim); font-size: 11px; }
+  .compare-list { margin: 0; padding-left: 16px; color: var(--text); font-size: 11.5px; }
+  .compare-list li { margin-bottom: 2px; }
 
   /* ── Chord strip ── */
   .strip-wrap { flex-shrink: 0; height: 68px; overflow-x: auto; overflow-y: hidden; }
@@ -90,10 +111,19 @@
   .tension-cell { border-radius: 2px; flex-shrink: 0; min-width: 48px; }
 
   /* ── Table ── */
-  .table-wrap { flex: 1; min-height: 0; overflow: hidden; }
+  .table-wrap {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    scrollbar-color: var(--line) transparent;
+  }
+  .table-wrap::-webkit-scrollbar { width: 8px; height: 8px; }
+  .table-wrap::-webkit-scrollbar-track { background: transparent; }
+  .table-wrap::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 4px; }
   table { border-collapse: collapse; width: 100%; }
   th { text-align: left; color: var(--dim); font-weight: 500; font-size: 11px;
-       border-bottom: 1px solid var(--line); padding: 4px 8px 4px 0; }
+       border-bottom: 1px solid var(--line); padding: 4px 8px 4px 0;
+       position: sticky; top: 0; background: var(--bg); z-index: 1; }
   td { padding: 5px 8px 5px 0; border-bottom: 1px solid #262626; vertical-align: top; font-size: 12.5px; }
   td.roman { color: var(--accent); }
   .pill { display: inline-block; border-radius: 3px; padding: 0 6px; font-size: 11px; margin-right: 3px; }
@@ -136,6 +166,8 @@
     <div id="keys"></div>
   </div>
 
+  <div class="compare" id="compare"></div>
+
   <div class="strip-wrap"><div class="strip" id="strip"></div></div>
   <div class="tension-wrap" title="Tension score"><div class="tension" id="tension"></div></div>
 
@@ -162,7 +194,10 @@
 
   <div class="footer">
     <div class="cands" id="cands"></div>
-    <button class="close-btn" id="close">Close</button>
+    <div style="display:flex;gap:8px">
+      <button class="close-btn" id="copy-summary" style="background:transparent;border-color:var(--line);color:var(--dim)">Copy Summary</button>
+      <button class="close-btn" id="close">Close</button>
+    </div>
   </div>
 
 <script>
@@ -174,7 +209,7 @@ var currentPage = 0;
 (function() {
   var KEY = "ta-theme";
   var saved = "light";
-  try { saved = localStorage.getItem(KEY) || "dark"; } catch(e) {}
+  try { saved = localStorage.getItem(KEY) || "light"; } catch(e) {}
   document.documentElement.setAttribute("data-theme", saved);
   var btn = document.getElementById("theme-btn");
   btn.textContent = saved === "dark" ? "Light" : "Dark";
@@ -193,7 +228,22 @@ function closeDialog() {
   else if (window.chrome && window.chrome.webview)
     window.chrome.webview.postMessage(msg);
 }
+
 document.getElementById("close").addEventListener("click", closeDialog);
+document.getElementById("copy-summary").addEventListener("click", function() {
+  var btn = this;
+  navigator.clipboard.writeText(DATA.textSummary || "").then(function() {
+    var old = btn.textContent;
+    btn.textContent = "Copied!";
+    btn.style.borderColor = "var(--tonic)";
+    btn.style.color = "var(--tonic)";
+    setTimeout(function() {
+      btn.textContent = old;
+      btn.style.borderColor = "var(--line)";
+      btn.style.color = "var(--dim)";
+    }, 2000);
+  });
+});
 document.addEventListener("keydown", function(e) {
   if (e.key === "Escape") { closeDialog(); return; }
   if (e.key === "ArrowRight" || e.key === "PageDown") changePage(1);
@@ -236,6 +286,53 @@ if (DATA.modalColors && DATA.modalColors.length) {
   }).join("");
 }
 keysEl.innerHTML = keyHtml;
+
+function summarizeChords(items) {
+  if (!items || !items.length) return "No clear chords";
+  return items.slice(0, 5).join(", ") + (items.length > 5 ? ", more" : "");
+}
+function summarizeProgressions(items) {
+  if (!items || !items.length) return "No named progression";
+  return items.slice(0, 3).join(", ") + (items.length > 3 ? ", more" : "");
+}
+
+function renderRangeComparison() {
+  var compare = DATA.rangeComparison;
+  var el = document.getElementById("compare");
+  if (!compare) return;
+
+  function card(summary) {
+    return '<div>' +
+      '<div class="compare-title">' + esc(summary.label) + ' · bars ' +
+        bars(summary.start) + ' to ' + bars(summary.end) + '</div>' +
+      '<div class="compare-main">' + esc(summary.energy) +
+        ' energy · tension ' + esc(summary.averageTension) +
+        ' · density ' + esc(summary.averageDensity) + '</div>' +
+      '<div class="compare-meta">Key: ' + esc(summary.impliedKey || "unclear") +
+        ' · Role: ' + esc(summary.mainFunction || "unclear") + '</div>' +
+      '<div class="compare-meta">' + esc(summarizeChords(summary.chordNames)) + '</div>' +
+      '<div class="compare-meta">' + esc(summarizeProgressions(summary.progressions)) + '</div>' +
+      '<div class="compare-meta">' +
+        esc(summary.noteCount) + ' notes · ' +
+        esc(summary.segmentCount) + ' segments · peak ' +
+        esc(summary.peakTension) + '</div>' +
+    '</div>';
+  }
+
+  var notes = compare.observations && compare.observations.length
+    ? compare.observations
+    : ["The two ranges are harmonically similar."];
+
+  el.innerHTML =
+    card(compare.first) +
+    card(compare.second) +
+    '<div><div class="compare-title">Comparison</div>' +
+      '<ul class="compare-list">' +
+        notes.map(function(note) { return '<li>' + esc(note) + '</li>'; }).join("") +
+      '</ul></div>';
+  el.classList.add("show");
+}
+renderRangeComparison();
 
 // ── Chord strip ───────────────────────────────────────────────────────
 var PX_PER_BEAT = 26;

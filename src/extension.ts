@@ -33,7 +33,8 @@ function safeJson(data: unknown): string {
 
 function showHtml(context: Ctx, html: string, token: string, data: unknown,
                   width: number, height: number): Promise<string> {
-    const url = `data:text/html,${encodeURIComponent(html.replace(token, safeJson(data)))}`;
+    const injected = html.replaceAll(token, () => safeJson(data));
+    const url = `data:text/html,${encodeURIComponent(injected)}`;
     return context.ui.showModalDialog(url, width, height);
 }
 
@@ -169,42 +170,92 @@ function runAnalysis(
     });
 }
 
+function timelineModalData(analysis: TimelineAnalysis) {
+    return {
+        rangeStart: analysis.rangeStart,
+        rangeEnd: analysis.rangeEnd,
+        key: analysis.key,
+        inferredAgrees: analysis.inferredAgrees,
+        trackNames: analysis.trackNames,
+        noteCount: analysis.noteCount,
+        scaleNotes: analysis.scaleNotes,
+        scaleNoteNames: analysis.scaleNoteNames,
+        keyCandidates: analysis.keyCandidates.slice(0, 3).map(candidate => ({
+            root: candidate.root,
+            scaleName: candidate.scaleName,
+            label: candidate.label,
+        })),
+        segments: analysis.segments.map(segment => ({
+            start: segment.start,
+            end: segment.end,
+            chordName: segment.chordName,
+            roman: segment.roman,
+            fn: segment.fn,
+            pcNames: segment.pcNames,
+            outliers: segment.outliers.map(outlier => ({
+                name: outlier.name,
+                severity: outlier.severity,
+                explanation: outlier.explanation,
+                tracks: outlier.tracks,
+            })),
+            tension: segment.tension,
+            density: segment.density,
+        })),
+        progressions: analysis.progressions.slice(0, 8),
+        resolutionSuggestions: analysis.resolutionSuggestions.slice(0, 4),
+        modalColors: analysis.modalColors,
+        rangeComparison: analysis.rangeComparison,
+        textSummary: analysis.textSummary,
+    };
+}
+
 // ── Extension entry ──────────────────────────────────────────────────
 
 export function activate(activation: ActivationContext) {
     const context = initialize(activation, "1.0.0");
     const song = context.application.song;
+    let timelineRunning = false;
 
     // ── Harmonic Timeline: what do all tracks spell together? ────────
 
     context.commands.registerCommand("theory.timeline", (arg: unknown) =>
         void (async (selection: ArrangementSelection) => {
-            const rangeStart = selection.time_selection_start;
-            const rangeEnd = selection.time_selection_end;
-            if (rangeEnd - rangeStart <= 1e-9) {
+            if (timelineRunning) {
                 await showMessage(context, "Harmonic Timeline",
-                    "Select a time range in the arrangement first.");
+                    "Timeline analysis is already running. Wait for the current window to finish opening, then try again.");
                 return;
             }
+            timelineRunning = true;
+            try {
+                const rangeStart = selection.time_selection_start;
+                const rangeEnd = selection.time_selection_end;
+                if (rangeEnd - rangeStart <= 1e-9) {
+                    await showMessage(context, "Harmonic Timeline",
+                        "Select a time range in the arrangement first.");
+                    return;
+                }
 
-            const notes: TimedNote[] = [];
-            for (const track of song.tracks) {
-                if (!(track instanceof MidiTrack)) continue;
-                for (const clip of track.arrangementClips) {
-                    if (clip instanceof MidiClip && !clip.muted) {
-                        notes.push(...arrangementNotes(clip, track.name, rangeStart, rangeEnd));
+                const notes: TimedNote[] = [];
+                for (const track of song.tracks) {
+                    if (!(track instanceof MidiTrack)) continue;
+                    for (const clip of track.arrangementClips) {
+                        if (clip instanceof MidiClip && !clip.muted) {
+                            notes.push(...arrangementNotes(clip, track.name, rangeStart, rangeEnd));
+                        }
                     }
                 }
-            }
 
-            if (!notes.length) {
-                await showMessage(context, "Harmonic Timeline",
-                    "No MIDI notes found in the selected range (all tracks were scanned).");
-                return;
-            }
+                if (!notes.length) {
+                    await showMessage(context, "Harmonic Timeline",
+                        "No MIDI notes found in the selected range (all tracks were scanned).");
+                    return;
+                }
 
-            const analysis = runAnalysis(song, notes, rangeStart, rangeEnd);
-            await showHtml(context, timelineHtml, "__TIMELINE_JSON__", analysis, 960, 640);
+                const analysis = runAnalysis(song, notes, rangeStart, rangeEnd);
+                await showHtml(context, timelineHtml, "__TIMELINE_JSON__", timelineModalData(analysis), 1040, 760);
+            } finally {
+                timelineRunning = false;
+            }
         })(arg as ArrangementSelection).catch(err => {
             console.error("[theory-aide] timeline failed:", err);
             void showMessage(context, "Error", "Failed to run Harmonic Timeline analysis.");

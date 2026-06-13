@@ -95,6 +95,19 @@ check("timeline chord sequence", tl.segments.map(s => s.chordName), ["C", "F", "
 check("timeline key", tl.key.label, "C major");
 check("timeline romans", tl.segments.map(s => s.roman?.label), ["I", "IV", "V", "I"]);
 check("timeline progression labels", tl.progressions.map(p => p.pattern), ["I-IV-V"]);
+check("range comparison labels",
+    [tl.rangeComparison?.first.label, tl.rangeComparison?.second.label],
+    ["Range A", "Range B"]);
+check("range comparison chord groups",
+    [tl.rangeComparison?.first.chordNames, tl.rangeComparison?.second.chordNames],
+    [["C", "F"], ["G", "C"]]);
+check("range comparison implied keys",
+    [tl.rangeComparison?.first.impliedKey, tl.rangeComparison?.second.impliedKey],
+    ["C major", "C major"]);
+check("range comparison main functions",
+    [tl.rangeComparison?.first.mainFunction, tl.rangeComparison?.second.mainFunction],
+    ["mixed", "mixed"]);
+check("range comparison warning count", tl.rangeComparison?.first.hardWarningCount, 1);
 const fSeg = tl.segments[1];
 check("clash detected on F segment", fSeg?.outliers.map(o => o.name), ["F#"]);
 check("clash attributed to Bass", fSeg?.outliers[0]?.tracks, ["Bass"]);
@@ -178,6 +191,10 @@ const aPhrygianColor = analyzeTimeline([
     n(57, 0, 1, "Keys"), n(60, 0, 1, "Keys"), n(64, 0, 1, "Keys"), n(58, 0, 1, "Lead"),
 ], 0, 1, { liveKey: aMinorLive });
 check("phrygian color detected", aPhrygianColor.modalColors.map(m => [m.mode, m.note]), [["phrygian", "Bb"]]);
+
+check("textSummary contains key", tl.textSummary.includes("Key:   C major (inferred)"), true);
+check("textSummary contains chord progression", tl.textSummary.includes("C -> F -> G -> C"), true);
+check("textSummary contains matched pattern", tl.textSummary.includes("I-IV-V"), true);
 
 console.log(failures ? `\n${failures} failure(s)` : "\nall ok");
 process.exit(failures ? 1 : 0);

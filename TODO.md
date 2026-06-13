@@ -33,9 +33,9 @@
 
 ## Phase 6: Section-Level Insight
 
-- [ ] Compare selected ranges or song sections, such as verse vs chorus.
-- [ ] Summarize key, chord vocabulary, and tension differences between sections.
-- [ ] Add exportable text summaries for review outside Ableton.
+- [x] Compare selected ranges or song sections, such as verse vs chorus.
+- [x] Summarize key, chord vocabulary, and tension differences between sections.
+- [x] Add exportable text summaries for review outside Ableton.
 
 ## Phase 7: What Next Workflow
 

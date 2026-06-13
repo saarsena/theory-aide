@@ -1,5 +1,5 @@
 // Key inference and Roman-numeral labelling, ported from Composition
-// Aide's analyzer.py (scale-membership scoring — deliberately transparent
+// Aide's analyzer.py (scale-membership scoring, deliberately transparent
 // so the UI can show *why* a key won).
 
 import { ROMAN, PARALLEL_MODE } from "./data.js";
@@ -29,7 +29,7 @@ export function keyLabel(root: number, scaleName: string, useFlats = false): str
 }
 
 /** 1.0 if every pitch class of the chord lives in the scale, proportional
- *  otherwise — so a single bVII or secondary dominant doesn't flip the key. */
+ *  otherwise, so a single bVII or secondary dominant doesn't flip the key. */
 function chordMembershipScore(chord: Chord, scale: Scale): number {
     const pcs = chord.pitchClasses;
     if (!pcs.length) return 0;

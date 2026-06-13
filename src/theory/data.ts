@@ -1,7 +1,7 @@
 // Data tables adapted from chordgen-m4l/src/data.js (itself a one-for-one
 // port of Composition Aide's music_theory.py). Analysis-only subset:
 // progression templates and the chord-symbol parser map are deliberately
-// absent — Theory Aide reads harmony, it does not generate it.
+// absent. Theory Aide reads harmony, it does not generate it.
 
 export const CHORD_QUALITIES: Record<string, readonly number[]> = {
     // Triads

@@ -75,13 +75,35 @@
   .tone.t { border-color: var(--tonic); }
   .tone.s { border-color: var(--subdom); }
   .tone.d { border-color: var(--dom); }
+  .guide-panel {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
+    padding: 12px; margin-bottom: 14px;
+  }
+  .guide-title { font-size: 13px; font-weight: 650; color: var(--accent); margin-bottom: 4px; }
+  .chooser { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+  .choice {
+    background: var(--panel2); color: var(--dim); border: 1px solid var(--line);
+    border-radius: 4px; padding: 5px 9px; cursor: pointer; font-size: 12px;
+  }
+  .choice.active { color: var(--text); border-color: var(--accent); }
+  .plan-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
+  .mini {
+    background: var(--panel2); border: 1px solid var(--line);
+    border-radius: 5px; padding: 9px 10px;
+  }
+  .mini b { color: var(--accent); }
+  .prompt-list { margin: 8px 0 0 0; padding: 0; list-style: none; }
+  .prompt-list li {
+    background: var(--panel2); border: 1px solid var(--line); border-radius: 5px;
+    padding: 8px 10px; margin-bottom: 6px;
+  }
   .footer { flex-shrink: 0; display: flex; justify-content: flex-end; }
   .close-btn {
     background: #2f2f2f; color: #ddd; border: 1px solid #444;
     border-radius: 4px; padding: 5px 22px; cursor: pointer; font-size: 13px;
   }
   html[data-theme="light"] .close-btn { background: #dedad4; color: var(--text); border-color: #b0ada8; }
-  @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+  @media (max-width: 720px) { .grid, .plan-grid { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -97,6 +119,14 @@
   <p class="lede">
     When you generate something you like, do not immediately ask for a totally new idea. First identify what is working, then create a related contrast. Songs usually move forward by changing one or two musical dimensions while keeping the rest familiar.
   </p>
+
+  <div class="guide-panel" id="guided-panel">
+    <div class="guide-title">Guided Next Move</div>
+    <p id="guided-intro"></p>
+    <div class="tone-row" id="guided-meta"></div>
+    <div class="chooser" id="material-choices"></div>
+    <div id="material-plan"></div>
+  </div>
 
   <h2>Freeze The Idea</h2>
   <p>Loop the part and write down the facts. You are trying to learn what the idea is, not whether it is theoretically fancy.</p>
@@ -198,6 +228,7 @@
 
 <script>
 var DATA = __NEXT_JSON__;
+var selectedPlan = DATA.plans && DATA.plans.length ? DATA.plans[0].id : null;
 (function() {
   var KEY = "ta-theme";
   var saved = "light";
@@ -221,6 +252,54 @@ function closeDialog() {
 }
 document.getElementById("close").addEventListener("click", closeDialog);
 document.addEventListener("keydown", function(e) { if (e.key === "Escape") closeDialog(); });
+
+function esc(s) {
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+function renderGuidedPanel() {
+  if (!DATA || !DATA.plans || !DATA.plans.length) return;
+  document.getElementById("guided-intro").textContent = DATA.intro;
+
+  var meta = [];
+  meta.push(DATA.analyzed ? "Analyzed clip: " + DATA.clipName : "Generic guide");
+  if (DATA.keyLabel) meta.push("Key: " + DATA.keyLabel);
+  if (DATA.rangeLabel) meta.push("Range: " + DATA.rangeLabel);
+  if (DATA.noteCount) meta.push(DATA.noteCount + " notes");
+  document.getElementById("guided-meta").innerHTML = meta.map(function(item) {
+    return '<span class="tone">' + esc(item) + '</span>';
+  }).join("");
+
+  document.getElementById("material-choices").innerHTML = DATA.plans.map(function(plan) {
+    return '<button class="choice' + (plan.id === selectedPlan ? ' active' : '') +
+      '" data-plan="' + esc(plan.id) + '">' + esc(plan.label) + '</button>';
+  }).join("");
+
+  var plan = DATA.plans.find(function(item) { return item.id === selectedPlan; }) || DATA.plans[0];
+  document.getElementById("material-plan").innerHTML =
+    '<h2 style="margin-top:8px">' + esc(plan.label) + '</h2>' +
+    '<p>' + esc(plan.summary) + '</p>' +
+    '<div class="plan-grid">' +
+      '<div class="mini"><b>Keep:</b> ' + esc(plan.keep) + '</div>' +
+      '<div class="mini"><b>Change:</b> ' + esc(plan.change) + '</div>' +
+    '</div>' +
+    '<h3>Useful next section jobs</h3>' +
+    '<div class="grid">' + plan.jobs.map(function(job) {
+      return '<div class="card"><h3>' + esc(job.label) + '</h3><p>' + esc(job.reason) + '</p></div>';
+    }).join("") + '</div>' +
+    '<h3>Prompts to try now</h3>' +
+    '<ol class="prompt-list">' + plan.prompts.map(function(prompt) {
+      return '<li>' + esc(prompt) + '</li>';
+    }).join("") + '</ol>';
+
+  Array.prototype.forEach.call(document.querySelectorAll(".choice"), function(button) {
+    button.addEventListener("click", function() {
+      selectedPlan = button.getAttribute("data-plan");
+      renderGuidedPanel();
+    });
+  });
+}
+renderGuidedPanel();
 </script>
 </body>
 </html>

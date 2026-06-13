@@ -129,7 +129,7 @@ export function buildDiatonicChords(scale: Scale, sevenths = false): Chord[] {
     const chords: Chord[] = [];
     const notes = scale.notes;
     const n = notes.length;
-    // Scale-degree indexing (not pitch-class arithmetic) — what makes
+    // Scale-degree indexing (not pitch-class arithmetic) is what makes
     // pentatonic/blues scales work.
     for (let deg = 0; deg < n; deg++) {
         const root = notes[deg] ?? 0;

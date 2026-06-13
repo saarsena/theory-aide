@@ -4,6 +4,13 @@
 import { Chord, Scale, recognizeChord, noteName } from "../src/theory/core.js";
 import { inferKey, romanForChord, harmonicFunction, detectProgressions, type RomanLabel } from "../src/theory/analyzer.js";
 import { analyzeTimeline, type TimedNote } from "../src/theory/timeline.js";
+import { buildCompositionDimensionsData } from "../src/theory/dimensions.js";
+import { buildGuidedNextMoveData } from "../src/theory/nextMoves.js";
+import { buildRhythmPhrasingData } from "../src/theory/rhythm.js";
+import { buildVoicingData } from "../src/theory/voicing.js";
+import { buildArrangementFormData } from "../src/theory/form.js";
+import { buildTimbreTextureData } from "../src/theory/timbre.js";
+import { buildCompositionMapData } from "../src/theory/map.js";
 
 let failures = 0;
 function check(label: string, actual: unknown, expected: unknown) {
@@ -195,6 +202,68 @@ check("phrygian color detected", aPhrygianColor.modalColors.map(m => [m.mode, m.
 check("textSummary contains key", tl.textSummary.includes("Key:   C major (inferred)"), true);
 check("textSummary contains chord progression", tl.textSummary.includes("C -> F -> G -> C"), true);
 check("textSummary contains matched pattern", tl.textSummary.includes("I-IV-V"), true);
+
+const dimensions = buildCompositionDimensionsData(tl, notes);
+check("dimensions primary change", dimensions.primaryChange, "harmony");
+check("dimensions card count", dimensions.dimensions.length, 4);
+check("dimensions include vertical card",
+    dimensions.dimensions.find(card => card.id === "vertical")?.title, "Vertical Axis");
+check("dimensions use musical vertical headline",
+    dimensions.dimensions.find(card => card.id === "vertical")?.headline.includes("harmonic colors"), true);
+check("dimensions summarize static velocity",
+    dimensions.dimensions.find(card => card.id === "spectral")?.observations.includes("Static velocity at 100."), true);
+
+const nextMoves = buildGuidedNextMoveData(tl, notes, "Smoke clip");
+check("next moves analyze clip", nextMoves.analyzed, true);
+check("next moves material choices",
+    nextMoves.plans.map(plan => plan.id),
+    ["progression", "melody", "bassline", "rhythm", "texture", "full_clip"]);
+check("next moves progression prompts",
+    (nextMoves.plans.find(plan => plan.id === "progression")?.prompts.length ?? 0) >= 3, true);
+
+const rhythmNotes: TimedNote[] = [
+    n(60, 0, 0.25, "Lead"), n(62, 0.5, 0.75, "Lead"), n(64, 1, 1.25, "Lead"), n(65, 1.5, 1.75, "Lead"),
+    n(67, 2, 2.25, "Lead"), n(69, 2.5, 2.75, "Lead"), n(71, 3, 3.25, "Lead"), n(72, 3.5, 3.75, "Lead"),
+    n(60, 4, 4.25, "Lead"), n(62, 4.5, 4.75, "Lead"), n(64, 5, 5.25, "Lead"), n(65, 5.5, 5.75, "Lead"),
+    n(67, 6, 6.25, "Lead"), n(69, 6.5, 6.75, "Lead"), n(71, 7, 7.25, "Lead"), n(72, 7.5, 7.75, "Lead"),
+];
+const rhythm = buildRhythmPhrasingData(rhythmNotes, 0, 8, "Rhythm smoke");
+check("rhythm subdivision",
+    rhythm.metrics.find(metric => metric.label === "Subdivision")?.value, "Eighth note subdivision");
+check("rhythm phrase finding",
+    rhythm.findings.some(finding => finding.label === "Two bar phrase"), true);
+check("rhythm repeated shape",
+    rhythm.findings.some(finding => finding.label === "Repeated rhythm shape"), true);
+check("rhythm suggestions include delayed answer",
+    rhythm.suggestions.some(suggestion => suggestion.label === "Delay the answer"), true);
+
+const voicingNotes: TimedNote[] = [
+    n(36, 0, 2, "Keys"), n(40, 0, 2, "Keys"), n(43, 0, 2, "Keys"),
+    n(60, 0, 2, "Keys"), n(64, 0, 2, "Keys"), n(67, 0, 2, "Keys"),
+];
+const voicing = buildVoicingData(voicingNotes, 0, 2, "Voicing smoke");
+check("voicing flags low mud",
+    voicing.findings.some(finding => finding.label === "Muddy Low Register Cluster"), true);
+check("voicing suggests simpler bass",
+    voicing.suggestions.some(suggestion => suggestion.includes("single root")), true);
+
+const form = buildArrangementFormData(tl, notes);
+check("form includes templates", form.templates.length, 8);
+check("form comparison includes tension",
+    form.comparison.some(item => item.label === "Tension"), true);
+
+const timbre = buildTimbreTextureData(voicingNotes, 0, 2, "Timbre smoke");
+check("timbre bands", timbre.bands.map(band => band.label), ["Bass", "Low Mid", "Mid And Presence", "High Air"]);
+check("timbre suggestions include filter",
+    timbre.suggestions.some(suggestion => suggestion.includes("filter")), true);
+
+const map = buildCompositionMapData(tl, notes, "Map smoke");
+check("map density blocks", map.density.length > 0, true);
+check("map rhythm hits", map.rhythmHits.length > 0, true);
+check("map progression nodes", map.progression.map(node => node.label), ["C", "F", "G", "C"]);
+check("map pitch range", [map.lowPitch, map.highPitch], [36, 74]);
+check("map voicing profile", map.voicingProfile.length > 0, true);
+check("map motion profile", map.motionProfile.length > 0, true);
 
 console.log(failures ? `\n${failures} failure(s)` : "\nall ok");
 process.exit(failures ? 1 : 0);

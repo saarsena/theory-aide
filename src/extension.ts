@@ -21,6 +21,19 @@ import referenceHtml from "./reference.html";
 import auditHtml     from "./audit.html";
 import primerHtml    from "./primer.html";
 import nextHtml      from "./next.html";
+import dimensionsHtml from "./dimensions.html";
+import { buildCompositionDimensionsData } from "./theory/dimensions.js";
+import { buildGuidedNextMoveData } from "./theory/nextMoves.js";
+import rhythmHtml    from "./rhythm.html";
+import { buildRhythmPhrasingData } from "./theory/rhythm.js";
+import voicingHtml   from "./voicing.html";
+import formHtml      from "./form.html";
+import timbreHtml    from "./timbre.html";
+import mapHtml       from "./map.html";
+import { buildVoicingData } from "./theory/voicing.js";
+import { buildArrangementFormData } from "./theory/form.js";
+import { buildTimbreTextureData } from "./theory/timbre.js";
+import { buildCompositionMapData } from "./theory/map.js";
 
 type Ctx = ExtensionContext<"1.0.0">;
 
@@ -215,6 +228,7 @@ export function activate(activation: ActivationContext) {
     const context = initialize(activation, "1.0.0");
     const song = context.application.song;
     let timelineRunning = false;
+    let dimensionsRunning = false;
 
     // ── Harmonic Timeline: what do all tracks spell together? ────────
 
@@ -264,7 +278,7 @@ export function activate(activation: ActivationContext) {
 
     void context.ui.registerContextMenuAction(
         "MidiTrack.ArrangementSelection",
-        "Harmonic Timeline (All Tracks)…",
+        "Theory Aide > Harmonic Timeline (All Tracks)…",
         "theory.timeline",
     );
 
@@ -294,7 +308,7 @@ export function activate(activation: ActivationContext) {
 
     void context.ui.registerContextMenuAction(
         "MidiClip",
-        "Explain Harmony…",
+        "Theory Aide > Explain Harmony…",
         "theory.explainClip",
     );
 
@@ -312,13 +326,13 @@ export function activate(activation: ActivationContext) {
 
     void context.ui.registerContextMenuAction(
         "MidiClip",
-        "Theory Reference…",
+        "Theory Aide > Theory Reference…",
         "theory.reference",
     );
 
     void context.ui.registerContextMenuAction(
         "Scene",
-        "Theory Reference…",
+        "Theory Aide > Theory Reference…",
         "theory.reference",
     );
 
@@ -344,21 +358,37 @@ export function activate(activation: ActivationContext) {
 
     void context.ui.registerContextMenuAction(
         "Scene",
-        "Music Theory Primer…",
+        "Theory Aide > Music Theory Primer…",
         "theory.primer",
     );
 
     void context.ui.registerContextMenuAction(
         "MidiClip",
-        "Music Theory Primer…",
+        "Theory Aide > Music Theory Primer…",
         "theory.primer",
     );
 
     // ── What Next: arrangement workflow after finding a good idea ─────────
 
-    context.commands.registerCommand("theory.whatNext", (_arg: unknown) =>
+    context.commands.registerCommand("theory.whatNext", (arg: unknown) =>
         void (async () => {
-            await showHtml(context, nextHtml, "__NEXT_JSON__", {}, 820, 700);
+            let data = buildGuidedNextMoveData();
+
+            if (arg) {
+                const obj = context.getObjectFromHandle(arg as Handle, DataModelObject);
+                if (obj instanceof MidiClip) {
+                    const clip = obj as MidiClip<"1.0.0">;
+                    const { notes, start, end } = clipNotes(clip, clip.name || "Clip");
+                    if (!notes.length) {
+                        await showMessage(context, "What Do I Do Next?", "This clip has no unmuted notes.");
+                        return;
+                    }
+                    const analysis = runAnalysis(song, notes, start, end);
+                    data = buildGuidedNextMoveData(analysis, notes, clip.name || "Untitled clip");
+                }
+            }
+
+            await showHtml(context, nextHtml, "__NEXT_JSON__", data, 820, 700);
         })().catch(err => {
             console.error("[theory-aide] what next failed:", err);
             void showMessage(context, "Error", "Failed to open What Do I Do Next.");
@@ -367,14 +397,286 @@ export function activate(activation: ActivationContext) {
 
     void context.ui.registerContextMenuAction(
         "Scene",
-        "What Do I Do Next?…",
+        "Theory Aide > What Do I Do Next?…",
         "theory.whatNext",
     );
 
     void context.ui.registerContextMenuAction(
         "MidiClip",
-        "What Do I Do Next?…",
+        "Theory Aide > What Do I Do Next?…",
         "theory.whatNext",
+    );
+
+    // ── Composition Dimensions: vertical, horizontal, macro, spectral ─────
+
+    context.commands.registerCommand("theory.dimensionsRange", (arg: unknown) =>
+        void (async (selection: ArrangementSelection) => {
+            if (dimensionsRunning) {
+                await showMessage(context, "Composition Dimensions",
+                    "Composition Dimensions is already running. Wait for the current window to finish opening, then try again.");
+                return;
+            }
+            dimensionsRunning = true;
+            try {
+                const rangeStart = selection.time_selection_start;
+                const rangeEnd = selection.time_selection_end;
+                if (rangeEnd - rangeStart <= 1e-9) {
+                    await showMessage(context, "Composition Dimensions",
+                        "Select a time range in the arrangement first.");
+                    return;
+                }
+
+                const notes: TimedNote[] = [];
+                for (const track of song.tracks) {
+                    if (!(track instanceof MidiTrack)) continue;
+                    for (const clip of track.arrangementClips) {
+                        if (clip instanceof MidiClip && !clip.muted) {
+                            notes.push(...arrangementNotes(clip, track.name, rangeStart, rangeEnd));
+                        }
+                    }
+                }
+
+                if (!notes.length) {
+                    await showMessage(context, "Composition Dimensions",
+                        "No MIDI notes found in the selected range.");
+                    return;
+                }
+
+                const analysis = runAnalysis(song, notes, rangeStart, rangeEnd);
+                const data = buildCompositionDimensionsData(analysis, notes);
+                await showHtml(context, dimensionsHtml, "__DIMENSIONS_JSON__", data, 840, 700);
+            } finally {
+                dimensionsRunning = false;
+            }
+        })(arg as ArrangementSelection).catch(err => {
+            console.error("[theory-aide] dimensions range failed:", err);
+            void showMessage(context, "Error", "Failed to run Composition Dimensions analysis.");
+        }),
+    );
+
+    context.commands.registerCommand("theory.dimensionsClip", (arg: unknown) =>
+        void (async () => {
+            if (!arg) return;
+            const obj = context.getObjectFromHandle(arg as Handle, DataModelObject);
+            if (!(obj instanceof MidiClip)) return;
+
+            const clip = obj as MidiClip<"1.0.0">;
+            const { notes, start, end } = clipNotes(clip, clip.name || "Clip");
+            if (!notes.length) {
+                await showMessage(context, "Composition Dimensions", "This clip has no unmuted notes.");
+                return;
+            }
+
+            const analysis = runAnalysis(song, notes, start, end);
+            const data = buildCompositionDimensionsData(analysis, notes);
+            await showHtml(context, dimensionsHtml, "__DIMENSIONS_JSON__", data, 840, 700);
+        })().catch(err => {
+            console.error("[theory-aide] dimensions clip failed:", err);
+            void showMessage(context, "Error", "Failed to run Composition Dimensions analysis.");
+        }),
+    );
+
+    void context.ui.registerContextMenuAction(
+        "MidiTrack.ArrangementSelection",
+        "Theory Aide > Composition Dimensions (Selection)…",
+        "theory.dimensionsRange",
+    );
+
+    void context.ui.registerContextMenuAction(
+        "MidiClip",
+        "Theory Aide > Composition Dimensions (Clip)…",
+        "theory.dimensionsClip",
+    );
+
+    // Rhythm And Phrasing: timing, breath, groove, and phrase shape
+
+    context.commands.registerCommand("theory.rhythmPhrasing", (arg: unknown) =>
+        void (async () => {
+            if (!arg) return;
+            const obj = context.getObjectFromHandle(arg as Handle, DataModelObject);
+            if (!(obj instanceof MidiClip)) return;
+
+            const clip = obj as MidiClip<"1.0.0">;
+            const { notes, start, end } = clipNotes(clip, clip.name || "Clip");
+            if (!notes.length) {
+                await showMessage(context, "Rhythm And Phrasing", "This clip has no unmuted notes.");
+                return;
+            }
+
+            const data = buildRhythmPhrasingData(notes, start, end, clip.name || "Untitled clip");
+            await showHtml(context, rhythmHtml, "__RHYTHM_JSON__", data, 820, 700);
+        })().catch(err => {
+            console.error("[theory-aide] rhythm phrasing failed:", err);
+            void showMessage(context, "Error", "Failed to run Rhythm And Phrasing analysis.");
+        }),
+    );
+
+    void context.ui.registerContextMenuAction(
+        "MidiClip",
+        "Theory Aide > Rhythm And Phrasing…",
+        "theory.rhythmPhrasing",
+    );
+
+    // Voicing, form, and texture tools
+
+    context.commands.registerCommand("theory.voicingDensity", (arg: unknown) =>
+        void (async () => {
+            if (!arg) return;
+            const obj = context.getObjectFromHandle(arg as Handle, DataModelObject);
+            if (!(obj instanceof MidiClip)) return;
+
+            const clip = obj as MidiClip<"1.0.0">;
+            const { notes, start, end } = clipNotes(clip, clip.name || "Clip");
+            if (!notes.length) {
+                await showMessage(context, "Voicing And Density", "This clip has no unmuted notes.");
+                return;
+            }
+
+            const data = buildVoicingData(notes, start, end, clip.name || "Untitled clip");
+            await showHtml(context, voicingHtml, "__VOICING_JSON__", data, 820, 700);
+        })().catch(err => {
+            console.error("[theory-aide] voicing density failed:", err);
+            void showMessage(context, "Error", "Failed to run Voicing And Density analysis.");
+        }),
+    );
+
+    void context.ui.registerContextMenuAction(
+        "MidiClip",
+        "Theory Aide > Voicing And Density…",
+        "theory.voicingDensity",
+    );
+
+    context.commands.registerCommand("theory.arrangementForm", (arg: unknown) =>
+        void (async (selection: ArrangementSelection) => {
+            const rangeStart = selection.time_selection_start;
+            const rangeEnd = selection.time_selection_end;
+            if (rangeEnd - rangeStart <= 1e-9) {
+                await showMessage(context, "Arrangement And Form", "Select a time range in the arrangement first.");
+                return;
+            }
+
+            const notes: TimedNote[] = [];
+            for (const track of song.tracks) {
+                if (!(track instanceof MidiTrack)) continue;
+                for (const clip of track.arrangementClips) {
+                    if (clip instanceof MidiClip && !clip.muted) {
+                        notes.push(...arrangementNotes(clip, track.name, rangeStart, rangeEnd));
+                    }
+                }
+            }
+
+            if (!notes.length) {
+                await showMessage(context, "Arrangement And Form", "No MIDI notes found in the selected range.");
+                return;
+            }
+
+            const analysis = runAnalysis(song, notes, rangeStart, rangeEnd);
+            const data = buildArrangementFormData(analysis, notes);
+            await showHtml(context, formHtml, "__FORM_JSON__", data, 840, 720);
+        })(arg as ArrangementSelection).catch(err => {
+            console.error("[theory-aide] arrangement form failed:", err);
+            void showMessage(context, "Error", "Failed to run Arrangement And Form analysis.");
+        }),
+    );
+
+    void context.ui.registerContextMenuAction(
+        "MidiTrack.ArrangementSelection",
+        "Theory Aide > Arrangement And Form…",
+        "theory.arrangementForm",
+    );
+
+    context.commands.registerCommand("theory.timbreTexture", (arg: unknown) =>
+        void (async () => {
+            if (!arg) return;
+            const obj = context.getObjectFromHandle(arg as Handle, DataModelObject);
+            if (!(obj instanceof MidiClip)) return;
+
+            const clip = obj as MidiClip<"1.0.0">;
+            const { notes, start, end } = clipNotes(clip, clip.name || "Clip");
+            if (!notes.length) {
+                await showMessage(context, "Timbre Texture Dynamics", "This clip has no unmuted notes.");
+                return;
+            }
+
+            const data = buildTimbreTextureData(notes, start, end, clip.name || "Untitled clip");
+            await showHtml(context, timbreHtml, "__TIMBRE_JSON__", data, 820, 700);
+        })().catch(err => {
+            console.error("[theory-aide] timbre texture failed:", err);
+            void showMessage(context, "Error", "Failed to run Timbre Texture Dynamics analysis.");
+        }),
+    );
+
+    void context.ui.registerContextMenuAction(
+        "MidiClip",
+        "Theory Aide > Timbre Texture Dynamics…",
+        "theory.timbreTexture",
+    );
+
+    context.commands.registerCommand("theory.compositionMapClip", (arg: unknown) =>
+        void (async () => {
+            if (!arg) return;
+            const obj = context.getObjectFromHandle(arg as Handle, DataModelObject);
+            if (!(obj instanceof MidiClip)) return;
+
+            const clip = obj as MidiClip<"1.0.0">;
+            const { notes, start, end } = clipNotes(clip, clip.name || "Clip");
+            if (!notes.length) {
+                await showMessage(context, "Composition Map", "This clip has no unmuted notes.");
+                return;
+            }
+
+            const analysis = runAnalysis(song, notes, start, end);
+            const data = buildCompositionMapData(analysis, notes, clip.name || "Untitled clip");
+            await showHtml(context, mapHtml, "__MAP_JSON__", data, 920, 720);
+        })().catch(err => {
+            console.error("[theory-aide] composition map clip failed:", err);
+            void showMessage(context, "Error", "Failed to open Composition Map.");
+        }),
+    );
+
+    void context.ui.registerContextMenuAction(
+        "MidiClip",
+        "Theory Aide > Composition Map (Clip)…",
+        "theory.compositionMapClip",
+    );
+
+    context.commands.registerCommand("theory.compositionMapRange", (arg: unknown) =>
+        void (async (selection: ArrangementSelection) => {
+            const rangeStart = selection.time_selection_start;
+            const rangeEnd = selection.time_selection_end;
+            if (rangeEnd - rangeStart <= 1e-9) {
+                await showMessage(context, "Composition Map", "Select a time range in the arrangement first.");
+                return;
+            }
+
+            const notes: TimedNote[] = [];
+            for (const track of song.tracks) {
+                if (!(track instanceof MidiTrack)) continue;
+                for (const clip of track.arrangementClips) {
+                    if (clip instanceof MidiClip && !clip.muted) {
+                        notes.push(...arrangementNotes(clip, track.name, rangeStart, rangeEnd));
+                    }
+                }
+            }
+
+            if (!notes.length) {
+                await showMessage(context, "Composition Map", "No MIDI notes found in the selected range.");
+                return;
+            }
+
+            const analysis = runAnalysis(song, notes, rangeStart, rangeEnd);
+            const data = buildCompositionMapData(analysis, notes, "Selected range");
+            await showHtml(context, mapHtml, "__MAP_JSON__", data, 920, 720);
+        })(arg as ArrangementSelection).catch(err => {
+            console.error("[theory-aide] composition map range failed:", err);
+            void showMessage(context, "Error", "Failed to open Composition Map.");
+        }),
+    );
+
+    void context.ui.registerContextMenuAction(
+        "MidiTrack.ArrangementSelection",
+        "Theory Aide > Composition Map (Selection)…",
+        "theory.compositionMapRange",
     );
 
 
@@ -516,7 +818,7 @@ export function activate(activation: ActivationContext) {
 
     void context.ui.registerContextMenuAction(
         "Scene",
-        "Audit Session…",
+        "Theory Aide > Audit Session…",
         "theory.audit",
     );
 

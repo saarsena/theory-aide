@@ -1,52 +1,37 @@
 # Theory Aide TODO
 
-## Phase 1: Make Existing Analysis More Explainable
+## Phase 1: Composition Dimensions As Tools
 
-- [x] Add structured progression labels to the analysis payload.
-- [x] Show progression matches in Harmonic Timeline and Explain Harmony.
-- [x] Add short "why this works" text for common cadence and pop-loop matches.
-- [x] Keep smoke-test coverage for every detected pattern.
+1. [x] Add a composition dimensions view that separates vertical, horizontal, macro, and spectral observations.
+2. [x] Summarize what the current clip is mostly changing: harmony, rhythm, form, texture, density, or dynamics.
+3. [x] Offer one practical next move per dimension, written for Ableton workflows.
 
-## Phase 2: Better Clash Explanations
+## Phase 2: Guided Next Move
 
-- [x] Classify out-of-key notes as likely passing tones, chord extensions, or hard clashes.
-- [x] Explain which track contributes each clash and why it matters.
-- [x] Distinguish "outside the key" from "inside the chord but outside the inferred scale."
+1. [x] Let the user choose the liked material: progression, melody, bassline, rhythm, texture, or full clip.
+2. [x] Suggest next section jobs such as contrast, lift, release, reset, continuation, or surprise.
+3. [x] Generate specific prompts for the next section, for example "same chords, new bass rhythm" or "same melody contour, brighter voicing."
 
-## Phase 3: Resolution Suggestions
+## Phase 3: Rhythm And Phrasing
 
-- [x] Suggest likely next chords for dominant and secondary-dominant endings.
-- [x] Identify unresolved half cadences.
-- [x] Add simple "try next" guidance such as `G7 -> C` or `A7 -> Dm`.
+1. [x] Add rhythm explanations for pulse, meter, subdivision, syncopation, swing, and groove.
+2. [x] Detect phrase lengths and call out repeated, unanswered, or crowded phrases.
+3. [x] Suggest edits using silence, pickup notes, longer rests, delayed entries, or altered subdivision.
 
-## Phase 4: Richer Chord Recognition
+## Phase 4: Voicing And Density
 
-- [x] Expand recognition for add9, 9th, 11th, 13th, and suspended dominant chords.
-- [x] Add tests for voicings where extensions appear above different bass notes.
-- [x] Avoid over-labeling simple triads when extensions are weak passing tones.
+1. [x] Explain register, spacing, inversion, doubling, and chord density for selected MIDI notes.
+2. [x] Flag muddy low register clusters and overly crowded midrange voicings.
+3. [x] Suggest spread voicings, octave moves, simpler bass support, or smoother voice leading.
 
-## Phase 5: Modal Color and Tension
+## Phase 5: Arrangement And Form
 
-- [x] Detect common modal colors: Dorian, Phrygian, Lydian, and Mixolydian.
-- [x] Add a tension or density score per segment.
-- [x] Visualize tension over time in the timeline modal.
+1. [x] Add form templates for intro, verse, pre chorus, chorus, bridge, breakdown, build, drop, and outro.
+2. [x] Compare two sections by harmony, rhythm, density, register, and spectral activity.
+3. [x] Suggest arrangement changes that create contrast without discarding the original idea.
 
-## Phase 6: Section-Level Insight
+## Phase 6: Timbre, Texture, And Dynamics
 
-- [x] Compare selected ranges or song sections, such as verse vs chorus.
-- [x] Summarize key, chord vocabulary, and tension differences between sections.
-- [x] Add exportable text summaries for review outside Ableton.
-
-## Phase 7: What Next Workflow
-
-- [x] Add an in-extension guide for turning one liked generated idea into the next song section.
-- [x] Cover next-section jobs such as verse, chorus, pre chorus, bridge, build, and resolution.
-- [x] Explain practical strategies: rotate the progression, borrow one chord, answer the melody, and change density.
-- [x] Register the guide on MIDI clip and scene context menus.
-
-## Phase 8: Composer Dimensions Primer
-
-- [x] Expand the primer beyond scales, chords, and progressions.
-- [x] Add vertical axis guidance for intervals, harmonic gravity, voicing density, and voice leading.
-- [x] Add horizontal axis guidance for pulse, meter, subdivision, timing feel, and phrasing.
-- [x] Add macro and spectral guidance for form, development, texture, dynamics, masking, and timbral motion.
+1. [x] Add primer guidance for frequency masking, dynamic range, automation, and timbral evolution.
+2. [x] Create a practical checklist for arranging parts so they do not occupy the same space.
+3. [x] Suggest compositional automation moves such as filter opening, envelope shortening, widening, thinning, or harmonic brightening.

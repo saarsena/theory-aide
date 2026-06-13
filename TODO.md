@@ -43,3 +43,10 @@
 - [x] Cover next-section jobs such as verse, chorus, pre chorus, bridge, build, and resolution.
 - [x] Explain practical strategies: rotate the progression, borrow one chord, answer the melody, and change density.
 - [x] Register the guide on MIDI clip and scene context menus.
+
+## Phase 8: Composer Dimensions Primer
+
+- [x] Expand the primer beyond scales, chords, and progressions.
+- [x] Add vertical axis guidance for intervals, harmonic gravity, voicing density, and voice leading.
+- [x] Add horizontal axis guidance for pulse, meter, subdivision, timing feel, and phrasing.
+- [x] Add macro and spectral guidance for form, development, texture, dynamics, masking, and timbral motion.

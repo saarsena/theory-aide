@@ -21,12 +21,41 @@ See [DESIGN.md](DESIGN.md) for the full positioning and roadmap.
 **No Python required.** The entire theory engine is TypeScript, bundled into
 `dist/extension.js`.
 
-## Commands (v0.1)
+## Commands
 
-| Command                             | Trigger                                        | What it does                                                                                                                                                                                                                                                                                                   |
-| ----------------------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Harmonic Timeline (All Tracks)…** | Right-click a MIDI-track arrangement selection | Scans **every MIDI track** in the selected time range (looped clips unrolled), slices the combined harmony beat by beat, and shows the chord/Roman-numeral timeline with harmonic functions (T/S/D), borrowed-chord and secondary-dominant badges, and per-track clash warnings — e.g. "F# out of key — Bass". |
-| **Explain Harmony…**                | Right-click a MIDI clip                        | Chord-by-chord explanation of the clip in **Live's current key** (the same key Scaler syncs to): Roman numerals, function colors, borrowed badges, out-of-key flags, and key candidates with scores.                                                                                                           |
+All commands appear in the right-click context menu inside Live's arrangement or session view.
+
+### Arrangement selection (right-click a MIDI track with a time selection)
+
+| Command | What it does |
+| --- | --- |
+| **Harmonic Timeline (All Tracks)…** | Scans every MIDI track in the selected range, slices the combined harmony beat by beat, and shows the chord/Roman-numeral timeline with function colors (T/S/D), borrowed and secondary-dominant badges, and per-track clash warnings. |
+| **Counterpoint Checker…** | Analyzes every pair of MIDI tracks for parallel 5ths, parallel octaves, hidden 5ths/octaves, and parallel unisons. Reports the motion-type breakdown (contrary / oblique / similar / parallel) and harmonic interval distribution per pair and in aggregate. |
+| **Composition Dimensions (Selection)…** | Rates the selection across vertical (harmony), horizontal (melody), macro (arrangement energy), and spectral (register) dimensions. |
+| **Arrangement And Form…** | Detects section structure, energy arcs, and formal landmarks in the selected range. |
+| **Composition Map (Selection)…** | Visual overview of harmonic and rhythmic density over the selected time range. |
+
+### MIDI clip (right-click a clip)
+
+| Command | What it does |
+| --- | --- |
+| **Explain Harmony…** | Chord-by-chord analysis in Live's current key: Roman numerals, function colors, borrowed/secondary badges, out-of-key flags, and key candidates with scores. Includes a **Teach Me** mode with prose explanations. |
+| **Voicing And Density…** | Flags muddy register overlap, spread issues, and density spikes within a single clip. |
+| **Rhythm And Phrasing…** | Analyzes rhythmic grid alignment, phrase shape, groove, and breath points. |
+| **Timbre Texture Dynamics…** | Inspects velocity contour, articulation patterns, and textural density over time. |
+| **Composition Dimensions (Clip)…** | Same dimension breakdown as the arrangement version, scoped to one clip. |
+| **Composition Map (Clip)…** | Harmonic and rhythmic map scoped to one clip. |
+| **What Do I Do Next?…** | Suggests concrete next moves (verse, chorus, bridge, breakdown, resolution) based on the clip's harmonic and rhythmic state. |
+| **Theory Reference…** | Key-aware cheat sheet: scale, diatonic chords with jazz context, common progressions, borrowed/secondary chords, and all seven modes. |
+| **Music Theory Primer…** | Introductory explainer covering frequencies, the 12-note system, and the current key. |
+
+### Scene (right-click a scene)
+
+| Command | What it does |
+| --- | --- |
+| **Audit Session…** | Scans every MIDI clip in the session for out-of-key notes and key-center disagreements. |
+| **Theory Reference…** | Same reference modal as above. |
+| **Music Theory Primer…** | Same primer as above. |
 
 When Live's **Scale Mode** is on, analysis uses Live's key and warns if the content
 actually suggests a different key. Otherwise the key is inferred
@@ -50,14 +79,21 @@ npm run package    # production .ablx
 
 ```
 src/
-  extension.ts        commands, context menus, clip → timeline note extraction
-  theory/data.ts      chord/scale tables (from chordgen-m4l, golden-tested lineage)
-  theory/core.ts      Scale, Chord, diatonic builder, chord recognition
-  theory/analyzer.ts  key inference, Roman numerals, harmonic function
-  theory/timeline.ts  cross-track segmentation, clash detection
-  timeline.html       Harmonic Timeline modal
-  explain.html        Explain Harmony modal
-tests/smoke.ts        engine assertions
+  extension.ts              commands, context menus, note extraction
+  theory/data.ts            chord/scale tables
+  theory/core.ts            Scale, Chord, diatonic builder, chord recognition
+  theory/analyzer.ts        key inference, Roman numerals, harmonic function
+  theory/timeline.ts        cross-track segmentation, clash detection
+  theory/counterpoint.ts    parallel/hidden interval detection, motion texture
+  theory/dimensions.ts      composition dimension scoring
+  theory/form.ts            arrangement form and section detection
+  theory/map.ts             composition map data
+  theory/nextMoves.ts       guided next-move suggestions
+  theory/rhythm.ts          rhythm and phrasing analysis
+  theory/timbre.ts          timbre, texture, and dynamics analysis
+  theory/voicing.ts         voicing density and register analysis
+  *.html                    modal UIs (one per command)
+tests/smoke.ts              engine assertions
 ```
 
 MIT © 2026 saarsena

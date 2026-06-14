@@ -31,11 +31,13 @@ import formHtml      from "./form.html";
 import timbreHtml    from "./timbre.html";
 import mapHtml       from "./map.html";
 import counterpointHtml from "./counterpoint.html";
+import tonerowHtml      from "./tonerow.html";
 import { buildVoicingData } from "./theory/voicing.js";
 import { buildArrangementFormData } from "./theory/form.js";
 import { buildTimbreTextureData } from "./theory/timbre.js";
 import { buildCompositionMapData } from "./theory/map.js";
 import { buildCounterpointData } from "./theory/counterpoint.js";
+import { buildToneRowData }     from "./theory/tonerow.js";
 
 type Ctx = ExtensionContext<"1.0.0">;
 
@@ -740,6 +742,35 @@ export function activate(activation: ActivationContext) {
         "MidiTrack.ArrangementSelection",
         "Theory Aide > Counterpoint Checker…",
         "theory.counterpoint",
+    );
+
+    // ── Tone Row Checker: twelve-tone serial analysis ─────────────────
+
+    context.commands.registerCommand("theory.toneRow", (arg: unknown) =>
+        void (async () => {
+            if (!arg) return;
+            const obj = context.getObjectFromHandle(arg as Handle, DataModelObject);
+            if (!(obj instanceof MidiClip)) return;
+
+            const clip = obj as MidiClip<"1.0.0">;
+            const { notes, start, end } = clipNotes(clip, clip.name || "Clip");
+            if (!notes.length) {
+                await showMessage(context, "Tone Row Checker", "This clip has no unmuted notes.");
+                return;
+            }
+
+            const data = buildToneRowData(notes, start, end, clip.name || "Untitled clip");
+            await showHtml(context, tonerowHtml, "__TONEROW_JSON__", data, 900, 680);
+        })().catch(err => {
+            console.error("[theory-aide] tone row failed:", err);
+            void showMessage(context, "Error", "Failed to run Tone Row Checker.");
+        }),
+    );
+
+    void context.ui.registerContextMenuAction(
+        "MidiClip",
+        "Theory Aide > Tone Row Checker…",
+        "theory.toneRow",
     );
 
     // ── Session Audit: set-wide harmonic lint ─────────────────────────

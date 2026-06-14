@@ -30,10 +30,12 @@ import voicingHtml   from "./voicing.html";
 import formHtml      from "./form.html";
 import timbreHtml    from "./timbre.html";
 import mapHtml       from "./map.html";
+import counterpointHtml from "./counterpoint.html";
 import { buildVoicingData } from "./theory/voicing.js";
 import { buildArrangementFormData } from "./theory/form.js";
 import { buildTimbreTextureData } from "./theory/timbre.js";
 import { buildCompositionMapData } from "./theory/map.js";
+import { buildCounterpointData } from "./theory/counterpoint.js";
 
 type Ctx = ExtensionContext<"1.0.0">;
 
@@ -679,6 +681,66 @@ export function activate(activation: ActivationContext) {
         "theory.compositionMapRange",
     );
 
+    // ── Counterpoint Checker: parallel 5ths/8ths, motion texture ─────
+
+    let counterpointRunning = false;
+
+    context.commands.registerCommand("theory.counterpoint", (arg: unknown) =>
+        void (async (selection: ArrangementSelection) => {
+            if (counterpointRunning) {
+                await showMessage(context, "Counterpoint Checker",
+                    "Counterpoint analysis is already running.");
+                return;
+            }
+            counterpointRunning = true;
+            try {
+                const rangeStart = selection.time_selection_start;
+                const rangeEnd = selection.time_selection_end;
+                if (rangeEnd - rangeStart <= 1e-9) {
+                    await showMessage(context, "Counterpoint Checker",
+                        "Select a time range in the arrangement first.");
+                    return;
+                }
+
+                const notes: TimedNote[] = [];
+                for (const track of song.tracks) {
+                    if (!(track instanceof MidiTrack)) continue;
+                    for (const clip of track.arrangementClips) {
+                        if (clip instanceof MidiClip && !clip.muted) {
+                            notes.push(...arrangementNotes(clip, track.name, rangeStart, rangeEnd));
+                        }
+                    }
+                }
+
+                if (!notes.length) {
+                    await showMessage(context, "Counterpoint Checker",
+                        "No MIDI notes found in the selected range.");
+                    return;
+                }
+
+                const trackNames = [...new Set(notes.map(n => n.track))];
+                if (trackNames.length < 2) {
+                    await showMessage(context, "Counterpoint Checker",
+                        "Need at least 2 MIDI tracks in the selection to check counterpoint.");
+                    return;
+                }
+
+                const data = buildCounterpointData(notes, rangeStart, rangeEnd);
+                await showHtml(context, counterpointHtml, "__COUNTERPOINT_JSON__", data, 860, 660);
+            } finally {
+                counterpointRunning = false;
+            }
+        })(arg as ArrangementSelection).catch(err => {
+            console.error("[theory-aide] counterpoint failed:", err);
+            void showMessage(context, "Error", "Failed to run Counterpoint Checker.");
+        }),
+    );
+
+    void context.ui.registerContextMenuAction(
+        "MidiTrack.ArrangementSelection",
+        "Theory Aide > Counterpoint Checker…",
+        "theory.counterpoint",
+    );
 
     // ── Session Audit: set-wide harmonic lint ─────────────────────────
 

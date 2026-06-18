@@ -1,8 +1,12 @@
 # Known Issues
 
-## Counterpoint Checker — opens in dark theme even when light is active
+_None currently open._
 
-**File:** `src/counterpoint.html`  
-**Symptom:** The modal opens in dark mode even when the other modals have been switched to light mode and `ta-theme = "light"` is stored in localStorage.  
-**Likely cause:** The theme IIFE is in the body `<script>` block (same as other modals), but something in the webview's loading order for this modal may be causing a FOUC or a missed localStorage read before first paint.  
-**Fix to try:** Move the theme initialization into an inline `<script>` tag in `<head>` so it runs as a blocking script before any CSS paints — the same approach that would prevent flash-of-unstyled-content in a browser.
+## Resolved
+
+### Counterpoint Checker — opened in dark theme even when light was active
+
+**File:** `src/counterpoint.html`
+**Symptom:** The modal opened in dark mode even when other modals had been switched to light and `ta-theme = "light"` was stored in localStorage.
+**Cause:** The theme was applied by a `<script>` at the bottom of the body, so the page painted with the default (dark) CSS before the saved theme was read — a flash-of-unstyled-content.
+**Fix:** Added a small blocking `<script>` in `<head>` that reads `ta-theme` and sets `data-theme` before any CSS paints. The same guard was added to the new track-picker modal (`src/cptracks.html`).

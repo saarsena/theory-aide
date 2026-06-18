@@ -67,7 +67,8 @@ function harmonicHeadline(chordCount: number, avgDensity: number): string {
 
 function pitchName(pitch: number): string {
     const names = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-    return `${names[((pitch % 12) + 12) % 12]}${Math.floor(pitch / 12) - 1}`;
+    // Ableton labels middle C (MIDI 60) as C3, so subtract 2.
+    return `${names[((pitch % 12) + 12) % 12]}${Math.floor(pitch / 12) - 2}`;
 }
 
 function registerSummary(notes: readonly TimedNote[]): string {

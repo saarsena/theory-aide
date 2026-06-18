@@ -4,7 +4,7 @@ All notable changes to Theory Aide are recorded here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/);
 this project is pre-1.0, so anything may still change.
 
-## [Unreleased]
+## [0.1.7] — 2026-06-18
 
 ### Added
 - **Counterpoint track picker.** Counterpoint Checker now opens a track-selection

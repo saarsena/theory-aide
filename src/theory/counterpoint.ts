@@ -209,7 +209,7 @@ function analyzePair(
 
 // ── Public API ────────────────────────────────────────────────────────
 
-const MAX_PAIRS = 15; // cap on track pairs to keep the JSON sane
+const MAX_PAIRS = 120; // cap on track pairs to keep the JSON sane (~15 tracks)
 
 export function buildCounterpointData(
     notes: TimedNote[],
@@ -223,7 +223,9 @@ export function buildCounterpointData(
         arr.push(n);
     }
 
-    const trackNames = Array.from(trackMap.keys());
+    // Sort by name so pairing is deterministic: reordering tracks in Live's
+    // track list must not change which pairs get analysed.
+    const trackNames = Array.from(trackMap.keys()).sort((a, b) => a.localeCompare(b));
     const pairs: TrackPairSummary[] = [];
     let truncated = false;
 

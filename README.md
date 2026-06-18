@@ -12,7 +12,8 @@ I am trying to make music theory useful inside the writing process.
 
 It is not meant to replace taste. It is meant to support you and make you more confident in your ability to express creativity.
 
-See [DESIGN.md](DESIGN.md) for the full positioning and roadmap.
+See [DESIGN.md](DESIGN.md) for the full positioning and roadmap, and
+[CHANGELOG.md](CHANGELOG.md) for release history.
 
 ![11](11.png)
 ![22](22.png)
@@ -30,7 +31,7 @@ All commands appear in the right-click context menu inside Live's arrangement or
 | Command | What it does |
 | --- | --- |
 | **Harmonic Timeline (All Tracks)…** | Scans every MIDI track in the selected range, slices the combined harmony beat by beat, and shows the chord/Roman-numeral timeline with function colors (T/S/D), borrowed and secondary-dominant badges, and per-track clash warnings. |
-| **Counterpoint Checker…** | Analyzes every pair of MIDI tracks for parallel 5ths, parallel octaves, hidden 5ths/octaves, and parallel unisons. Reports the motion-type breakdown (contrary / oblique / similar / parallel) and harmonic interval distribution per pair and in aggregate. |
+| **Counterpoint Checker…** | First lets you pick which tracks to compare (drum/percussion tracks are auto-detected and pre-unchecked). Then analyzes every pair of selected MIDI tracks for parallel 5ths, parallel octaves, hidden 5ths/octaves, and parallel unisons. Reports the motion-type breakdown (contrary / oblique / similar / parallel) and harmonic interval distribution per pair and in aggregate. |
 | **Composition Dimensions (Selection)…** | Rates the selection across vertical (harmony), horizontal (melody), macro (arrangement energy), and spectral (register) dimensions. |
 | **Arrangement And Form…** | Detects section structure, energy arcs, and formal landmarks in the selected range. |
 | **Composition Map (Selection)…** | Visual overview of harmonic and rhythmic density over the selected time range. |
@@ -45,6 +46,7 @@ All commands appear in the right-click context menu inside Live's arrangement or
 | **Timbre Texture Dynamics…** | Inspects velocity contour, articulation patterns, and textural density over time. |
 | **Composition Dimensions (Clip)…** | Same dimension breakdown as the arrangement version, scoped to one clip. |
 | **Composition Map (Clip)…** | Harmonic and rhythmic map scoped to one clip. |
+| **Tone Row Checker…** | Twelve-tone / serial analysis of a clip. Detects the prime row (P0), builds the full 12×12 Babbitt matrix with hexachord color coding, computes the interval vector, tests for I- and R-combinatoriality, lists all 48 row forms, and annotates the clip's pitch-class sequence against detected row statements. |
 | **What Do I Do Next?…** | Suggests concrete next moves (verse, chorus, bridge, breakdown, resolution) based on the clip's harmonic and rhythmic state. |
 | **Theory Reference…** | Key-aware cheat sheet: scale, diatonic chords with jazz context, common progressions, borrowed/secondary chords, and all seven modes. |
 | **Music Theory Primer…** | Introductory explainer covering frequencies, the 12-note system, and the current key. |
@@ -85,6 +87,7 @@ src/
   theory/analyzer.ts        key inference, Roman numerals, harmonic function
   theory/timeline.ts        cross-track segmentation, clash detection
   theory/counterpoint.ts    parallel/hidden interval detection, motion texture
+  theory/tonerow.ts         twelve-tone row detection, matrix, combinatoriality
   theory/dimensions.ts      composition dimension scoring
   theory/form.ts            arrangement form and section detection
   theory/map.ts             composition map data

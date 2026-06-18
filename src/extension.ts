@@ -31,6 +31,7 @@ import formHtml      from "./form.html";
 import timbreHtml    from "./timbre.html";
 import mapHtml       from "./map.html";
 import counterpointHtml from "./counterpoint.html";
+import cptracksHtml     from "./cptracks.html";
 import tonerowHtml      from "./tonerow.html";
 import { buildVoicingData } from "./theory/voicing.js";
 import { buildArrangementFormData } from "./theory/form.js";
@@ -63,6 +64,16 @@ function showMessage(context: Ctx, title: string, body: string): Promise<string>
 </body></html>`;
     return context.ui.showModalDialog(`data:text/html,${encodeURIComponent(html)}`, 400, 200);
 }
+
+/** Note name in Ableton's convention (middle C = MIDI 60 = C3). */
+function pitchLabel(p: number): string {
+    const names = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+    return `${names[((p % 12) + 12) % 12]}${Math.floor(p / 12) - 2}`;
+}
+
+/** Names that usually indicate an unpitched percussion track. */
+const PERC_NAME_RE =
+    /\b(drum|kick|snare|hat|hi-?hat|clap|perc|tom|cymbal|ride|crash|808|909|clave|conga|bongo|shaker|tamb|rim|cowbell|kit|beat)\b/i;
 
 /** Live's key (when Scale Mode is on) as an analysis Scale; null otherwise. */
 function liveKey(song: Song<"1.0.0">): { root: number; scale: Scale; label: string } | null {
@@ -704,27 +715,63 @@ export function activate(activation: ActivationContext) {
                     return;
                 }
 
-                const notes: TimedNote[] = [];
+                // Collect notes per track, giving each track a unique display
+                // name so that two tracks sharing a name are never merged.
+                interface TrackEntry { key: string; name: string; notes: TimedNote[]; }
+                const entries: TrackEntry[] = [];
+                const nameCounts = new Map<string, number>();
+                let trackIdx = 0;
                 for (const track of song.tracks) {
                     if (!(track instanceof MidiTrack)) continue;
+                    const seen = nameCounts.get(track.name) ?? 0;
+                    nameCounts.set(track.name, seen + 1);
+                    const uniqueName = seen === 0 ? track.name : `${track.name} (${seen + 1})`;
+                    const tn: TimedNote[] = [];
                     for (const clip of track.arrangementClips) {
                         if (clip instanceof MidiClip && !clip.muted) {
-                            notes.push(...arrangementNotes(clip, track.name, rangeStart, rangeEnd));
+                            tn.push(...arrangementNotes(clip, uniqueName, rangeStart, rangeEnd));
                         }
                     }
+                    if (tn.length) entries.push({ key: String(trackIdx++), name: uniqueName, notes: tn });
                 }
 
-                if (!notes.length) {
+                if (entries.length < 2) {
                     await showMessage(context, "Counterpoint Checker",
-                        "No MIDI notes found in the selected range.");
+                        "Need at least 2 MIDI tracks with notes in the selected range.");
                     return;
                 }
 
-                const trackNames = [...new Set(notes.map(n => n.track))];
-                if (trackNames.length < 2) {
-                    await showMessage(context, "Counterpoint Checker",
-                        "Need at least 2 MIDI tracks in the selection to check counterpoint.");
-                    return;
+                // Track picker: let the user omit percussion / unwanted tracks.
+                const pickerTracks = entries.map(e => {
+                    const pitches = e.notes.map(n => n.pitch);
+                    const low = Math.min(...pitches);
+                    const high = Math.max(...pitches);
+                    const distinctPCs = new Set(pitches.map(p => ((p % 12) + 12) % 12)).size;
+                    const likelyPerc = PERC_NAME_RE.test(e.name) ||
+                        (low >= 35 && high <= 51 && distinctPCs >= 6);
+                    return {
+                        key: e.key, name: e.name, noteCount: e.notes.length,
+                        low, lowName: pitchLabel(low), high, highName: pitchLabel(high),
+                        distinctPCs, likelyPerc,
+                    };
+                });
+
+                const pickResult = await showHtml(
+                    context, cptracksHtml, "__CPTRACKS_JSON__",
+                    { tracks: pickerTracks, rangeStart, rangeEnd }, 480, 580,
+                );
+
+                let selectedKeys: string[] = [];
+                try {
+                    const parsed = JSON.parse(pickResult) as unknown;
+                    if (Array.isArray(parsed)) selectedKeys = parsed.map(String);
+                } catch { /* cancelled or no selection */ }
+                if (selectedKeys.length < 2) return; // cancelled or too few
+
+                const keep = new Set(selectedKeys);
+                const notes: TimedNote[] = [];
+                for (const e of entries) {
+                    if (keep.has(e.key)) notes.push(...e.notes);
                 }
 
                 const data = buildCounterpointData(notes, rangeStart, rangeEnd);

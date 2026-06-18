@@ -3,6 +3,10 @@
 <head>
 <meta charset="utf-8">
 <title>Counterpoint Checker</title>
+<script>
+// Blocking: set the saved theme before any CSS paints (prevents a dark flash).
+(function(){try{document.documentElement.setAttribute("data-theme",localStorage.getItem("ta-theme")||"dark");}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();
+</script>
 <style>
 :root {
   --bg:#181818; --panel:#212121; --panel2:#272727; --line:#2e2e2e; --line2:#3a3a3a;
@@ -140,7 +144,7 @@ tr:hover td { background: var(--panel); }
 })();
 
 var NOTES = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
-function midiNote(p) { return NOTES[p % 12] + (Math.floor(p / 12) - 1); }
+function midiNote(p) { return NOTES[p % 12] + (Math.floor(p / 12) - 2); }
 function esc(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 
 var DATA = __COUNTERPOINT_JSON__;
@@ -148,7 +152,7 @@ var DATA = __COUNTERPOINT_JSON__;
 // Subheader
 document.getElementById("sub-line").textContent =
   DATA.trackNames.length + " tracks · " + DATA.pairs.length + " pairs" +
-  (DATA.truncated ? " (first 15 shown)" : "") +
+  (DATA.truncated ? " (truncated — deselect more tracks)" : "") +
   " · b" + DATA.rangeStart.toFixed(2) + "–b" + DATA.rangeEnd.toFixed(2);
 
 // Tab switching

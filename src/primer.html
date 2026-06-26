@@ -1,0 +1,874 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  :root {
+    --bg:     #181818;
+    --panel:  #1f1f1f;
+    --panel2: #252525;
+    --line:   #2e2e2e;
+    --line2:  #3a3a3a;
+    --text:   #d8d8d8;
+    --dim:    #888;
+    --dim2:   #555;
+    --accent: #ffaa2b;
+    --tonic:  #5b9bd5;
+    --ok:     #6fbf73;
+    --warn:   #e0564f;
+    --purple: #c9a7ff;
+  }
+  html[data-theme="light"] {
+    --bg:     #f2f0ec;
+    --panel:  #e8e6e2;
+    --panel2: #dedbd7;
+    --line:   #cac7c2;
+    --line2:  #b0ada8;
+    --text:   #1c1c1c;
+    --dim:    #666;
+    --dim2:   #888;
+    --accent: #a06800;
+    --tonic:  #1855a0;
+    --ok:     #2a7a30;
+    --warn:   #c02020;
+    --purple: #6030b0;
+  }
+  html[data-theme="light"] .tab.active     { background: #fff3d0; }
+  html[data-theme="light"] .tab:hover      { border-color: #888; }
+  html[data-theme="light"] p               { color: #404040; }
+  html[data-theme="light"] .callout        { color: #404040; }
+  html[data-theme="light"] .ratio-table td { border-bottom-color: #d0cdc8; }
+  html[data-theme="light"] .step-W         { background: #e8f5e8; border-color: #2a7a30; }
+  html[data-theme="light"] .step-H         { background: #ffeaea; border-color: #c02020; }
+  html[data-theme="light"] .nav-btn        { background: #dedad4; border-color: #b0ada8; }
+  html[data-theme="light"] .nav-btn:not([disabled]):hover { background: #d0ccc6; }
+  html[data-theme="light"] .nav-btn.primary { background: #fff3d0; border-color: #c89010; }
+  html[data-theme="light"] .nav-btn.primary:hover { background: #ffeaa0; }
+  html[data-theme="light"] button.close-btn { background: #dedad4; border-color: #b0ada8; color: var(--text); }
+  html[data-theme="light"] button.close-btn:hover { background: #d0ccc6; }
+  html[data-theme="light"] .content::-webkit-scrollbar-thumb { background: #b8b4ae; }
+
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    background: var(--bg); color: var(--text);
+    font: 13px/1.65 system-ui, sans-serif;
+    display: flex; flex-direction: column;
+    padding: 16px 22px 12px;
+    gap: 10px;
+  }
+
+  /* ── Header ── */
+  .hd { flex-shrink: 0; display: flex; align-items: baseline; gap: 14px; }
+  h1 { font-size: 15px; font-weight: 600; }
+  .section-label { font-size: 11px; color: var(--dim2); letter-spacing: 0.07em;
+                   text-transform: uppercase; }
+
+  /* ── Tab chips ── */
+  .tabs { flex-shrink: 0; display: flex; gap: 4px; }
+  .tab {
+    padding: 4px 13px; border-radius: 4px; font-size: 11.5px;
+    border: 1px solid var(--line2); cursor: pointer;
+    user-select: none; color: var(--dim);
+  }
+  .tab:hover { border-color: #444; color: var(--text); }
+  .tab.active { border-color: var(--accent); color: var(--accent);
+                background: #251e10; }
+
+  /* ── Content ── */
+  .content { flex: 1; min-height: 0; overflow-y: auto; padding-right: 4px; }
+  .content::-webkit-scrollbar { width: 4px; }
+  .content::-webkit-scrollbar-track { background: transparent; }
+  .content::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+
+  .section { display: none; }
+  .section.visible { display: block; }
+
+  /* ── Typography ── */
+  h2 { font-size: 17px; font-weight: 600; color: var(--text); margin-bottom: 10px; }
+  h3 { font-size: 13px; font-weight: 600; color: var(--accent);
+       margin: 18px 0 6px; letter-spacing: 0.01em; }
+  p  { color: #c8c8c8; margin-bottom: 10px; font-size: 13px; line-height: 1.7; }
+  p:last-child { margin-bottom: 0; }
+  .lede { font-size: 14px; color: var(--text); line-height: 1.65;
+          margin-bottom: 14px; border-left: 3px solid var(--accent);
+          padding-left: 12px; }
+  strong { color: var(--text); font-weight: 600; }
+  em { color: var(--dim); font-style: italic; }
+
+  /* ── Callout boxes ── */
+  .callout {
+    background: var(--panel2); border: 1px solid var(--line2);
+    border-radius: 6px; padding: 12px 14px; margin: 12px 0;
+    font-size: 12.5px; color: #bbb; line-height: 1.65;
+  }
+  .callout.accent { border-left: 3px solid var(--accent); }
+  .callout.blue   { border-left: 3px solid var(--tonic); }
+  .callout.green  { border-left: 3px solid var(--ok); }
+
+  /* ── Ratio table ── */
+  .ratio-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 12px; }
+  .ratio-table th { text-align: left; color: var(--dim); font-weight: 500;
+                    border-bottom: 1px solid var(--line); padding: 4px 10px 4px 0; }
+  .ratio-table td { padding: 6px 10px 6px 0; border-bottom: 1px solid #252525;
+                    vertical-align: middle; }
+  .ratio-table td:first-child { color: var(--text); font-weight: 600; width: 130px; }
+  .ratio-table td:nth-child(2) { color: var(--accent); width: 70px; font-family: monospace; }
+  .bar-wrap { width: 180px; }
+  .bar-row { display: flex; gap: 2px; align-items: center; height: 10px; margin-bottom: 2px; }
+  .bar { height: 8px; border-radius: 2px; }
+  .bar.b1 { background: var(--tonic); opacity: 0.8; }
+  .bar.b2 { background: var(--accent); opacity: 0.8; }
+  .align-count { font-size: 10px; color: var(--dim2); margin-left: 6px; white-space: nowrap; }
+  .consonance-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+                    margin-right: 5px; vertical-align: middle; }
+  .c-high { background: var(--ok); }
+  .c-mid  { background: var(--accent); }
+  .c-low  { background: var(--warn); }
+
+  /* ── Wave canvas ── */
+  .wave-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0; }
+  .wave-card { background: var(--panel2); border: 1px solid var(--line); border-radius: 5px;
+               padding: 10px 12px 8px; }
+  .wave-card h4 { font-size: 11.5px; font-weight: 600; margin-bottom: 6px; }
+  .wave-card .ratio-tag { font-size: 10px; color: var(--accent); margin-bottom: 4px; }
+  .wave-card .verdict { font-size: 10.5px; color: var(--dim); margin-top: 5px; }
+  canvas { display: block; border-radius: 3px; }
+
+  /* ── Piano (CSS) ── */
+  .piano-wrap { margin: 12px 0; overflow-x: auto; }
+  .piano { position: relative; display: inline-flex; height: 68px; gap: 1px; }
+  .wkey {
+    width: 26px; height: 68px; background: #e8e8e0;
+    border: 1px solid #aaa; border-radius: 0 0 3px 3px;
+    position: relative; flex-shrink: 0;
+  }
+  .wkey.in-scale { background: #fff3c4; border-color: var(--accent); }
+  .wkey.root     { background: var(--accent); border-color: #cc8800; }
+  .wkey-label {
+    position: absolute; bottom: 4px; left: 0; right: 0;
+    text-align: center; font-size: 8px; color: #333; font-weight: 600;
+  }
+  .wkey.in-scale .wkey-label { color: #5a3e00; }
+  .wkey.root .wkey-label { color: #3a2000; }
+  .bkey {
+    width: 17px; height: 42px; background: #1a1a1a;
+    border: 1px solid #444; border-radius: 0 0 3px 3px;
+    position: absolute; top: -1px; z-index: 2;
+    display: flex; align-items: flex-end; justify-content: center;
+    padding-bottom: 3px;
+  }
+  .bkey.in-scale { background: #7a5800; border-color: var(--accent); }
+  .bkey.root     { background: var(--accent); border-color: #cc8800; }
+  .bkey-label { font-size: 7px; color: #aaa; font-weight: 600; }
+  .bkey.in-scale .bkey-label { color: #ffdd88; }
+  .bkey.root .bkey-label     { color: #3a2000; }
+
+  /* Piano legend */
+  .piano-legend { display: flex; gap: 14px; margin-top: 8px; font-size: 11px;
+                  color: var(--dim); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px;
+                display: inline-block; margin-right: 4px; vertical-align: middle; }
+
+  /* ── Step formula ── */
+  .steps { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+  .step-badge {
+    padding: 3px 9px; border-radius: 3px; font-size: 11px; font-weight: 600;
+    border: 1px solid var(--line2);
+  }
+  .step-W { background: #1e2a1e; color: var(--ok); border-color: #2a3d2a; }
+  .step-H { background: #2a1a1a; color: var(--warn); border-color: #3d2a2a; }
+  .step-arrow { color: var(--dim2); font-size: 12px; }
+
+  /* ── Theme button ── */
+  .theme-btn {
+    background: transparent; border: 1px solid var(--line2);
+    border-radius: 4px; padding: 3px 10px; font-size: 11px;
+    cursor: pointer; color: var(--dim); margin-left: auto;
+  }
+  .theme-btn:hover { color: var(--text); border-color: var(--dim); }
+
+  /* ── Footer ── */
+  .footer { flex-shrink: 0; display: flex; align-items: center;
+            justify-content: space-between; }
+  .nav { display: flex; gap: 8px; }
+  .nav-btn {
+    background: #252525; color: var(--dim); border: 1px solid var(--line2);
+    border-radius: 4px; padding: 5px 16px; cursor: pointer; font-size: 12px;
+  }
+  .nav-btn:not([disabled]):hover { background: #2f2f2f; color: var(--text); }
+  .nav-btn[disabled] { opacity: 0.3; cursor: default; }
+  .nav-btn.primary { background: #2a1e08; color: var(--accent);
+                     border-color: #5c4010; }
+  .nav-btn.primary:hover { background: #331f05; }
+  button.close-btn {
+    background: #2f2f2f; color: #ddd; border: 1px solid #444;
+    border-radius: 4px; padding: 5px 22px; cursor: pointer; font-size: 13px;
+  }
+  button.close-btn:hover { background: #3a3a3a; }
+</style>
+</head>
+<body>
+
+<div class="hd">
+  <h1>Music Theory Primer</h1>
+  <span class="section-label" id="section-label"></span>
+  <button class="theme-btn" id="theme-btn">Light</button>
+</div>
+
+<div class="tabs" id="tabs">
+  <div class="tab" data-sec="0">What is Theory?</div>
+  <div class="tab" data-sec="1">Frequencies</div>
+  <div class="tab" data-sec="2">The Twelve Note System</div>
+  <div class="tab" data-sec="3" id="tab3">Your Scale</div>
+  <div class="tab" data-sec="4">Intervals</div>
+  <div class="tab" data-sec="5">Chords</div>
+  <div class="tab" data-sec="6">Progressions</div>
+  <div class="tab" data-sec="7">Dimensions</div>
+</div>
+
+<div class="content" id="content">
+
+  <!-- ─── Section 0: What is Music Theory? ──────────────────────────── -->
+  <div class="section" id="sec0">
+    <h2>Music theory is a map, not a rulebook.</h2>
+    <p class="lede">Humans were making music for tens of thousands of years before anyone wrote down a single music theory concept. Theory didn't create music. It described it.</p>
+    <p>The word "theory" causes problems. It sounds like it should be prescriptive: <em>these are the rules you must follow, and breaking them is wrong.</em> It's not. It's descriptive: a vocabulary for patterns that have sounded compelling to human ears, across cultures and centuries, built on top of the physics of how sound actually works.</p>
+    <p>Every "rule" in music theory has a celebrated counterexample. Beethoven, Coltrane, Radiohead, Kendrick; all of them break "rules" constantly. That's because the rules are really just: <strong>if you do this, most listeners will expect that. And then you can satisfy the expectation, or subvert it, or do something in between.</strong> Music is about expectation and surprise in time.</p>
+
+    <div class="callout accent">
+      <strong>Grammar analogy.</strong> You can speak beautifully without ever studying grammar. But knowing grammar lets you write <em>intentionally</em>: you can choose to break a rule and know exactly what effect that break creates. Theory gives you the same relationship with sound.
+    </div>
+
+    <h3>What theory actually gives you</h3>
+    <p>Theory gives you <strong>vocabulary</strong> (a name for what you're hearing), <strong>patterns</strong> (the shapes that recur across genres and centuries), and <strong>context</strong> (why a chord sounds resolved, tense, dark, or hopeful in relation to what surrounds it).</p>
+    <p>It also gives you a map of the creative landscape, not to tell you where to go, but so you know where you are and what your choices are.</p>
+
+    <h3>The key insight this tool is built around</h3>
+    <p>When Scaler generates a chord progression, it's pattern-matching against centuries of accumulated theory. <strong>Theory Aide's job is to decode what it generated and explain why those choices work, grounded in the physics and psychology of sound, not arbitrary rules.</strong></p>
+
+    <div class="callout blue">
+      <strong>Theory is a description of physics + culture.</strong> Some of it (consonance, the octave) is universal, shared across almost all musical cultures because it emerges from the mathematics of vibrating strings. Some of it (the major scale, the ii to V to I, the 4/4 time signature) is culturally inherited: patterns that Western music developed over the last 500 years. Both kinds are worth understanding.
+    </div>
+  </div>
+
+  <!-- ─── Section 1: Frequencies ────────────────────────────────────── -->
+  <div class="section" id="sec1">
+    <h2>Why do some notes sound good together?</h2>
+    <p class="lede">Sound is air pressure vibrating at a frequency. When two notes play at once, their waveforms mix. The simpler that mixture is, the more consonant (the more "pleasing") it sounds.</p>
+
+    <h3>Simple ratios = consonance</h3>
+    <p>A note at 440 Hz (concert A) is air pressure cycling 440 times per second. Play A an octave higher (880 Hz) and you have a 2:1 ratio. The higher wave completes exactly two cycles for every one of the lower; they align constantly. Your brain hears a clear, repeating pattern. It sounds <strong>so consonant we treat them as "the same note."</strong></p>
+    <p>The further you get from simple integer ratios, the more the combined waveform looks like interference noise. The two waves beat against each other at an audible rate. We hear this as roughness, tension, dissonance.</p>
+
+    <div class="wave-grid" id="wave-grid">
+      <!-- Filled by JS -->
+    </div>
+
+    <h3>The overtone series: why chords feel "natural"</h3>
+    <p>Here's the non-obvious part: <strong>every single musical note already contains quiet versions of the consonant notes above it.</strong> Play a low C on a piano. You're also hearing (quietly): G (a 5th up), E (a 10th up), Bb, G again, B... These are called <strong>overtones</strong> or <strong>harmonics</strong>, and they emerge from the physics of how strings, air columns, and drum heads vibrate.</p>
+    <p>When you play a C major chord (C, E, G), you're not adding foreign elements to C; you're making audible what was already present in C's overtone series. The chord sounds "natural" because it is: it's the note explaining itself.</p>
+
+    <div class="callout green">
+      <strong>This is why music theory isn't arbitrary.</strong> The intervals that sound "good" (the octave, perfect 5th, major 3rd) aren't good because some dead European composer decided they were. They're good because they align with the physical structure of sound itself. Theory is a map of acoustics, filtered through human perception.
+    </div>
+
+    <h3>Interval consonance reference</h3>
+    <table class="ratio-table" id="ratio-table"></table>
+  </div>
+
+  <!-- ─── Section 2: The 12-Note System ────────────────────────────── -->
+  <div class="section" id="sec2">
+    <h2>The 12-note system is a beautiful compromise.</h2>
+    <p class="lede">We have infinite possible frequencies. We chose 12 fixed notes per octave. This wasn't inevitable; it was an engineering decision made around 1700 to solve a real problem. And it changed music forever.</p>
+
+    <h3>The problem: stacking perfect 5ths</h3>
+    <p>Start on C. Go up a perfect 5th (3:2 ratio): you land on G. Go up another 5th: D. Keep going: D → A → E → B → F# → C# → G# → D# → A# → F → C. After 12 steps you're back at C, except you're not. You're off by about <strong>24 cents</strong> (a quarter of a semitone). The circle doesn't close.</p>
+    <p>This discrepancy is called the <strong>Pythagorean comma</strong>. It's not a flaw in the math; it's an unavoidable consequence of the fact that no power of 3 can equal a power of 2. You cannot perfectly tile an octave with perfect 5ths.</p>
+
+    <div class="callout accent">
+      <strong>Before equal temperament (~1700),</strong> keyboard instruments were tuned in "just intonation" or "meantone"; the intervals were mathematically pure, but only in one or two keys. Play a piece written for C major on an E-flat-tuned instrument and some chords would sound badly out of tune. Organs sometimes had split keys (a separate Eb and D# key) to work around this.
+    </div>
+
+    <h3>Equal temperament: the compromise</h3>
+    <p>The solution: <strong>distribute the Pythagorean comma evenly across all 12 notes.</strong> Slightly detune every 5th by 2 cents (about 1/50th of a semitone). Now no key is perfectly in tune, but all keys are equally, slightly out of tune. No key is unusable. You can modulate anywhere freely.</p>
+    <p>This is <strong>12-tone equal temperament</strong> (12-TET), the tuning system your DAW, your piano, and virtually all Western music uses today. Every note is a ratio of 2^(1/12) ≈ 1.0595 above the previous one.</p>
+
+    <h3>Why 12? Why not more notes?</h3>
+    <p>12 is the minimum number of equally-spaced notes per octave that gives you usable approximations of the most consonant intervals (5ths, 4ths, major and minor 3rds). It's a practical sweet spot.</p>
+
+    <table class="ratio-table">
+      <thead><tr>
+        <th>System</th><th>Notes/oct.</th><th>5th accuracy</th><th>3rd accuracy</th><th>Practical?</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>12-TET</td><td style="color:var(--accent)">12</td><td>−2 cents</td><td>−14 cents</td><td style="color:var(--ok)">✓ universal</td></tr>
+        <tr><td>19-TET</td><td>19</td><td>−7 cents</td><td>+3 cents</td><td style="color:var(--dim)">niche</td></tr>
+        <tr><td>31-TET</td><td>31</td><td>−5 cents</td><td>+1 cent</td><td style="color:var(--dim)">niche</td></tr>
+        <tr><td>Just intonation</td><td>∞</td><td>0 cents</td><td>0 cents</td><td style="color:var(--warn)">key-locked</td></tr>
+        <tr><td>Arabic maqam</td><td>24</td><td>varies</td><td>varies</td><td style="color:var(--ok)">✓ different culture</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout blue">
+      <strong>Other cultures chose differently.</strong> Arabic maqam music uses quarter-tones (24 notes per octave). Indian classical music treats pitch as a continuous space with microtonal inflections. Persian dastgah uses 17. These systems aren't "less developed"; they're different engineering choices that unlock different harmonic and expressive possibilities. Western music traded microtonal richness for unlimited key modulation.
+    </div>
+
+    <h3>So why 7 notes in a scale?</h3>
+    <p>The major scale isn't 7 notes because of tradition. It's 7 because that's the subset of the 12 notes that <strong>maximizes the number of consonant interval relationships between its members</strong>. Within the 7 notes of C major, you can find 6 perfect 5th relationships, the theoretical maximum for a 7-note subset of 12-TET.</p>
+    <p>The scale is also <strong>asymmetric</strong>; it's not evenly spaced. The pattern of whole steps (W) and half steps (H) is W-W-H-W-W-W-H. That asymmetry is what creates the feeling of a <em>home note</em> (the tonic). A perfectly even scale (like the whole-tone scale) has no sense of home; everywhere feels equally stable or unstable.</p>
+  </div>
+
+  <!-- ─── Section 3: Your Scale ─────────────────────────────────────── -->
+  <div class="section" id="sec3">
+    <h2 id="s3-title">Your scale</h2>
+    <p class="lede" id="s3-lede"></p>
+
+    <div id="s3-piano-wrap">
+      <div class="piano-wrap">
+        <div class="piano" id="s3-piano"></div>
+      </div>
+      <div class="piano-legend">
+        <span><span class="legend-dot" style="background:var(--accent)"></span>Root (tonic)</span>
+        <span><span class="legend-dot" style="background:#fff3c4;border:1px solid var(--accent)"></span>Scale notes</span>
+        <span><span class="legend-dot" style="background:#2a2a2a;border:1px solid #444"></span>Outside scale</span>
+      </div>
+    </div>
+
+    <h3>Step formula</h3>
+    <p id="s3-steps-p"></p>
+    <div class="steps" id="s3-steps"></div>
+
+    <h3 id="s3-intervals-title"></h3>
+    <p id="s3-intervals-p"></p>
+
+    <div class="callout accent" id="s3-why">
+      <strong id="s3-why-head"></strong>
+      <span id="s3-why-body"></span>
+    </div>
+
+    <h3>What comes next</h3>
+    <p>Now that you know where your scale comes from (which 7 notes and why), you're ready to understand the chords that live inside it, why certain progressions feel resolved or tense, and what "borrowing" from another key actually means acoustically.</p>
+    <p>Open <strong>Explain Harmony</strong> on any clip to see your progression labeled in this key, with explanations of each chord's role. Open <strong>Theory Reference</strong> for a complete map of the diatonic chords and common progressions in this key.</p>
+  </div>
+
+  <!-- ─── Section 4: Intervals ─────────────────────────────────────── -->
+  <div class="section" id="sec4">
+    <h2>Intervals are the emotional atoms of music.</h2>
+    <p class="lede">An interval is the distance between two notes. Melody is intervals over time. Harmony is intervals stacked together. Once you can hear intervals, music theory stops feeling abstract.</p>
+
+    <h3>Why intervals matter</h3>
+    <p>A chord name is shorthand for a stack of intervals. A melody feels memorable because of the interval jumps it chooses. A bass line feels grounded or restless because of how its intervals move against the chords.</p>
+    <p>Do not start by memorizing every interval name. Start by hearing the broad categories: small steps, stable jumps, bright thirds, dark thirds, open fifths, and tense half steps.</p>
+
+    <table class="ratio-table">
+      <thead><tr><th>Interval</th><th>Semitones</th><th>What it tends to do</th></tr></thead>
+      <tbody>
+        <tr><td>Minor 2nd</td><td>1</td><td>Maximum close tension. Wants to move.</td></tr>
+        <tr><td>Major 2nd</td><td>2</td><td>Stepwise motion. Smooth and melodic.</td></tr>
+        <tr><td>Minor 3rd</td><td>3</td><td>Dark color. Defines minor chords.</td></tr>
+        <tr><td>Major 3rd</td><td>4</td><td>Bright color. Defines major chords.</td></tr>
+        <tr><td>Perfect 4th</td><td>5</td><td>Open, suspended, often wants to resolve down.</td></tr>
+        <tr><td>Tritone</td><td>6</td><td>Strong tension. Core of dominant 7th pull.</td></tr>
+        <tr><td>Perfect 5th</td><td>7</td><td>Stable and open. Strong root support.</td></tr>
+        <tr><td>Octave</td><td>12</td><td>Same note identity in a new register.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout blue">
+      <strong>Practical exercise.</strong> Take a melody you like and ignore the note names. Write only the movements: up a step, down a third, hold, up a fifth. That contour is often the real hook.
+    </div>
+
+    <h3>How to use this in Ableton</h3>
+    <p>If a melody feels flat, change its interval contour before changing the key. Try one larger leap followed by small stepwise motion. If a bass line feels disconnected, make it move by roots, fifths, or stepwise passing notes.</p>
+  </div>
+
+  <!-- ─── Section 5: Chords ────────────────────────────────────────── -->
+  <div class="section" id="sec5">
+    <h2>Chords are interval stacks with a job.</h2>
+    <p class="lede">A chord is not just a vertical pile of notes. It has a root, a quality, a color, and a role in the key.</p>
+
+    <h3>The basic chord formula</h3>
+    <p>Most chords are built by stacking thirds. Start on a root, skip one scale note to get the third, skip another to get the fifth, then keep stacking for sevenths, ninths, elevenths, and thirteenths.</p>
+
+    <table class="ratio-table">
+      <thead><tr><th>Chord type</th><th>Formula</th><th>Character</th></tr></thead>
+      <tbody>
+        <tr><td>Major</td><td>1 3 5</td><td>Stable and bright.</td></tr>
+        <tr><td>Minor</td><td>1 b3 5</td><td>Stable and darker.</td></tr>
+        <tr><td>Diminished</td><td>1 b3 b5</td><td>Compressed and unstable.</td></tr>
+        <tr><td>Dominant 7</td><td>1 3 5 b7</td><td>Tense and directional.</td></tr>
+        <tr><td>Major 7</td><td>1 3 5 7</td><td>Stable, lush, floating.</td></tr>
+        <tr><td>Minor 7</td><td>1 b3 5 b7</td><td>Soft, soulful, open.</td></tr>
+        <tr><td>Add 9</td><td>1 3 5 9</td><td>Clear triad with extra brightness.</td></tr>
+        <tr><td>Sus 4</td><td>1 4 5</td><td>Suspended because the third is missing.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Root, quality, and color</h3>
+    <p>The <strong>root</strong> tells your ear where the chord is anchored. The <strong>quality</strong> tells whether it is major, minor, diminished, dominant, or suspended. The <strong>color</strong> comes from added notes such as 7ths, 9ths, 11ths, and 13ths.</p>
+
+    <div class="callout accent">
+      <strong>Do not overthink extensions.</strong> A 9th, 11th, or 13th is usually a color note above a simpler chord. First ask what the base chord is. Then ask what color was added.
+    </div>
+
+    <h3>Why inversions matter</h3>
+    <p>An inversion means the root is not the lowest note. C major is C, E, G. C/E means the same chord with E in the bass. The emotional color is similar, but the bass motion changes. Smooth bass motion is one of the easiest ways to make a progression feel intentional.</p>
+  </div>
+
+  <!-- ─── Section 6: Progressions ──────────────────────────────────── -->
+  <div class="section" id="sec6">
+    <h2>Progressions are expectations over time.</h2>
+    <p class="lede">A chord progression works because each chord changes what the listener expects next. The art is deciding when to satisfy that expectation and when to delay it.</p>
+
+    <h3>The three basic jobs</h3>
+    <p>Most tonal progressions can be understood as movement between three jobs:</p>
+    <div class="callout green">
+      <strong>Tonic:</strong> rest, home, stability. <br>
+      <strong>Subdominant:</strong> departure, opening, preparation. <br>
+      <strong>Dominant:</strong> tension, pull, need for resolution.
+    </div>
+
+    <h3>Common paths</h3>
+    <table class="ratio-table">
+      <thead><tr><th>Path</th><th>Roman</th><th>Why it works</th></tr></thead>
+      <tbody>
+        <tr><td>Home to away to tension to home</td><td>I IV V I</td><td>The clearest functional path.</td></tr>
+        <tr><td>Jazz cadence</td><td>ii V I</td><td>Preparation, dominant pull, resolution.</td></tr>
+        <tr><td>Pop loop</td><td>I V vi IV</td><td>Stable, lifted, darker, open.</td></tr>
+        <tr><td>Minor pop loop</td><td>vi IV I V</td><td>Starts darker, then brightens.</td></tr>
+        <tr><td>Plagal motion</td><td>IV I</td><td>Softer resolution than V to I.</td></tr>
+        <tr><td>Secondary dominant</td><td>V of ii, V of V</td><td>Creates a temporary local home.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>How to write the next chord</h3>
+    <p>If you are stuck, ask what job the current chord has. If it feels like home, move away with IV, ii, or vi. If it feels like preparation, move to V or a dominant chord. If it feels tense, resolve to I or intentionally avoid resolution for suspense.</p>
+
+    <div class="callout blue">
+      <strong>Arrangement insight.</strong> Chord progressions do not need to change every section. A verse and chorus can use the same chords if the melody, register, bass activity, drums, and density change enough.
+    </div>
+
+    <h3>How Theory Aide fits</h3>
+    <p>Use Explain Harmony to name what a generated progression is doing. Use Harmonic Timeline to see tension and modal color across a range. Use What Do I Do Next when you like an idea but need a second section that feels related.</p>
+  </div>
+
+  <!-- Section 7: Composer Dimensions -->
+  <div class="section" id="sec7">
+    <h2>Composition happens in several dimensions at once.</h2>
+    <p class="lede">Harmony is only one axis. A composer is really shaping vertical relationships, horizontal time, large scale form, and sonic texture. Most stuck moments happen because you are only changing one dimension.</p>
+
+    <h3>1. The vertical axis: intervals, harmony, voicing</h3>
+    <p>The vertical axis is everything happening at the same moment. It includes intervals, chord quality, voicing, register, density, and how strongly the harmony pulls toward or away from the tonal center.</p>
+    <table class="ratio-table">
+      <thead><tr><th>Question</th><th>Why it matters</th><th>Ableton move</th></tr></thead>
+      <tbody>
+        <tr><td>What intervals are stacked?</td><td>Intervals create the actual tension, not the chord name by itself.</td><td>Inspect chord tones. Remove or move one note to change the color.</td></tr>
+        <tr><td>How dense is the voicing?</td><td>Close low notes sound heavy or muddy. Spread notes sound open.</td><td>Move upper chord tones up an octave. Keep bass low and mids cleaner.</td></tr>
+        <tr><td>Do voices move smoothly?</td><td>Voice leading makes progressions feel inevitable instead of blocky.</td><td>Move each chord tone to the nearest note in the next chord.</td></tr>
+      </tbody>
+    </table>
+    <div class="callout accent">
+      <strong>Rule of thumb.</strong> If a progression is good but feels cramped, do not change the chords yet. Change the voicing. Spread the top notes, simplify the low register, and make each voice move by step where possible.
+    </div>
+
+    <h3>2. The horizontal axis: rhythm, time, phrasing</h3>
+    <p>The horizontal axis is how music moves through time. Rhythm decides whether the harmony feels calm, urgent, floating, mechanical, human, or unstable.</p>
+    <table class="ratio-table">
+      <thead><tr><th>Concept</th><th>Meaning</th><th>Composer use</th></tr></thead>
+      <tbody>
+        <tr><td>Pulse</td><td>The underlying clock.</td><td>The thing the listener can nod to.</td></tr>
+        <tr><td>Meter</td><td>How the pulse is grouped.</td><td>The larger pattern of strong and weak beats.</td></tr>
+        <tr><td>Subdivision</td><td>How each beat is divided.</td><td>Four feels square. Three feels rolling. Swing bends between them.</td></tr>
+        <tr><td>Micro timing</td><td>Small pushes and pulls against the grid.</td><td>Use groove, delay, or manual nudging to make parts breathe.</td></tr>
+        <tr><td>Phrasing</td><td>Where musical sentences begin, pause, and answer.</td><td>Leave space. A melody needs breath, even if no human is singing.</td></tr>
+      </tbody>
+    </table>
+    <div class="callout blue">
+      <strong>Practical test.</strong> If a loop feels good but never becomes a phrase, mute the last beat of every second bar. Space can create grammar faster than more notes can.
+    </div>
+
+    <h3>3. Macro architecture: form, development, expectation</h3>
+    <p>Macro architecture is the shape of the whole track. It is how you keep a listener oriented over minutes instead of seconds.</p>
+    <p>A strong section usually has one clear identity: a rhythm, contour, bass motion, chord color, or sound. Development means transforming that identity without losing it.</p>
+    <div class="callout green">
+      <strong>Motivic development.</strong> Take one small idea and repeat it with controlled changes. Shorten it. Stretch it. Invert its contour. Move it to the bass. Put it in a different instrument. Keep enough DNA that the listener recognizes it.
+    </div>
+    <table class="ratio-table">
+      <thead><tr><th>Move</th><th>Effect</th><th>Use when</th></tr></thead>
+      <tbody>
+        <tr><td>Add density</td><td>Energy rises.</td><td>You are building into a chorus, drop, or arrival.</td></tr>
+        <tr><td>Remove density</td><td>Attention resets.</td><td>The arrangement feels crowded or the next hit needs impact.</td></tr>
+        <tr><td>Repeat with variation</td><td>Cohesion without boredom.</td><td>The idea is strong but the loop is becoming predictable.</td></tr>
+        <tr><td>Break the pattern</td><td>Surprise.</td><td>The listener already understands the pattern.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>4. The spectral dimension: timbre, texture, dynamics</h3>
+    <p>Modern production makes sound design part of composition. A filtered pad opening over eight bars can create the same structural lift as a chord change. A bass losing harmonics can feel like harmonic resolution even if the note stays the same.</p>
+    <table class="ratio-table">
+      <thead><tr><th>Dimension</th><th>What to listen for</th><th>Composition choice</th></tr></thead>
+      <tbody>
+        <tr><td>Frequency space</td><td>Are parts fighting in the same range?</td><td>Change octave, sound, or rhythm before reaching for EQ.</td></tr>
+        <tr><td>Dynamic range</td><td>Does the section swell and recede?</td><td>Compose volume changes into the arrangement, not only the mix.</td></tr>
+        <tr><td>Timbral motion</td><td>Does the sound evolve over time?</td><td>Use filter, modulation, articulation, or layering as development.</td></tr>
+        <tr><td>Texture</td><td>Is the section sparse, full, soft, sharp, smooth, noisy?</td><td>Let texture define verse versus chorus when harmony stays the same.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <strong>Practical spectral checklist:</strong>
+      give the bass, chord body, hook, and texture separate jobs; move a part by octave before reaching for EQ; save velocity and brightness headroom for later sections; use filter motion, envelope length, width, or harmonic brightness as compositional development.
+    </div>
+
+    <h3>Where this primer used to lean</h3>
+    <p>This curriculum began on the architectural side: intervals, harmony, chord function, progressions, and form. That is useful because it gives names to what Scaler and Live are producing. But your list points at the missing half: rhythm, phrasing, timbre, density, and spectral space are not decoration. They are composition.</p>
+
+    <div class="callout accent">
+      <strong>The balanced composer question.</strong> When you are stuck, ask which dimension you have not changed yet. If the notes are good, change time. If the rhythm is good, change voicing. If the section is good but flat, change density or timbre. If the sound is great but aimless, change form.
+    </div>
+  </div>
+
+</div><!-- /content -->
+
+<div class="footer">
+  <div class="nav">
+    <button class="nav-btn" id="back">← Back</button>
+    <button class="nav-btn primary" id="fwd">Next →</button>
+  </div>
+  <button class="close-btn" id="close">Close</button>
+</div>
+
+<script>
+var DATA = __PRIMER_JSON__;
+
+// ── Theme toggle ──────────────────────────────────────────────────────────
+(function() {
+  var KEY = "ta-theme";
+  var saved = "light";
+  try { saved = localStorage.getItem(KEY) || "light"; } catch(e) {}
+  document.documentElement.setAttribute("data-theme", saved);
+  var btn = document.getElementById("theme-btn");
+  btn.textContent = saved === "dark" ? "Light" : "Dark";
+  btn.addEventListener("click", function() {
+    var next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    try { localStorage.setItem(KEY, next); } catch(e) {}
+    btn.textContent = next === "dark" ? "Light" : "Dark";
+    // Redraw canvases with updated theme colors
+    INTERVALS.slice(1).forEach(function(iv) {
+      drawWaveCanvas("wc-" + iv.name.replace(/\s/g,""), iv.f1, iv.f2, iv.color);
+    });
+  });
+})();
+
+// ── Constants (must be defined before any IIFE that uses them) ────────
+var NOTE_NAMES = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+// White-key pitch classes in keyboard order
+var WHITE_KEYS_PCS = [0,2,4,5,7,9,11];
+// Black key definitions: pitch class + left-px offset within one octave
+// (white key width=26px, gap=1px → 27px per key; black key sits ~9px left of right edge of lower key)
+var BLACK_KEY_DEFS = [{pc:1,left:17},{pc:3,left:45},{pc:6,left:99},{pc:8,left:127},{pc:10,left:155}];
+var OCT_WIDTH_PX = 189; // 7 white keys × 27px
+
+// ── Close ─────────────────────────────────────────────────────────────
+function closeDialog() {
+  var msg = { method: "close_and_send", params: ["null"] };
+  if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.live)
+    window.webkit.messageHandlers.live.postMessage(msg);
+  else if (window.chrome && window.chrome.webview)
+    window.chrome.webview.postMessage(msg);
+}
+document.getElementById("close").addEventListener("click", closeDialog);
+document.addEventListener("keydown", function(e) {
+  if (e.key === "Escape") closeDialog();
+});
+
+// ── Tab / section navigation ─────────────────────────────────────────
+var SECTION_NAMES = ["What is Theory?", "Frequencies", "The Twelve Note System", "Your Scale", "Intervals", "Chords", "Progressions", "Dimensions"];
+var currentSection = 0;
+
+function goTo(idx) {
+  var lastIdx = SECTION_NAMES.length - 1;
+  idx = Math.max(0, Math.min(lastIdx, idx));
+  currentSection = idx;
+
+  document.querySelectorAll(".section").forEach(function(el, i) {
+    el.classList.toggle("visible", i === idx);
+  });
+  document.querySelectorAll(".tab").forEach(function(el) {
+    el.classList.toggle("active", parseInt(el.dataset.sec) === idx);
+  });
+  document.getElementById("section-label").textContent =
+    (idx + 1) + " / " + SECTION_NAMES.length + " · " + SECTION_NAMES[idx];
+
+  var back = document.getElementById("back");
+  var fwd  = document.getElementById("fwd");
+  back.disabled = idx === 0;
+  fwd.disabled  = idx === lastIdx;
+  fwd.textContent = idx === 2 ? "Your Scale →" : "Next →";
+
+  document.getElementById("content").scrollTop = 0;
+}
+
+document.getElementById("back").addEventListener("click", function() { goTo(currentSection - 1); });
+document.getElementById("fwd").addEventListener("click", function() { goTo(currentSection + 1); });
+document.querySelectorAll(".tab").forEach(function(tab) {
+  tab.addEventListener("click", function() { goTo(parseInt(tab.dataset.sec)); });
+});
+
+// ── Section 1: Wave canvas ────────────────────────────────────────────
+var INTERVALS = [
+  { name: "Unison",       ratio: [1, 1],   f1: 2, f2: 2,     color: "#6fbf73",  verdict: "Perfect alignment: the same frequency. Completely stable." },
+  { name: "Octave",       ratio: [2, 1],   f1: 2, f2: 4,     color: "#6fbf73",  verdict: "Wave 2 is twice as fast. Aligns every single cycle. Almost one note." },
+  { name: "Perfect 5th",  ratio: [3, 2],   f1: 2, f2: 3,     color: "#5b9bd5",  verdict: "3 cycles of the upper wave align with 2 of the lower. Very consonant." },
+  { name: "Major 3rd",    ratio: [5, 4],   f1: 4, f2: 5,     color: "#ffaa2b",  verdict: "5:4 ratio, warm and bright. Aligns every 4 cycles." },
+  { name: "Minor 3rd",    ratio: [6, 5],   f1: 5, f2: 6,     color: "#ffaa2b",  verdict: "6:5; darker, more introspective. Still fairly simple." },
+  { name: "Tritone",      ratio: ["√2",1], f1: 5, f2: 7.07,  color: "#e0564f",  verdict: "Approx. √2:1; irrational ratio. The waves never cleanly align. Maximum tension." },
+];
+
+(function buildWaveGrid() {
+  var grid = document.getElementById("wave-grid");
+  INTERVALS.slice(1).forEach(function(iv) { // skip unison, boring visually
+    var card = document.createElement("div");
+    card.className = "wave-card";
+    var canvasId = "wc-" + iv.name.replace(/\s/g,"");
+    var ratioStr = Array.isArray(iv.ratio) ? iv.ratio.join(":") : iv.ratio[0] + ":1";
+    card.innerHTML =
+      "<h4>" + iv.name + "</h4>" +
+      '<div class="ratio-tag">Ratio ' + ratioStr + "</div>" +
+      '<canvas id="' + canvasId + '" width="280" height="70"></canvas>' +
+      '<div class="verdict">' + iv.verdict + "</div>";
+    grid.appendChild(card);
+
+    // Draw waves on next tick so canvas is in DOM
+    setTimeout(function() { drawWaveCanvas(canvasId, iv.f1, iv.f2, iv.color); }, 0);
+  });
+})();
+
+function drawWaveCanvas(canvasId, freq1, freq2, accentColor) {
+  var canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  var ctx = canvas.getContext("2d");
+  var W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  var mid1 = H * 0.28, mid2 = H * 0.72;
+  var amp  = H * 0.20;
+
+  function wave(midY, freq, color, alpha) {
+    ctx.beginPath();
+    ctx.strokeStyle = color;
+    ctx.globalAlpha = alpha;
+    ctx.lineWidth = 1.5;
+    for (var x = 0; x <= W; x++) {
+      var y = midY + amp * Math.sin(2 * Math.PI * freq * (x / W));
+      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+
+  var isLight = document.documentElement.getAttribute("data-theme") === "light";
+
+  // Divider line
+  ctx.strokeStyle = isLight ? "#cac7c2" : "#2e2e2e";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, H / 2);
+  ctx.lineTo(W, H / 2);
+  ctx.stroke();
+
+  wave(mid1, freq1, "#5b9bd5", 0.85);  // blue, lower note
+  wave(mid2, freq2, accentColor, 0.85); // accent, upper note
+
+  // Mark alignment points
+  var lcm = findLcmFreq(freq1, freq2);
+  var period = W / lcm;
+  ctx.strokeStyle = isLight ? "#000000" : "#ffffff";
+  ctx.globalAlpha = isLight ? 0.07 : 0.12;
+  ctx.lineWidth = 1;
+  for (var x = period; x < W - 1; x += period) {
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, H);
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+}
+
+function gcd(a, b) { a = Math.round(a); b = Math.round(b); return b ? gcd(b, a % b) : a; }
+function findLcmFreq(f1, f2) {
+  var scale = 10;
+  var a = Math.round(f1 * scale), b = Math.round(f2 * scale);
+  var g = gcd(a, b);
+  return (a * b / g) / scale;
+}
+
+// ── Section 1: Ratio table ────────────────────────────────────────────
+(function buildRatioTable() {
+  var rows = [
+    { name: "Octave",        semis: 12, ratio: "2 : 1",   c: "high" },
+    { name: "Perfect 5th",   semis:  7, ratio: "3 : 2",   c: "high" },
+    { name: "Perfect 4th",   semis:  5, ratio: "4 : 3",   c: "high" },
+    { name: "Major 6th",     semis:  9, ratio: "5 : 3",   c: "mid"  },
+    { name: "Major 3rd",     semis:  4, ratio: "5 : 4",   c: "mid"  },
+    { name: "Minor 3rd",     semis:  3, ratio: "6 : 5",   c: "mid"  },
+    { name: "Minor 7th",     semis: 10, ratio: "16 : 9",  c: "mid"  },
+    { name: "Major 2nd",     semis:  2, ratio: "9 : 8",   c: "low"  },
+    { name: "Minor 2nd",     semis:  1, ratio: "16 : 15", c: "low"  },
+    { name: "Tritone",       semis:  6, ratio: "√2 : 1",  c: "low"  },
+  ];
+  var cLabel = { high: "Consonant", mid: "Moderate", low: "Dissonant" };
+  var tbl = document.getElementById("ratio-table");
+  tbl.innerHTML = "<thead><tr><th>Interval</th><th>Ratio</th><th>Character</th></tr></thead>";
+  var tbody = document.createElement("tbody");
+  rows.forEach(function(r) {
+    var tr = document.createElement("tr");
+    tr.innerHTML =
+      "<td>" + r.name + "</td>" +
+      '<td style="color:var(--accent);font-family:monospace">' + r.ratio + "</td>" +
+      "<td><span class='consonance-dot c-" + r.c + "'></span>" + cLabel[r.c] + "</td>";
+    tbody.appendChild(tr);
+  });
+  tbl.appendChild(tbody);
+})();
+
+// ── Section 3: Your Scale ─────────────────────────────────────────────
+(function buildYourScale() {
+  var tab3 = document.getElementById("tab3");
+
+  if (!DATA.key) {
+    document.getElementById("s3-title").textContent = "Your Scale";
+    document.getElementById("s3-lede").textContent =
+      "Scale Mode is off in Live. Turn on Scale Mode (or set a key) to see your scale here.";
+    document.getElementById("s3-piano-wrap").style.display = "none";
+    document.getElementById("s3-steps").style.display = "none";
+    document.getElementById("s3-steps-p").style.display = "none";
+    document.getElementById("s3-intervals-title").style.display = "none";
+    document.getElementById("s3-intervals-p").style.display = "none";
+    document.getElementById("s3-why").style.display = "none";
+    return;
+  }
+
+  var key = DATA.key;
+  tab3.textContent = key.label;
+  document.getElementById("s3-title").textContent = key.label;
+
+  var isMinor = key.scaleName.includes("minor");
+  document.getElementById("s3-lede").textContent =
+    "You're working in " + key.label + ". Here are the " + DATA.scaleNotes.length +
+    " notes that define this scale, picked from the 12 available, and why they work together.";
+
+  // Piano keyboard (two octaves: C4 to C6)
+  buildPiano(DATA.scaleNotes, key.root);
+
+  // Step formula
+  var scaleNotes = DATA.scaleNotes.slice().sort(function(a,b){return a-b;});
+  // Normalise to start from root
+  var idx = scaleNotes.indexOf(((key.root % 12) + 12) % 12);
+  if (idx < 0) idx = 0;
+  var rotated = scaleNotes.slice(idx).concat(scaleNotes.slice(0, idx));
+  rotated.push(rotated[0] + 12); // add octave close
+
+  var stepsEl = document.getElementById("s3-steps");
+  for (var i = 0; i < rotated.length - 1; i++) {
+    var curPc  = ((rotated[i]   % 12) + 12) % 12;
+    var diff   = rotated[i+1] - rotated[i];
+    var type   = diff === 2 ? "W" : diff === 1 ? "H" : diff === 3 ? "WH" : diff + "st";
+    if (i > 0) {
+      var arr = document.createElement("span");
+      arr.className = "step-arrow"; arr.textContent = "›";
+      stepsEl.appendChild(arr);
+    }
+    var badge = document.createElement("span");
+    badge.className = "step-badge " + (diff === 1 ? "step-H" : "step-W");
+    badge.textContent = NOTE_NAMES[curPc] + " (" + type + ")";
+    stepsEl.appendChild(badge);
+  }
+  document.getElementById("s3-steps-p").textContent =
+    "The asymmetric W-W-H-W-W-W-H (whole / half step) pattern is what creates a sense of \"home\": " +
+    "the uneven spacing means only one note (the root) has the right neighborhood to feel like rest.";
+
+  // Why this scale
+  document.getElementById("s3-intervals-title").textContent =
+    "Why " + key.label + "?";
+  document.getElementById("s3-intervals-p").textContent =
+    "These " + DATA.scaleNotes.length + " notes contain " + countFifths(DATA.scaleNotes) +
+    " perfect 5th relationships among them, " +
+    (isMinor
+      ? "the same set as its relative major (" + getRelativeMajor(key.root, key.scaleName) + "), sharing the maximum number of consonant intervals possible in 7 notes."
+      : "the maximum achievable with any 7-note subset of the 12. That's why this particular set of notes was codified as a scale.");
+
+  document.getElementById("s3-why-head").textContent =
+    isMinor ? "Minor vs. major: same notes, different home." : "The major scale as acoustic optimum.";
+  document.getElementById("s3-why-body").textContent =
+    isMinor
+    ? "A natural minor scale contains the exact same 7 notes as its relative major, just starting from a different one. " +
+      key.label.split(" ")[0] + " minor starts on the same note that the major scale's vi chord lands on. " +
+      "The scale isn't darker because of different notes; it's darker because of where it starts, which changes which note feels like 'home' and which intervals you encounter first."
+    : "Every note in the major scale is related to the tonic by a ratio of no more than 9:8. The most dissonant pair within the scale (the leading tone (7th) to root) is a minor 2nd (16:15), which creates the strong pull back to tonic. The scale is acoustically engineered for directed motion.";
+})();
+
+function countFifths(pcs) {
+  var count = 0;
+  var pcSet = new Set(pcs.map(function(p) { return ((p % 12) + 12) % 12; }));
+  pcSet.forEach(function(pc) { if (pcSet.has((pc + 7) % 12)) count++; });
+  return count;
+}
+
+function getRelativeMajor(root, scaleName) {
+  if (!scaleName.includes("minor")) return "";
+  var relRoot = ((root + 3) % 12 + 12) % 12;
+  var names = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+  return names[relRoot] + " major";
+}
+
+function buildPiano(scaleNotes, root) {
+  var pianoEl = document.getElementById("s3-piano");
+  if (!pianoEl) return;
+  var pcSet  = new Set(scaleNotes.map(function(p){ return ((p%12)+12)%12; }));
+  var rootPc = ((root % 12) + 12) % 12;
+
+  function wkClass(pc) {
+    return "wkey" + (pc === rootPc ? " root" : pcSet.has(pc) ? " in-scale" : "");
+  }
+  function bkClass(pc) {
+    return "bkey" + (pc === rootPc ? " root" : pcSet.has(pc) ? " in-scale" : "");
+  }
+
+  // White keys: iterate octave-outer, note-inner so keys appear C4 D4 E4... B4 C5 D5...
+  for (var oct = 0; oct < 2; oct++) {
+    for (var wi = 0; wi < WHITE_KEYS_PCS.length; wi++) {
+      var pc  = WHITE_KEYS_PCS[wi];
+      var div = document.createElement("div");
+      div.className = wkClass(pc);
+      var octLabel = (wi === 0) ? String(4 + oct) : "";
+      div.innerHTML = '<div class="wkey-label">' + NOTE_NAMES[pc] + octLabel + "</div>";
+      pianoEl.appendChild(div);
+    }
+  }
+  // Closing C6
+  var c6 = document.createElement("div");
+  c6.className = wkClass(0);
+  c6.innerHTML = '<div class="wkey-label">C6</div>';
+  pianoEl.appendChild(c6);
+
+  // Black keys: absolutely positioned over the white-key flex row
+  for (var oct = 0; oct < 2; oct++) {
+    for (var bi = 0; bi < BLACK_KEY_DEFS.length; bi++) {
+      var bk   = BLACK_KEY_DEFS[bi];
+      var bkey = document.createElement("div");
+      bkey.className  = bkClass(bk.pc);
+      bkey.style.left = (bk.left + oct * OCT_WIDTH_PX) + "px";
+      bkey.innerHTML  = '<div class="bkey-label">' + NOTE_NAMES[bk.pc] + "</div>";
+      pianoEl.appendChild(bkey);
+    }
+  }
+}
+
+// ── Init ──────────────────────────────────────────────────────────────
+goTo(0);
+</script>
+</body>
+</html>

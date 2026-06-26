@@ -1,0 +1,718 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  :root {
+    --bg:      #181818;
+    --panel:   #212121;
+    --panel2:  #272727;
+    --line:    #2e2e2e;
+    --line2:   #3a3a3a;
+    --text:    #d8d8d8;
+    --dim:     #888;
+    --dim2:    #555;
+    --accent:  #ffaa2b;
+    --warn:    #e0564f;
+    --tonic:   #5b9bd5;
+    --subdom:  #6fbf73;
+    --dom:     #e08f4f;
+    --borrow:  #c9a7ff;
+    --second:  #8fc1ff;
+  }
+  html[data-theme="light"] {
+    --bg:      #f2f0ec;
+    --panel:   #e8e6e2;
+    --panel2:  #dedbd7;
+    --line:    #cac7c2;
+    --line2:   #b0ada8;
+    --text:    #1c1c1c;
+    --dim:     #666;
+    --dim2:    #888;
+    --accent:  #a06800;
+    --warn:    #c02020;
+    --tonic:   #1855a0;
+    --subdom:  #2a7a30;
+    --dom:     #a05010;
+    --borrow:  #6030b0;
+    --second:  #1848a8;
+  }
+  html[data-theme="light"] .step.h    { background: #fff3c8; border-color: #c89010; }
+  html[data-theme="light"] .step.m    { background: #f0e8ff; border-color: #9060c0; }
+  html[data-theme="light"] .prog-row  { background: var(--panel); }
+  html[data-theme="light"] .borrow-card { background: var(--panel); }
+  html[data-theme="light"] button#close { background: #dedad4; }
+  html[data-theme="light"] button#close:hover { background: #d0ccc6; }
+  html[data-theme="light"] .pane::-webkit-scrollbar-thumb { background: #b8b4ae; }
+
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    background: var(--bg); color: var(--text);
+    font: 12px/1.5 system-ui, sans-serif;
+    display: flex; flex-direction: column;
+    padding: 14px 18px 12px; gap: 10px;
+    overflow: hidden;
+  }
+
+  /* ── Header ── */
+  .hd { flex-shrink: 0; }
+  .hd-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px; }
+  h1 { font-size: 14px; font-weight: 600; }
+  .keysrc { display: flex; align-items: center; gap: 8px; }
+  .keybadge { font-size: 11px; color: var(--dim); }
+  .keybadge b { color: var(--accent); font-weight: 600; }
+  .no-key-warn {
+    font-size: 11px; color: var(--warn);
+    border: 1px solid var(--line2); border-radius: 3px; padding: 2px 8px;
+  }
+  .theme-btn {
+    background: transparent; border: 1px solid var(--line2);
+    border-radius: 4px; padding: 3px 10px; font-size: 11px;
+    cursor: pointer; color: var(--dim);
+  }
+  .theme-btn:hover { color: var(--text); border-color: var(--dim); }
+
+  /* ── Tabs ── */
+  .tabs {
+    flex-shrink: 0; display: flex; gap: 2px;
+    border-bottom: 1px solid var(--line);
+  }
+  .tab {
+    padding: 5px 13px; font-size: 11.5px; cursor: pointer;
+    color: var(--dim); border-bottom: 2px solid transparent;
+    margin-bottom: -1px; user-select: none;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* ── Tab panes ── */
+  .pane { flex: 1; min-height: 0; overflow-y: auto; display: none; padding: 12px 0 6px; }
+  .pane.active { display: block; }
+  .pane::-webkit-scrollbar { width: 4px; }
+  .pane::-webkit-scrollbar-track { background: transparent; }
+  .pane::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+
+  /* ── Section heading ── */
+  .sec-title {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.07em;
+    text-transform: uppercase; color: var(--dim2); margin-bottom: 8px;
+  }
+
+  /* ── Scale pane ── */
+  .scale-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+    align-items: start;
+  }
+
+  /* Piano keyboard */
+  .piano {
+    position: relative; height: 80px; width: 196px;
+    border-radius: 3px; overflow: hidden; border: 1px solid var(--line2);
+  }
+  .wkey {
+    position: absolute; bottom: 0;
+    width: 27px; height: 80px; background: #f0ede6;
+    border-right: 1px solid #bbb; border-radius: 0 0 3px 3px;
+  }
+  .wkey.scale { background: var(--accent); }
+  .wkey.root  { background: #ff8c00; }
+  .bkey {
+    position: absolute; bottom: 34px;
+    width: 17px; height: 46px; background: #1a1a1a;
+    border-radius: 0 0 3px 3px; z-index: 2;
+  }
+  .bkey.scale { background: #c07a00; }
+  .bkey.root  { background: #ff6600; }
+  .piano-label { display: flex; width: 196px; margin-top: 5px; }
+  .piano-label span { width: 28px; text-align: center; font-size: 10px; color: var(--dim2); }
+  .piano-label span.scale-note { color: var(--accent); }
+  .piano-label span.root-note  { color: #ff8c00; font-weight: 600; }
+
+  /* Step formula */
+  .formula { display: flex; align-items: center; gap: 3px; flex-wrap: wrap; margin-top: 6px; }
+  .step {
+    background: var(--panel2); border: 1px solid var(--line);
+    border-radius: 3px; padding: 2px 7px; font-size: 11px; color: var(--dim);
+  }
+  .step.w { color: var(--text); border-color: var(--line2); }
+  .step.h { color: var(--accent); border-color: #5c4a00; background: #251e10; }
+  .step.m { color: var(--borrow); border-color: #3a2a55; background: #221830; }
+  .step-sep { color: var(--dim2); font-size: 10px; }
+
+  /* Degree list */
+  .degree-list { display: flex; flex-direction: column; gap: 3px; }
+  .degree-row {
+    display: flex; align-items: baseline; gap: 8px; padding: 4px 7px;
+    border-radius: 3px; background: var(--panel2); border: 1px solid var(--line);
+  }
+  .deg-num  { font-size: 11px; color: var(--accent); min-width: 14px; }
+  .deg-name { font-size: 12.5px; font-weight: 600; }
+  .deg-iv   { font-size: 11px; color: var(--dim2); }
+
+  /* ── Chords pane ── */
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    text-align: left; color: var(--dim); font-weight: 500; font-size: 10px;
+    letter-spacing: 0.05em; text-transform: uppercase;
+    border-bottom: 1px solid var(--line); padding: 5px 8px 5px 0;
+  }
+  th:first-child, td:first-child { padding-left: 6px; }
+  td { padding: 7px 8px 7px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  .fn-dot {
+    display: inline-block; width: 7px; height: 7px;
+    border-radius: 50%; margin-right: 4px; vertical-align: middle;
+  }
+  .bg-tonic       { background: var(--tonic); }
+  .bg-subdominant { background: var(--subdom); }
+  .bg-dominant    { background: var(--dom); }
+  .roman-cell  { color: var(--accent); font-size: 12px; white-space: nowrap; }
+  .chord-cell  { font-weight: 600; white-space: nowrap; }
+  .chord7-cell { color: var(--dim); white-space: nowrap; }
+  .fn-cell     { font-size: 11px; color: var(--dim); white-space: nowrap; }
+  .note-cell   { font-size: 11px; color: var(--dim2); line-height: 1.6; }
+  .note-cell strong { color: var(--dim); }
+
+  /* ── Progressions pane ── */
+  .prog-list { display: flex; flex-direction: column; gap: 6px; }
+  .prog-row {
+    background: var(--panel2); border: 1px solid var(--line); border-radius: 4px;
+    padding: 9px 11px;
+  }
+  .prog-head { display: flex; align-items: baseline; gap: 9px; margin-bottom: 4px; }
+  .prog-name { font-size: 12.5px; font-weight: 600; }
+  .prog-actual { font-size: 12px; color: var(--accent); }
+  .prog-desc { font-size: 11.5px; color: var(--dim); line-height: 1.6; }
+  .prog-desc strong { color: var(--text); }
+
+  /* ── Borrowed & Secondary pane ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 16px; }
+  .borrow-card {
+    background: var(--panel2); border: 1px solid var(--line); border-radius: 4px;
+    padding: 9px 11px 8px;
+  }
+  .borrow-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+  .borrow-deg  { font-size: 13px; font-weight: 600; color: var(--borrow); }
+  .borrow-deg.sec { color: var(--second); }
+  .borrow-name { font-size: 13px; font-weight: 600; }
+  .tag {
+    margin-left: auto; font-size: 10px; font-weight: 600; padding: 0 6px;
+    border-radius: 3px;
+  }
+  .tag.borrow  { background: #2d1f44; color: var(--borrow); }
+  .tag.second  { background: #1a2a3a; color: var(--second); }
+  html[data-theme="light"] .tag.borrow { background: #ede8ff; }
+  html[data-theme="light"] .tag.second { background: #e8f0ff; }
+  .borrow-note { font-size: 11px; color: var(--dim2); line-height: 1.6; }
+  .borrow-note strong { color: var(--dim); }
+
+  .trisub-box {
+    background: var(--panel2); border: 1px solid var(--line2); border-radius: 4px;
+    padding: 9px 12px; font-size: 11.5px; color: var(--dim2); line-height: 1.65;
+    margin-top: 10px;
+  }
+  .trisub-box strong { color: var(--text); }
+
+  /* ── Modes pane ── */
+  .mode-row {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 9px 10px; border-radius: 4px;
+    border: 1px solid var(--line); background: var(--panel2);
+    margin-bottom: 5px;
+  }
+  .mode-root { min-width: 26px; font-size: 14px; font-weight: 700; color: var(--accent); padding-top: 1px; }
+  .mode-body { flex: 1; min-width: 0; }
+  .mode-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
+  .mode-name  { font-size: 13px; font-weight: 600; }
+  .mode-alt   { font-size: 11px; color: var(--dim); }
+  .mode-chord { font-size: 11.5px; color: var(--accent); margin-left: auto; }
+  .mode-notes { display: flex; gap: 3px; flex-wrap: wrap; margin-bottom: 5px; }
+  .mode-note {
+    font-size: 10.5px; padding: 1px 7px; border-radius: 3px;
+    background: var(--panel); border: 1px solid var(--line); color: var(--dim);
+  }
+  .mode-note.root  { border-color: var(--line2); color: var(--text); font-weight: 600; }
+  .mode-note.color { background: #302800; border-color: #5c4a00; color: var(--accent); }
+  html[data-theme="light"] .mode-note.color { background: #fff3c8; border-color: #c89010; }
+  .color-tag {
+    font-size: 10px; padding: 1px 7px; border-radius: 3px; white-space: nowrap;
+    background: #302800; border: 1px solid #5c4a00; color: var(--accent);
+  }
+  html[data-theme="light"] .color-tag { background: #fff3c8; border-color: #c89010; }
+  .mode-jazz { font-size: 11px; color: var(--dim2); line-height: 1.6; }
+  .mode-jazz strong { color: var(--dim); }
+
+  /* ── Footer ── */
+  .footer { flex-shrink: 0; display: flex; justify-content: flex-end; }
+  button#close {
+    background: #2a2a2a; color: var(--text); border: 1px solid var(--line2);
+    border-radius: 4px; padding: 5px 22px; cursor: pointer; font-size: 12px;
+  }
+  button#close:hover { background: #333; }
+</style>
+</head>
+<body>
+
+<div class="hd">
+  <div class="hd-top">
+    <div style="display:flex;align-items:center;gap:8px">
+      <h1>Theory Reference</h1>
+      <div class="keysrc" id="keysrc"></div>
+    </div>
+    <button class="theme-btn" id="theme-btn">Light</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" data-tab="scale">Scale</div>
+  <div class="tab" data-tab="chords">Diatonic Chords</div>
+  <div class="tab" data-tab="progressions">Progressions</div>
+  <div class="tab" data-tab="borrowed">Borrowed &amp; Secondary</div>
+  <div class="tab" data-tab="modes">Modes</div>
+</div>
+
+<div class="pane active" id="pane-scale"></div>
+<div class="pane" id="pane-chords"></div>
+<div class="pane" id="pane-progressions"></div>
+<div class="pane" id="pane-borrowed"></div>
+<div class="pane" id="pane-modes"></div>
+
+<div class="footer">
+  <button id="close">Close</button>
+</div>
+
+<script>
+var DATA = __REFERENCE_JSON__;
+
+// ── Theme ─────────────────────────────────────────────────────────────
+(function() {
+  var KEY = "ta-theme";
+  var saved = "light";
+  try { saved = localStorage.getItem(KEY) || "light"; } catch(e) {}
+  document.documentElement.setAttribute("data-theme", saved);
+  var btn = document.getElementById("theme-btn");
+  btn.textContent = saved === "dark" ? "Light" : "Dark";
+  btn.addEventListener("click", function() {
+    var next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    try { localStorage.setItem(KEY, next); } catch(e) {}
+    btn.textContent = next === "dark" ? "Light" : "Dark";
+  });
+})();
+
+// ── Close ─────────────────────────────────────────────────────────────
+function closeDialog() {
+  var msg = { method: "close_and_send", params: ["null"] };
+  if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.live)
+    window.webkit.messageHandlers.live.postMessage(msg);
+  else if (window.chrome && window.chrome.webview)
+    window.chrome.webview.postMessage(msg);
+}
+document.getElementById("close").addEventListener("click", closeDialog);
+document.addEventListener("keydown", function(e) { if (e.key === "Escape") closeDialog(); });
+
+// ── Tabs ──────────────────────────────────────────────────────────────
+document.querySelectorAll(".tab").forEach(function(tab) {
+  tab.addEventListener("click", function() {
+    document.querySelectorAll(".tab").forEach(function(t) { t.classList.remove("active"); });
+    document.querySelectorAll(".pane").forEach(function(p) { p.classList.remove("active"); });
+    tab.classList.add("active");
+    document.getElementById("pane-" + tab.dataset.tab).classList.add("active");
+  });
+});
+
+// ── Helpers ───────────────────────────────────────────────────────────
+var NOTE_NAMES = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+function mod12(n) { return ((n % 12) + 12) % 12; }
+function noteName(pc) { return NOTE_NAMES[mod12(pc)]; }
+function esc(s) {
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+function chordSuffix(q) {
+  return { major:"", minor:"m", dominant7:"7", major7:"maj7", minor7:"m7",
+           diminished:"°", "half-dim7":"ø7", dim7:"°7", augmented:"+" }[q] || "";
+}
+function chordNameStr(rootPc, quality) { return noteName(rootPc) + chordSuffix(quality); }
+
+var isMinor = DATA.key.scaleName && DATA.key.scaleName.includes("minor");
+var root    = DATA.key.root || 0;
+
+// ── Key badge ─────────────────────────────────────────────────────────
+(function() {
+  var el = document.getElementById("keysrc");
+  el.innerHTML = DATA.key.source === "live"
+    ? '<span class="keybadge"><b>' + esc(DATA.key.label) + '</b></span>'
+    : '<span class="no-key-warn">Scale Mode off: showing C major defaults</span>';
+})();
+
+// ════════════════════════════════════════════════════════════
+// ── TAB 1: Scale ─────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════
+
+var WHITE_PCS    = [0, 2, 4, 5, 7, 9, 11];
+var WHITE_NAMES  = ["C","D","E","F","G","A","B"];
+var WHITE_OFFSET = [0, 28, 56, 84, 112, 140, 168];
+var BLACK_MAP    = { 1: 19, 3: 47, 6: 103, 8: 131, 10: 159 };
+
+function buildPiano(scalePCs, rootPC) {
+  var scaleSet = {};
+  (scalePCs || []).forEach(function(pc) { scaleSet[mod12(pc)] = true; });
+  rootPC = mod12(rootPC);
+  var html = '<div class="piano">';
+  WHITE_PCS.forEach(function(pc, i) {
+    var cls = pc === rootPC ? "wkey root" : scaleSet[pc] ? "wkey scale" : "wkey";
+    html += '<div class="' + cls + '" style="left:' + WHITE_OFFSET[i] + 'px"></div>';
+  });
+  Object.keys(BLACK_MAP).forEach(function(pcStr) {
+    var pc = Number(pcStr), lft = BLACK_MAP[pc];
+    var cls = pc === rootPC ? "bkey root" : scaleSet[pc] ? "bkey scale" : "bkey";
+    html += '<div class="' + cls + '" style="left:' + lft + 'px"></div>';
+  });
+  html += '</div><div class="piano-label">';
+  WHITE_PCS.forEach(function(pc, i) {
+    var cls = pc === rootPC ? ' class="root-note"' : scaleSet[pc] ? ' class="scale-note"' : '';
+    html += '<span' + cls + '>' + WHITE_NAMES[i] + '</span>';
+  });
+  return html + '</div>';
+}
+
+(function renderScale() {
+  var scalePCs  = DATA.scaleNotes      || [];
+  var noteNames = DATA.scaleNoteNames  || [];
+  var formula   = DATA.scaleFormula    || [];
+  var scaleName = DATA.key.scaleName   || "";
+
+  // Mode name for this scale type
+  var modeNames = { major:"Ionian", minor:"Aeolian", dorian:"Dorian",
+                    phrygian:"Phrygian", lydian:"Lydian", mixolydian:"Mixolydian", locrian:"Locrian" };
+  var modeName = modeNames[scaleName.toLowerCase()] || "";
+
+  // Relative key: major → relative minor (+9 st), minor → relative major (+3 st)
+  var relKey = "";
+  if (scaleName === "major") {
+    relKey = "Relative minor: " + noteName(root + 9) + " minor";
+  } else if (scaleName === "minor") {
+    relKey = "Relative major: " + noteName(root + 3) + " major";
+  }
+
+  var stepNames = {2:"W", 1:"H", 3:"W+H"};
+  var stepFlags = {2:"w", 1:"h", 3:"m"};
+  var formulaHtml = formula.map(function(s, i) {
+    return (i ? '<span class="step-sep"> to </span>' : '') +
+           '<span class="step ' + (stepFlags[s]||"") + '">' + (stepNames[s]||s) + '</span>';
+  }).join("");
+
+  var degHtml = noteNames.map(function(n, i) {
+    var pc = scalePCs[i];
+    var iv = (((pc || 0) - root) + 12) % 12;
+    return '<div class="degree-row">' +
+      '<span class="deg-num">' + (i+1) + '</span>' +
+      '<span class="deg-name">' + esc(n) + '</span>' +
+      '<span class="deg-iv">' + iv + ' semitone' + (iv===1?"":"s") + ' from root</span>' +
+    '</div>';
+  }).join("");
+
+  var modeLineHtml = (modeName || relKey) ?
+    '<div style="margin-top:10px;font-size:11px;color:var(--dim2);line-height:1.8">' +
+      (modeName ? '<span style="color:var(--dim)">' + esc(DATA.key.label) + ' = <b>' + esc(modeName) + '</b></span>' : '') +
+      (modeName && relKey ? '<br>' : '') +
+      (relKey ? esc(relKey) : '') +
+    '</div>' : "";
+
+  document.getElementById("pane-scale").innerHTML =
+    '<div class="scale-grid">' +
+      '<div>' +
+        '<div class="sec-title">Keyboard</div>' +
+        buildPiano(scalePCs, root) +
+        '<div class="sec-title" style="margin-top:14px">Step formula</div>' +
+        '<div class="formula">' + formulaHtml + '</div>' +
+        '<div style="margin-top:5px;font-size:10px;color:var(--dim2)">W = whole (2 st)&emsp;H = half (1 st)</div>' +
+        modeLineHtml +
+      '</div>' +
+      '<div>' +
+        '<div class="sec-title">Scale degrees</div>' +
+        '<div class="degree-list">' + degHtml + '</div>' +
+      '</div>' +
+    '</div>';
+})();
+
+// ════════════════════════════════════════════════════════════
+// ── TAB 2: Diatonic Chords ────────────────────────────────────
+// ════════════════════════════════════════════════════════════
+
+var JAZZ_NOTES_MAJOR = [
+  "Tonic home. Land on <strong>maj7</strong> in jazz. Extensions: maj9, 6/9, maj7♯11 (Lydian color).",
+  "Pre-dominant workhorse. <strong>ii7 to V7 to Imaj7</strong> is the jazz cadence: ii almost always moves to V7. Extensions: m9, m11.",
+  "Tonic substitute: shares two notes with I. Good passing chord in I to iii to IV. Rarely used as a goal.",
+  "Subdominant anchor. <strong>IV to I</strong> (plagal) feels archaic; <strong>IV to V to I</strong> is ubiquitous. Minor iv (borrowed) adds darker color.",
+  "Dominant: the tritone between the 3rd and ♭7 demands resolution. Always <strong>V7</strong> in jazz. Alterations: V7♭9, V7♯9, V7♭13: sharpen the pull.",
+  "Relative minor. Tonic substitute sharing two notes with I and IV. Provides a darker pivot without leaving the key.",
+  "Leading-tone chord. Strong pull to I via the built-in tritone. In jazz V7♭9 contains this dim7 as a subset: often preferred.",
+];
+var JAZZ_NOTES_MINOR = [
+  "Tonic home. Land on <strong>m7</strong> (or m(maj7) for harmonic color). Extensions: m9, m11.",
+  "Pre-dominant in minor. <strong>iiø7 to V7 to i</strong> is the jazz minor cadence. The ø7 is darker than a plain m7.",
+  "Relative major: same notes as the key's relative major tonic. Used in descending bass lines and as a brightness pivot.",
+  "Minor subdominant (iv). Diatonic here; heavily used in classical minor cadences (iv to V to i).",
+  "Natural minor has a minor v, but <strong>harmonic minor raises the 7th</strong> to create a major V: that leading tone is what pulls back to i.",
+  "Major chord on ♭6. Relative major's IV. Adds brightness inside minor; common in i to VI to III to VII loops.",
+  "Subtonic (♭VII). No leading-tone pull. Natural minor loop staple: rock, modal. Contrast with the raised 7th in harmonic minor.",
+];
+var JAZZ_NOTES = isMinor ? JAZZ_NOTES_MINOR : JAZZ_NOTES_MAJOR;
+
+var FN_LABEL = { tonic:"Tonic", subdominant:"Subdominant", dominant:"Dominant" };
+
+(function renderChords() {
+  var triads   = DATA.triads   || [];
+  var sevenths = DATA.sevenths || [];
+
+  var rows = triads.map(function(t, i) {
+    var sev  = sevenths[i] || {};
+    var fn   = t.fn;
+    var note = JAZZ_NOTES[i] || "";
+    var dot  = fn ? '<span class="fn-dot bg-' + fn + '"></span>' : "";
+    return '<tr>' +
+      '<td class="roman-cell">' + esc(t.roman) + '</td>' +
+      '<td class="chord-cell">' + esc(t.chordName) + '</td>' +
+      '<td class="chord7-cell">' + esc(sev.chordName || "") + '</td>' +
+      '<td class="fn-cell">' + dot + esc(FN_LABEL[fn] || "") + '</td>' +
+      '<td class="note-cell">' + note + '</td>' +
+    '</tr>';
+  }).join("");
+
+  document.getElementById("pane-chords").innerHTML =
+    '<table>' +
+      '<thead><tr>' +
+        '<th>Degree</th><th>Triad</th><th>7th</th><th>Function</th><th>Jazz note</th>' +
+      '</tr></thead>' +
+      '<tbody>' + rows + '</tbody>' +
+    '</table>';
+})();
+
+// ════════════════════════════════════════════════════════════
+// ── TAB 3: Progressions ───────────────────────────────────────
+// ════════════════════════════════════════════════════════════
+
+var MAJOR_PROGS = [
+  { indices:[1,4,0], name:"ii to V to I",
+    desc:"The jazz cadence. <strong>ii7 to V7 to Imaj7</strong> is the engine of jazz harmony. The tritone in V7 resolves inward to I. Appears in hundreds of jazz standards in every key." },
+  { indices:[0,5,1,4], name:"I to vi to ii to V",
+    desc:"<strong>Rhythm Changes</strong> A section: Gershwin's 'I Got Rhythm' and hundreds of standards. In jazz: Imaj7 to vi7 to ii7 to V7. The vi provides a smooth minor pivot before the ii to V cadence." },
+  { indices:[0,4,5,3], name:"I to V to vi to IV",
+    desc:"The pop/rock workhorse. Same four chords as most of the Western pop canon. The vi gives brief melancholy; IV sets up the return to I." },
+  { indices:[0,3,4,0], name:"I to IV to V to I",
+    desc:"Three primary harmonic functions in one cycle. Blues, folk, and rock backbone. All notes in these three chords belong to the major scale." },
+  { indices:[0,3,1,4], name:"I to IV to ii to V",
+    desc:"Pre-dominant elaboration. Both IV and ii are subdominant-function chords: stacking them before V builds extra harmonic momentum. Common in jazz heads." },
+  { indices:[0,2,3,4], name:"I to iii to IV to V",
+    desc:"Ascending bass line feel. The iii acts as a tonic substitute stepping stone between I and IV. Adds sophistication over a plain I to IV to V." },
+  { indices:[5,3,0,4], name:"vi to IV to I to V",
+    desc:"Rotation of the four-chord pop progression. Opens with a melancholic minor character that brightens on I. The relative minor start adds emotional weight." },
+];
+
+var MINOR_PROGS = [
+  { indices:[1,4,0], name:"iiø7 to V7 to i",
+    desc:"The <strong>jazz minor cadence</strong>. The half-diminished iiø7 is the standard pre-dominant in jazz minor. The V7 uses the raised 7th from harmonic minor for a strong leading-tone pull." },
+  { indices:[0,3,4,0], name:"i to iv to V to i",
+    desc:"Classical <strong>harmonic minor cadence</strong>. The major V (raised ♯7 scale degree) creates a powerful pull back to i. Defines Baroque and Romantic minor-key writing." },
+  { indices:[0,6,5,4], name:"i to VII to VI to V",
+    desc:"<strong>Andalusian cadence</strong>: a descending chromatic bass line. Flamenco, classic rock, and film scores. The bass moves by step: root → ♭VII → ♭VI → V." },
+  { indices:[0,6,5,6], name:"i to VII to VI to VII",
+    desc:"Natural minor loop. Stays entirely in natural minor: no raised 7th, so V remains minor. Common in rock, metal, and modal contexts." },
+  { indices:[0,5,2,6], name:"i to VI to III to VII",
+    desc:"Descending bass line in natural minor: i → ♭VI → ♭III → ♭VII. Appears in progressive rock and Aeolian-mode compositions." },
+  { indices:[0,3,6,2], name:"i to iv to VII to III",
+    desc:"Modal minor cycle. Pure natural minor, no harmonic minor raised 7th. Dorian-friendly. Used in jazz minor contexts and modal compositions." },
+];
+
+var PROGS = isMinor ? MINOR_PROGS : MAJOR_PROGS;
+
+(function renderProgressions() {
+  var triads = DATA.triads || [];
+  var html = '<div class="prog-list">';
+  PROGS.forEach(function(p) {
+    var actualChords = p.indices.map(function(i) {
+      return triads[i] ? esc(triads[i].chordName) : "?";
+    }).join(" to ");
+    html +=
+      '<div class="prog-row">' +
+        '<div class="prog-head">' +
+          '<span class="prog-name">' + esc(p.name) + '</span>' +
+          '<span class="prog-actual">' + actualChords + '</span>' +
+        '</div>' +
+        '<div class="prog-desc">' + p.desc + '</div>' +
+      '</div>';
+  });
+  html += '</div>';
+  document.getElementById("pane-progressions").innerHTML = html;
+})();
+
+// ════════════════════════════════════════════════════════════
+// ── TAB 4: Borrowed & Secondary ──────────────────────────────
+// ════════════════════════════════════════════════════════════
+
+(function renderBorrowed() {
+  var el = document.getElementById("pane-borrowed");
+
+  // ── Borrowed chords ──────────────────────────────────────────
+  var borrowed = isMinor ? [
+    { degree:"IV",  offset:5,  quality:"major",
+      note:"Borrowed from parallel <strong>major</strong>. The raised 3rd creates a brighter subdominant than the diatonic iv: adds unexpected light." },
+    { degree:"V",   offset:7,  quality:"major",
+      note:"<strong>Harmonic minor</strong> raises the 7th to create a major V. That leading tone is what gives harmonic minor its strong pull back to i." },
+    { degree:"bII", offset:1,  quality:"major",
+      note:"<strong>Neapolitan</strong>. Flat-2nd major chord: a chromatic pre-dominant. Approaches V with dramatic color. Heavy use in jazz and classical." },
+    { degree:"I",   offset:0,  quality:"major",
+      note:"<strong>Picardy third</strong>: ending on the parallel major tonic. Archaic and powerful; lifts a minor piece to an unexpectedly bright resolution." },
+  ] : [
+    { degree:"iv",   offset:5,  quality:"minor",
+      note:"<strong>Minor subdominant</strong> from parallel minor. Darkened IV: one of the most natural borrowed chords in pop and ballads. iv to I or iv to V to I." },
+    { degree:"bVII", offset:10, quality:"major",
+      note:"<strong>Mixolydian ♭VII</strong>. Major chord one whole step below the tonic. No leading-tone pull: feels open. Rock and pop staple." },
+    { degree:"bVI",  offset:8,  quality:"major",
+      note:"From parallel minor. Dramatic, cinematic. The <strong>bVI to bVII to I</strong> motion is the 'epic rock resolution'. Film score bread and butter." },
+    { degree:"bIII", offset:3,  quality:"major",
+      note:"From parallel minor. Adds dark color without leaving the tonal center. Common in chromatic bass motion: I to bIII to IV." },
+    { degree:"bII",  offset:1,  quality:"major",
+      note:"<strong>Neapolitan</strong>. Flat-2nd major: jarring chromatic pre-dominant. Approaches V or I with a dramatic half-step bass resolution." },
+  ];
+
+  var borrowHtml = borrowed.map(function(b) {
+    var name = chordNameStr(mod12(root + b.offset), b.quality);
+    return '<div class="borrow-card">' +
+      '<div class="borrow-head">' +
+        '<span class="borrow-deg">' + esc(b.degree) + '</span>' +
+        '<span class="borrow-name">' + esc(name) + '</span>' +
+        '<span class="tag borrow">borrowed</span>' +
+      '</div>' +
+      '<div class="borrow-note">' + b.note + '</div>' +
+    '</div>';
+  }).join("");
+
+  // ── Secondary dominants ──────────────────────────────────────
+  var targets = isMinor ? [2, 3, 4, 5] : [1, 2, 3, 4, 5];
+  var scaleNotes = DATA.scaleNotes || [];
+  var triads     = DATA.triads     || [];
+
+  var secHtml = targets.map(function(ti) {
+    var target   = triads[ti];
+    var targetPc = scaleNotes[ti];
+    if (!target || targetPc === undefined) return "";
+    var sdRoot  = mod12(targetPc + 7);
+    var sdName  = chordNameStr(sdRoot, "dominant7");
+    var triSub  = chordNameStr(mod12(sdRoot + 6), "dominant7");
+    var degLbl  = "V7/" + target.roman;
+    return '<div class="borrow-card">' +
+      '<div class="borrow-head">' +
+        '<span class="borrow-deg sec">' + esc(degLbl) + '</span>' +
+        '<span class="borrow-name">' + esc(sdName) + '</span>' +
+        '<span class="tag second">sec. dom.</span>' +
+      '</div>' +
+      '<div class="borrow-note">' +
+        'Resolves to <strong>' + esc(target.roman) + ' (' + esc(target.chordName) + ')</strong>. ' +
+        'Tritone sub: <strong>' + esc(triSub) + '</strong>.' +
+      '</div>' +
+    '</div>';
+  }).join("");
+
+  el.innerHTML =
+    '<div class="sec-title">Modal interchange: from parallel ' + (isMinor ? "major" : "minor") + '</div>' +
+    '<div class="two-col">' + borrowHtml + '</div>' +
+    '<div class="sec-title" style="margin-top:14px">Secondary dominants</div>' +
+    '<div class="two-col">' + secHtml + '</div>' +
+    '<div class="trisub-box">' +
+      '<strong>Tritone substitution:</strong> Any V7 can be replaced by the dominant 7th whose root sits a tritone (♭5) away: ' +
+      'both chords share the same tritone interval, so the resolution still works. ' +
+      'The tritone sub creates a descending chromatic bass line into the target: ' +
+      'instead of approaching from a 5th above, you approach from a half step above. ' +
+      'This is one of the most important reharmonization moves in jazz.' +
+    '</div>';
+})();
+
+// ════════════════════════════════════════════════════════════
+// ── TAB 5: Modes ──────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════
+
+// Mode definitions indexed 0 to 6 as Ionian through Locrian.
+// colorSt: semitones above the mode's root for the characteristic "color note".
+// null = Ionian (no single color note: it is the baseline).
+var MODE_DEFS = [
+  { name: "Ionian",     alt: "Major",           colorSt: null, colorLbl: null,
+    jazz: "The baseline major. Tonic maj7 chords. In jazz, <strong>Lydian</strong> is often preferred over Ionian: the ♯4 floats instead of pulling toward V." },
+  { name: "Dorian",     alt: "Minor (♮6)",      colorSt: 9,   colorLbl: "♮6",
+    jazz: "The <strong>jazz minor</strong> mode. Use over ii7 and any sustained minor chord. The raised 6th (vs Aeolian's ♭6) gives it a brighter, more open character." },
+  { name: "Phrygian",   alt: "Minor (♭2)",      colorSt: 1,   colorLbl: "♭2",
+    jazz: "Over iii7 or as a dark static color. The ♭2 creates the flamenco/metal edge. Rare in bebop but central to modal and world-music contexts." },
+  { name: "Lydian",     alt: "Major (♯4)",      colorSt: 6,   colorLbl: "♯4",
+    jazz: "<strong>The jazz major mode.</strong> Over IVmaj7 or Imaj7. The ♯4 (tritone above root) floats over a major chord with no tendency to resolve: pure color." },
+  { name: "Mixolydian", alt: "Dominant (♭7)",   colorSt: 10,  colorLbl: "♭7",
+    jazz: "<strong>The dominant mode.</strong> Use over V7 and any dominant chord. The ♭7 is exactly what a dominant chord implies. Backbone of blues, rock, and jazz improv over dominant." },
+  { name: "Aeolian",   alt: "Natural Minor",   colorSt: 8,   colorLbl: "♭6",
+    jazz: "Over vi7 or minor tonic in non-jazz contexts. The ♭6 is darker than Dorian. Rock and pop's default minor; Dorian is more common in jazz for its brighter 6th." },
+  { name: "Locrian",   alt: "Half-dim (♭2,♭5)", colorSt: 6,  colorLbl: "♭5",
+    jazz: "Over viiø7 (half-diminished) chords: technically correct but rarely improvised. The ♭5 makes it the most unstable mode. More a theoretical position than a sound." },
+];
+
+// Degree-to-mode-index mapping for major (Ionian root) and minor (Aeolian root)
+var MODE_ORDER = isMinor ? [5, 6, 0, 1, 2, 3, 4] : [0, 1, 2, 3, 4, 5, 6];
+
+(function renderModes() {
+  var scaleNotes = DATA.scaleNotes     || [];
+  var noteNames  = DATA.scaleNoteNames || [];
+  var triads     = DATA.triads         || [];
+
+  var sharedNotes = noteNames.join("  ");
+  var html =
+    '<div style="font-size:11px;color:var(--dim2);margin-bottom:10px;line-height:1.6">' +
+      'Seven modes, one note set: <span style="color:var(--dim)">' + esc(sharedNotes) + '</span>. ' +
+      'Each mode starts from a different degree and treats a different note as home.' +
+    '</div>';
+
+  for (var i = 0; i < 7; i++) {
+    var def      = MODE_DEFS[MODE_ORDER[i]];
+    var modeRoot = scaleNotes[i] || 0;
+
+    // Notes of this mode: same 7 pitches, starting from degree i
+    var modeNames = [];
+    var modePcs   = [];
+    for (var j = 0; j < 7; j++) {
+      modeNames.push(noteNames[(i + j) % 7]);
+      modePcs.push(scaleNotes[(i + j) % 7]);
+    }
+
+    var colorPc = def.colorSt !== null ? mod12(modeRoot + def.colorSt) : null;
+
+    var pills = modeNames.map(function(name, ni) {
+      var cls = "mode-note";
+      if (ni === 0) cls += " root";
+      else if (colorPc !== null && mod12(modePcs[ni]) === colorPc) cls += " color";
+      return '<span class="' + cls + '">' + esc(name) + '</span>';
+    }).join("");
+
+    var triad    = triads[i];
+    var colorTag = def.colorLbl
+      ? '<span class="color-tag">' + esc(def.colorLbl) + '</span>'
+      : "";
+
+    html +=
+      '<div class="mode-row">' +
+        '<div class="mode-root">' + esc(noteNames[i] || "") + '</div>' +
+        '<div class="mode-body">' +
+          '<div class="mode-head">' +
+            '<span class="mode-name">' + esc(def.name) + '</span>' +
+            '<span class="mode-alt">' + esc(def.alt) + '</span>' +
+            colorTag +
+            (triad ? '<span class="mode-chord">' + esc(triad.chordName) + '</span>' : '') +
+          '</div>' +
+          '<div class="mode-notes">' + pills + '</div>' +
+          '<div class="mode-jazz">' + def.jazz + '</div>' +
+        '</div>' +
+      '</div>';
+  }
+
+  document.getElementById("pane-modes").innerHTML = html;
+})();
+</script>
+</body>
+</html>

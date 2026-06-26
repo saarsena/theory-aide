@@ -30,7 +30,7 @@ All commands appear in the right-click context menu inside Live's arrangement or
 
 | Command | What it does |
 | --- | --- |
-| **Harmonic Timeline (All Tracks)…** | Scans every MIDI track in the selected range, slices the combined harmony beat by beat, and shows the chord/Roman-numeral timeline with function colors (T/S/D), borrowed and secondary-dominant badges, and per-track clash warnings. |
+| **Harmonic Timeline (All Tracks)…** | First lets you pick which tracks to include (drum/percussion is auto-detected and pre-unchecked). Then slices the combined harmony beat by beat and shows the chord/Roman-numeral timeline with function colors (T/S/D), borrowed and secondary-dominant badges, and per-track clash warnings. Toggle **Single view** for one continuous, scrollable list instead of paging. |
 | **Counterpoint Checker…** | First lets you pick which tracks to compare (drum/percussion tracks are auto-detected and pre-unchecked). Then analyzes every pair of selected MIDI tracks for parallel 5ths, parallel octaves, hidden 5ths/octaves, and parallel unisons. Reports the motion-type breakdown (contrary / oblique / similar / parallel) and harmonic interval distribution per pair and in aggregate. |
 | **Composition Dimensions (Selection)…** | Rates the selection across vertical (harmony), horizontal (melody), macro (arrangement energy), and spectral (register) dimensions. |
 | **Arrangement And Form…** | Detects section structure, energy arcs, and formal landmarks in the selected range. |

@@ -10,11 +10,22 @@ this project is pre-1.0, so anything may still change.
 - **Counterpoint track picker.** Counterpoint Checker now opens a track-selection
   step first: a checklist of every MIDI track with notes in the range, showing
   note count, pitch range, and pitch-class count. Drum/percussion tracks are
-  auto-detected (by name, or low GM-drum range with many pitch classes) and
-  pre-unchecked. Includes Select all / none / Melodic only and a live pair count.
-  Only the selected tracks are analyzed.
+  auto-detected by name and pre-unchecked. Includes Select all / none /
+  Melodic only and a live pair count. Only the selected tracks are analyzed.
+- **Harmonic Timeline track picker.** The Harmonic Timeline now opens the same
+  track-selection step first, so you can omit unpitched percussion (and anything
+  else) before it gets spelled into the combined harmony.
+- **Harmonic Timeline single view.** A "Single view" toggle in the pager swaps
+  the 10-segments-per-page table for one continuous, scrollable list — far less
+  tiresome on long arrangements. Clicking a chord in the strip scrolls straight
+  to its row. The choice is remembered between sessions.
 
 ### Fixed
+- **Percussion auto-detection missed "Drums"/"Percussion" and false-flagged
+  melodic tracks.** Name matching now treats keywords as stems, so plurals and
+  suffixes (Drums, Percussion, Toms, Claps) are caught — adding any such word to
+  a track name is enough. The old GM-drum pitch-range fallback was dropped: it
+  wrongly flagged low melodic parts (e.g. a guitar around E1–C2) as percussion.
 - **Counterpoint missed parallels in large sets.** The engine capped analysis at
   15 track pairs in Live's track order, so in big projects the meaningful pairs
   were silently dropped (and muting or reordering tracks changed the results).

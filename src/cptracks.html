@@ -102,6 +102,13 @@ function send(payload) {
 
 var DATA = __CPTRACKS_JSON__;
 
+// Optional copy overrides so the same picker serves Counterpoint and Timeline.
+var MIN = DATA.minSelect || 2;
+var COUNT = DATA.countMode || "pairs";
+if (DATA.title)   document.querySelector(".hdr-title").textContent = DATA.title;
+if (DATA.intro)   document.querySelector(".intro").textContent = DATA.intro;
+if (DATA.goLabel) document.getElementById("analyze").textContent = DATA.goLabel;
+
 document.getElementById("sub-line").textContent =
   "b" + DATA.rangeStart.toFixed(2) + "–b" + DATA.rangeEnd.toFixed(2);
 
@@ -128,12 +135,16 @@ function selectedKeys() {
 
 function refresh() {
   var n = selectedKeys().length;
-  var pairs = n * (n - 1) / 2;
   var el = document.getElementById("pair-count");
-  el.textContent = n + " track" + (n === 1 ? "" : "s") + " selected · " +
-                   pairs + " pair" + (pairs === 1 ? "" : "s");
-  if (pairs > 120) el.textContent += " (over 120 — will be truncated)";
-  document.getElementById("analyze").disabled = n < 2;
+  if (COUNT === "pairs") {
+    var pairs = n * (n - 1) / 2;
+    el.textContent = n + " track" + (n === 1 ? "" : "s") + " selected · " +
+                     pairs + " pair" + (pairs === 1 ? "" : "s");
+    if (pairs > 120) el.textContent += " (over 120 — will be truncated)";
+  } else {
+    el.textContent = n + " track" + (n === 1 ? "" : "s") + " selected";
+  }
+  document.getElementById("analyze").disabled = n < MIN;
 }
 
 listEl.addEventListener("change", refresh);
@@ -151,7 +162,7 @@ document.getElementById("sel-melodic").addEventListener("click", function() {
 document.getElementById("cancel").addEventListener("click", function() { send(null); });
 document.getElementById("analyze").addEventListener("click", function() {
   var keys = selectedKeys();
-  if (keys.length >= 2) send(keys);
+  if (keys.length >= MIN) send(keys);
 });
 
 refresh();

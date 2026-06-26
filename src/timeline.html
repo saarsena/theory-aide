@@ -186,10 +186,11 @@
   </div>
 
   <div class="pager" id="pager">
+    <button class="pager-btn" id="view-toggle">Single view</button>
     <button class="pager-btn" id="prev">← Prev</button>
     <span class="pager-info" id="page-info"></span>
     <button class="pager-btn" id="next">Next →</button>
-    <span class="pager-hint">← → keys</span>
+    <span class="pager-hint" id="pager-hint">← → keys</span>
   </div>
 
   <div class="footer">
@@ -204,6 +205,8 @@
 var DATA = __TIMELINE_JSON__;
 var PAGE_SIZE = 10;
 var currentPage = 0;
+var viewMode = "paged";  // "paged" | "single"
+try { viewMode = localStorage.getItem("ta-timeline-view") || "paged"; } catch(e) {}
 
 // ── Theme toggle ──────────────────────────────────────────────────────────
 (function() {
@@ -352,8 +355,13 @@ DATA.segments.forEach(function(s, idx) {
     '<div class="roman">' + esc(s.roman ? s.roman.label : "") + "</div>" +
     '<div class="beats">' + bars(s.start) + "</div>";
   div.addEventListener("click", function() {
-    var targetPage = Math.floor(idx / PAGE_SIZE);
-    if (targetPage !== currentPage) { currentPage = targetPage; renderPage(); }
+    if (viewMode === "single") {
+      var row = document.getElementById("rows").children[idx];
+      if (row) row.scrollIntoView({ block: "center" });
+    } else {
+      var targetPage = Math.floor(idx / PAGE_SIZE);
+      if (targetPage !== currentPage) { currentPage = targetPage; renderPage(); }
+    }
   });
   stripEl.appendChild(div);
   stripCells.push(div);
@@ -373,8 +381,10 @@ var totalPages = Math.max(1, Math.ceil(DATA.segments.length / PAGE_SIZE));
 function renderPage() {
   var tbody = document.getElementById("rows");
   tbody.innerHTML = "";
-  var pageStart = currentPage * PAGE_SIZE;
-  var pageEnd   = Math.min(pageStart + PAGE_SIZE, DATA.segments.length);
+  var single = viewMode === "single";
+  var pageStart = single ? 0 : currentPage * PAGE_SIZE;
+  var pageEnd   = single ? DATA.segments.length
+                         : Math.min(pageStart + PAGE_SIZE, DATA.segments.length);
 
   for (var i = pageStart; i < pageEnd; i++) {
     var s = DATA.segments[i];
@@ -402,8 +412,15 @@ function renderPage() {
   }
 
   var pager = document.getElementById("pager");
-  pager.style.display = totalPages > 1 ? "flex" : "none";
-  if (totalPages > 1) {
+  var multi = totalPages > 1;
+  // Show the pager whenever paging is possible; the toggle stays available so
+  // long timelines can switch to one continuous, scrollable list.
+  pager.style.display = multi ? "flex" : "none";
+  document.getElementById("view-toggle").textContent = single ? "Paged view" : "Single view";
+  ["prev", "next", "page-info", "pager-hint"].forEach(function(id) {
+    document.getElementById(id).style.display = single ? "none" : "";
+  });
+  if (multi && !single) {
     document.getElementById("page-info").textContent =
       "Page " + (currentPage + 1) + " of " + totalPages +
       "  ·  segments " + (pageStart + 1) + " to " + pageEnd;
@@ -412,22 +429,28 @@ function renderPage() {
   }
 
   stripCells.forEach(function(cell, idx) {
-    var onPage = idx >= pageStart && idx < pageEnd;
+    var onPage = single ? false : (idx >= pageStart && idx < pageEnd);
     cell.classList.toggle("onpage", onPage);
     cell.classList.toggle("clash", hasHardWarning(DATA.segments[idx]));
   });
-  if (stripCells[pageStart]) {
+  if (!single && stripCells[pageStart]) {
     stripCells[pageStart].scrollIntoView({ inline: "start", block: "nearest" });
   }
 }
 
 function changePage(delta) {
+  if (viewMode === "single") return;  // no pages to move through
   var next = currentPage + delta;
   if (next >= 0 && next < totalPages) { currentPage = next; renderPage(); }
 }
 
 document.getElementById("prev").addEventListener("click", function() { changePage(-1); });
 document.getElementById("next").addEventListener("click", function() { changePage(1); });
+document.getElementById("view-toggle").addEventListener("click", function() {
+  viewMode = viewMode === "single" ? "paged" : "single";
+  try { localStorage.setItem("ta-timeline-view", viewMode); } catch(e) {}
+  renderPage();
+});
 
 var footerBits = [];
 if (DATA.progressions && DATA.progressions.length) {

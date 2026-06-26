@@ -71,9 +71,14 @@ function pitchLabel(p: number): string {
     return `${names[((p % 12) + 12) % 12]}${Math.floor(p / 12) - 2}`;
 }
 
-/** Names that usually indicate an unpitched percussion track. */
+/**
+ * Names that usually indicate an unpitched percussion track. Matched as word
+ * *stems* (no trailing boundary) so plurals and suffixes count too — e.g.
+ * "Drums", "Percussion", "Toms", "Claps". Add any such word to a track's name
+ * and it will be pre-unchecked in the picker.
+ */
 const PERC_NAME_RE =
-    /\b(drum|kick|snare|hat|hi-?hat|clap|perc|tom|cymbal|ride|crash|808|909|clave|conga|bongo|shaker|tamb|rim|cowbell|kit|beat)\b/i;
+    /\b(drum|kick|snare|hat|hi-?hat|clap|perc|tom|cymbal|ride|crash|808|909|clave|conga|bongo|shaker|tamb|rim|cowbell|kit|beat)/i;
 
 /** Live's key (when Scale Mode is on) as an analysis Scale; null otherwise. */
 function liveKey(song: Song<"1.0.0">): { root: number; scale: Scale; label: string } | null {
@@ -264,20 +269,69 @@ export function activate(activation: ActivationContext) {
                     return;
                 }
 
-                const notes: TimedNote[] = [];
+                // Collect notes per track with a unique display name, so two
+                // tracks sharing a name stay separate in the picker and analysis.
+                interface TrackEntry { key: string; name: string; notes: TimedNote[]; }
+                const entries: TrackEntry[] = [];
+                const nameCounts = new Map<string, number>();
+                let trackIdx = 0;
                 for (const track of song.tracks) {
                     if (!(track instanceof MidiTrack)) continue;
+                    const seen = nameCounts.get(track.name) ?? 0;
+                    nameCounts.set(track.name, seen + 1);
+                    const uniqueName = seen === 0 ? track.name : `${track.name} (${seen + 1})`;
+                    const tn: TimedNote[] = [];
                     for (const clip of track.arrangementClips) {
                         if (clip instanceof MidiClip && !clip.muted) {
-                            notes.push(...arrangementNotes(clip, track.name, rangeStart, rangeEnd));
+                            tn.push(...arrangementNotes(clip, uniqueName, rangeStart, rangeEnd));
                         }
                     }
+                    if (tn.length) entries.push({ key: String(trackIdx++), name: uniqueName, notes: tn });
                 }
 
-                if (!notes.length) {
+                if (!entries.length) {
                     await showMessage(context, "Harmonic Timeline",
                         "No MIDI notes found in the selected range (all tracks were scanned).");
                     return;
+                }
+
+                // Track picker: drop unpitched percussion so it doesn't pollute
+                // the combined harmony the timeline spells out.
+                const pickerTracks = entries.map(e => {
+                    const pitches = e.notes.map(n => n.pitch);
+                    const low = Math.min(...pitches);
+                    const high = Math.max(...pitches);
+                    const distinctPCs = new Set(pitches.map(p => ((p % 12) + 12) % 12)).size;
+                    return {
+                        key: e.key, name: e.name, noteCount: e.notes.length,
+                        low, lowName: pitchLabel(low), high, highName: pitchLabel(high),
+                        distinctPCs, likelyPerc: PERC_NAME_RE.test(e.name),
+                    };
+                });
+
+                const pickResult = await showHtml(
+                    context, cptracksHtml, "__CPTRACKS_JSON__",
+                    {
+                        tracks: pickerTracks, rangeStart, rangeEnd,
+                        title: "Choose Tracks to Include",
+                        intro: "The harmonic timeline reads every selected track's notes as one combined harmony, and every MIDI note counts — even unpitched percussion. Deselect drum/percussion and anything you don't want spelled into the chords. Tracks that look like percussion are pre-unchecked.",
+                        goLabel: "Analyze",
+                        minSelect: 1,
+                        countMode: "tracks",
+                    }, 480, 580,
+                );
+
+                let selectedKeys: string[] = [];
+                try {
+                    const parsed = JSON.parse(pickResult) as unknown;
+                    if (Array.isArray(parsed)) selectedKeys = parsed.map(String);
+                } catch { /* cancelled or no selection */ }
+                if (!selectedKeys.length) return; // cancelled
+
+                const keep = new Set(selectedKeys);
+                const notes: TimedNote[] = [];
+                for (const e of entries) {
+                    if (keep.has(e.key)) notes.push(...e.notes);
                 }
 
                 const analysis = runAnalysis(song, notes, rangeStart, rangeEnd);
@@ -747,8 +801,9 @@ export function activate(activation: ActivationContext) {
                     const low = Math.min(...pitches);
                     const high = Math.max(...pitches);
                     const distinctPCs = new Set(pitches.map(p => ((p % 12) + 12) % 12)).size;
-                    const likelyPerc = PERC_NAME_RE.test(e.name) ||
-                        (low >= 35 && high <= 51 && distinctPCs >= 6);
+                    // Name-only: the old GM-drum-range fallback flagged low
+                    // melodic parts (e.g. a guitar in E1–C2) as percussion.
+                    const likelyPerc = PERC_NAME_RE.test(e.name);
                     return {
                         key: e.key, name: e.name, noteCount: e.notes.length,
                         low, lowName: pitchLabel(low), high, highName: pitchLabel(high),

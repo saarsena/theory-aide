@@ -1,9 +1,0 @@
-node_modules/
-dist/
-*.ablx
-.env
-extensions-sdk-1.0.0-beta.0/
-.claude/
-GEMINI.md
-*.midi
-DONE.md

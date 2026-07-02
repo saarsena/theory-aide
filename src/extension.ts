@@ -10,6 +10,8 @@ import {
     type Handle,
 } from "@ableton-extensions/sdk";
 
+import { exec } from "node:child_process";
+
 import { Scale, buildDiatonicChords, noteName } from "./theory/core.js";
 import { LIVE_SCALE_TO_PATTERN, NOTE_NAMES_SHARP, SCALE_PATTERNS } from "./theory/data.js";
 import { analyzeTimeline, type TimedNote, type TimelineAnalysis, keyUsesFlats } from "./theory/timeline.js";
@@ -434,6 +436,31 @@ export function activate(activation: ActivationContext) {
         "Scene",
         "Theory Aide > Theory Reference…",
         "theory.reference",
+    );
+
+    // ── TEMP: Open Website test ───────────────────────────────────────
+    // The SDK has no openUrl API; this tests whether the Node runtime's
+    // child_process escape hatch can launch the system browser. If it
+    // works, the URL becomes theoryaide.fishfvch.com once that's live.
+
+    context.commands.registerCommand("theory.openWebsite", (_arg: unknown) => {
+        const url = "http://localhost:8123/";
+        const cmd =
+            process.platform === "win32"  ? `start "" "${url}"` :
+            process.platform === "darwin" ? `open "${url}"` :
+                                            `xdg-open "${url}"`;
+        exec(cmd, err => {
+            if (err) {
+                console.error("[theory-aide] open website failed:", err);
+                void showMessage(context, "Open Website", `Could not open browser: ${String(err)}`);
+            }
+        });
+    });
+
+    void context.ui.registerContextMenuAction(
+        "Scene",
+        "Theory Aide > Open Website (test)…",
+        "theory.openWebsite",
     );
 
     // ── Music Theory Primer ───────────────────────────────────────────

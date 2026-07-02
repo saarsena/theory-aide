@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Theory Aide — Counterpoint</title>
+<style>
+  /* Same light palette as the extension panels, so the embedded panel
+     and the page read as one surface. */
+  :root {
+    --bg: #f2f0ec; --panel: #e8e6e2; --panel2: #dedbd7; --line: #c8c4bd;
+    --text: #1c1c1c; --dim: #666; --accent: #a06800;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font: 15px/1.65 system-ui, sans-serif;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 32px 24px 48px; }
+  .masthead { margin-bottom: 36px; }
+  .masthead .brand { font-size: 14px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); }
+  .masthead .tag { color: var(--dim); font-size: 13px; margin-top: 2px; }
+  h1 { font-size: 28px; font-weight: 700; line-height: 1.25; margin-bottom: 14px; }
+  h2 { font-size: 19px; font-weight: 650; margin: 30px 0 10px; }
+  p { margin-bottom: 12px; max-width: 68ch; }
+  .lede { font-size: 17px; color: #333; }
+  .term { border-bottom: 1px dotted currentColor; cursor: help; }
+
+  .demo {
+    margin-top: 28px; background: var(--panel);
+    border: 1px solid var(--line); border-radius: 8px; padding: 18px;
+  }
+  .demo-label { font-size: 12px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--dim); margin-bottom: 10px; }
+  #example-picker { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  #example-picker button {
+    background: var(--panel2); color: var(--text); border: 1px solid var(--line);
+    border-radius: 5px; padding: 7px 14px; cursor: pointer; font-size: 13px; font-weight: 600;
+  }
+  #example-picker button:hover { border-color: var(--accent); }
+  #example-picker button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  #example-blurb { font-size: 14px; color: #333; margin-bottom: 14px; max-width: 72ch; }
+  #panel-frame {
+    width: 100%; height: 640px; border: 1px solid var(--line);
+    border-radius: 6px; background: #fff; display: block;
+  }
+
+  .footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--dim); font-size: 13px; }
+  .footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead">
+    <div class="brand">Theory Aide</div>
+    <div class="tag">Music theory, in plain English, inside your music.</div>
+  </header>
+
+  <main>
+    <h1>Counterpoint: making two melodies work together</h1>
+
+    <p class="lede">
+      Counterpoint is the craft of writing two or more melodies that sound good
+      at the same time <em>and</em> each sound like their own melody. It's not
+      about following old rules for their own sake — it's about independence.
+      When two lines stop being independent, your ear hears one thick line
+      instead of two, and the music loses a voice.
+    </p>
+
+    <h2>The one rule that matters most</h2>
+    <p>
+      Most counterpoint guidelines boil down to one idea:
+      <strong>don't let two voices accidentally fuse.</strong>
+      The fastest way to fuse them is
+      <span class="term" title="Two voices a 5th apart moving the same direction — the classic counterpoint no-no.">parallel fifths</span>
+      and
+      <span class="term" title="Two voices an octave apart moving together, collapsing two lines into one.">parallel octaves</span>:
+      when two voices move in the same direction while staying a fifth or an
+      octave apart, those intervals are so acoustically "empty" that the voices
+      lock together. The opposite —
+      <span class="term" title="Two voices moving in opposite directions — the most independent, strongest motion.">contrary motion</span>
+      — is what keeps lines feeling separate and alive.
+    </p>
+
+    <h2>See it, don't just read it</h2>
+    <p>
+      Below is the actual Counterpoint Checker from the
+      <a href="https://github.com/saarsena/theory-aide">Theory Aide extension for Ableton Live</a>
+      — same code, same analysis engine, running right here in your browser.
+      Pick an example and read the headline first; open
+      <em>Show details</em> if you want the full breakdown.
+    </p>
+
+    <div class="demo">
+      <div class="demo-label">Live demo — real analysis, curated examples</div>
+      <nav id="example-picker" aria-label="Example picker"></nav>
+      <p id="example-blurb"></p>
+      <iframe id="panel-frame" title="Counterpoint Checker panel"></iframe>
+    </div>
+  </main>
+
+  <footer class="footer">
+    Theory Aide is a free, open-source extension for Ableton Live.
+    This page runs the extension's own analysis engine in your browser —
+    the site and the extension can never disagree, because they share one brain.
+  </footer>
+</div>
+<script src="./dist/main.js"></script>
+</body>
+</html>

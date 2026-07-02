@@ -1,0 +1,19 @@
+---
+layout: base.njk
+title: Dictionary
+---
+<h1>Theory dictionary</h1>
+
+<p class="lede">
+  Every term in one honest sentence. These are the same plain-language
+  definitions the Theory Aide extension shows as tooltips inside Ableton Live.
+</p>
+
+<ul class="dict-list">
+{%- for entry in glossary %}
+  <li>
+    <a href="/dictionary/{{ entry.slug }}/">{{ entry.term }}</a>
+    <span class="dict-def">{{ entry.definition }}</span>
+  </li>
+{%- endfor %}
+</ul>

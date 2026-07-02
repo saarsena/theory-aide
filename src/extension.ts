@@ -218,7 +218,7 @@ function timelineHeadline(analysis: TimelineAnalysis): string {
         ? `You're in ${analysis.key.label}`
         : "Key is unclear here";
     const prog = analysis.progressions?.[0];
-    const progText = prog ? ` — ${prog.label}` : "";
+    const progText = prog ? ` · ${prog.label}` : "";
     return `${keyText} · ${tensionWord}${progText}.`;
 }
 
@@ -346,7 +346,7 @@ export function activate(activation: ActivationContext) {
                     {
                         tracks: pickerTracks, rangeStart, rangeEnd,
                         title: "Choose Tracks to Include",
-                        intro: "The harmonic timeline reads every selected track's notes as one combined harmony, and every MIDI note counts — even unpitched percussion. Deselect drum/percussion and anything you don't want spelled into the chords. Tracks that look like percussion are pre-unchecked.",
+                        intro: "The harmonic timeline reads every selected track's notes as one combined harmony, and every MIDI note counts, even unpitched percussion. Deselect drum/percussion and anything you don't want spelled into the chords. Tracks that look like percussion are pre-unchecked.",
                         goLabel: "Analyze",
                         minSelect: 1,
                         countMode: "tracks",
@@ -444,7 +444,7 @@ export function activate(activation: ActivationContext) {
     // works, the URL becomes theoryaide.fishfvch.com once that's live.
 
     context.commands.registerCommand("theory.openWebsite", (_arg: unknown) => {
-        const url = "http://localhost:8123/";
+        const url = "http://localhost:8124/"; // Eleventy dev server (npm run site:dev)
         const cmd =
             process.platform === "win32"  ? `start "" "${url}"` :
             process.platform === "darwin" ? `open "${url}"` :

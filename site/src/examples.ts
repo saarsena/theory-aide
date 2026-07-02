@@ -35,7 +35,7 @@ export const EXAMPLES: SiteExample[] = [
         title: "Parallel fifths, on purpose",
         blurb:
             "Two voices locked a fifth apart, marching up together: C–D–E–F over " +
-            "F–G–A–B♭. Every single move is a parallel fifth — the classic " +
+            "F–G–A–B♭. Every single move is a parallel fifth, the classic " +
             "counterpoint no-no. Listen with your eyes: the two lines never act " +
             "independently, so they fuse into one thick line. The checker flags " +
             "all three moves and reports the motion as 100% parallel.",
@@ -50,9 +50,9 @@ export const EXAMPLES: SiteExample[] = [
         id: "contrary-motion",
         title: "Contrary motion, clean",
         blurb:
-            "The same rising lead line, but now the bass walks down while the lead " +
-            "walks up. The voices pull apart — each one is clearly its own melody. " +
-            "This is contrary motion, the strongest and most independent way two " +
+            "The same rising lead line, but now the bass is walking that lead like a bitch. Woop! " +
+            "The voices pull apart and each one is clearly its own melody. " +
+            "This is contrary motion, the strongest and most independent (and therefore best) way two " +
             "lines can move. The checker finds nothing to flag: no parallels, no " +
             "hidden intervals, motion 100% contrary.",
         rangeStart: 0,
@@ -66,7 +66,7 @@ export const EXAMPLES: SiteExample[] = [
         id: "hidden-octave",
         title: "A hidden octave",
         blurb:
-            "This one is sneakier. The two voices start out fine — the first move " +
+            "This one is sneakier, like a ninja. The two voices start out fine, then the first move " +
             "is contrary. But then both voices leap upward at once and land exactly " +
             "an octave apart. They didn't move in parallel octaves, yet the effect " +
             "is similar: two independent lines suddenly collapse into one. That's a " +

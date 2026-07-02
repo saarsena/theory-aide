@@ -1,0 +1,60 @@
+---
+layout: base.njk
+title: The Math
+---
+<h1>The math behind music</h1>
+
+<p class="lede">
+  A note is a number: how many times per second the air moves back and forth.
+  Every idea in music theory including intervals, consonance, keys, and why parallel fifths
+  "fuse" is a relationship between those numbers. Tools usually gloss over
+  this. Stated plainly: <em>you are hearing arithmetic.</em>
+</p>
+
+<h2>Watch two notes add up</h2>
+<p>
+  Below are two sound waves and their sum as well as what actually reaches your ear when
+  both notes play at once. Try each interval and watch the <strong>sum</strong>
+  (the dark line):
+</p>
+
+<div class="demo">
+  <div class="demo-label">Live demo: two waves and what your ear receives</div>
+  <nav class="btn-row" id="ratio-picker" aria-label="Interval picker"></nav>
+  <p class="demo-blurb" id="ratio-blurb"></p>
+  <canvas class="viz" id="wave-canvas"></canvas>
+</div>
+
+<h2>What you just saw</h2>
+<ul>
+  <li><strong>Octave (2:1)</strong>: the top wave fits <em>exactly twice</em>
+    inside the bottom one, so the sum repeats in perfect lockstep. Your ear
+    hears the two notes as almost the same thing. That's why
+    <span class="term" title="Two voices an octave apart moving together, collapsing two lines into one.">parallel octaves</span>
+    collapse two melodies into one. Mathematically, they nearly are one.</li>
+  <li><strong>Perfect fifth (3:2)</strong>: three cycles against two. This is still
+  a tiny whole number ratio, so the sum settles into a short repeating pattern:
+    consonant, stable, "empty" enough to fuse. Hence <span class="term" title="Two voices a 5th apart moving the same direction.
+    The classic counterpoint mistake.">parallel fifths</span>.</li>
+  <li><strong>Slightly detuned</strong>: the ratio is <em>almost</em> 1:1 but
+    not quite, so the waves drift in and out of agreement. The slow swelling you
+    see (and would hear) is <em>beating</em>: the difference between the two
+    frequencies, made audible.</li>
+</ul>
+
+<p>
+  Consonance isn't a matter of taste that theory later rationalized, it is
+  small whole number arithmetic your ears do for free. They do that shit hundreds
+  of times a second too. Dissonance is just harder math.
+</p>
+
+<h2>Where this is going</h2>
+<p><em>
+  This page is the first in a series of prototypes that if fleshed out will
+  go into detail about sine waves as circular motion, harmonics and why timbre
+  is a recipe, equal temperament as compromise with a 12th root in it, and for
+  me (and the other max msp people), what those patches are actually doing.
+  It's generative fucking calculus. I mean, c'mon.
+</em></p>
+
+<script src="/assets/waves.js"></script>

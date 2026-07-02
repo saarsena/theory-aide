@@ -1,0 +1,23 @@
+---
+layout: base.njk
+pagination:
+  data: glossary
+  size: 1
+  alias: entry
+permalink: "/dictionary/{{ entry.slug }}/"
+eleventyComputed:
+  title: "{{ entry.term }}"
+---
+<p class="backlink"><a href="/dictionary/">← Dictionary</a></p>
+
+<h1>{{ entry.term }}</h1>
+
+<p class="lede">{{ entry.definition }}</p>
+
+<p>
+  <em>This entry will grow: examples you can hear, the notation, where it shows
+  up in real productions, and a live demo. The one-sentence version above is the
+  same definition the
+  <a href="https://github.com/saarsena/theory-aide">Theory Aide extension</a>
+  shows as a tooltip inside Ableton Live.</em>
+</p>

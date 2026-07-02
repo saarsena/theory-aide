@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Counterpoint — Choose Tracks</title>
+<title>Counterpoint · Choose Tracks</title>
 <script>
 // Blocking: set the saved theme before any CSS paints (prevents a dark flash).
 (function(){try{document.documentElement.setAttribute("data-theme",localStorage.getItem("ta-theme")||"light");}catch(e){document.documentElement.setAttribute("data-theme","light");}})();
@@ -60,7 +60,7 @@ body { background: var(--bg); color: var(--text); font-family: system-ui, sans-s
   <button class="hdr-btn" id="theme-btn">Light</button>
 </div>
 <div class="intro">
-  Counterpoint compares every pair of tracks, and every MIDI note counts — even
+  Counterpoint compares every pair of tracks, and every MIDI note counts, even
   unpitched percussion. Deselect drum/percussion and any track you don't want in
   the analysis. Tracks that look like percussion are pre-unchecked.
 </div>
@@ -140,7 +140,7 @@ function refresh() {
     var pairs = n * (n - 1) / 2;
     el.textContent = n + " track" + (n === 1 ? "" : "s") + " selected · " +
                      pairs + " pair" + (pairs === 1 ? "" : "s");
-    if (pairs > 120) el.textContent += " (over 120 — will be truncated)";
+    if (pairs > 120) el.textContent += " (over 120: will be truncated)";
   } else {
     el.textContent = n + " track" + (n === 1 ? "" : "s") + " selected";
   }

@@ -183,7 +183,7 @@ function posColor(i) { return POS_COLORS[i % 12] || "#888"; }
   html += '</div>';
   if (!DATA.isComplete) {
     html += '<div style="font-size:10px;color:var(--warn);margin-top:5px">' +
-            'Row is incomplete — only ' + DATA.detectedRow.length + ' of 12 pitch classes found. ' +
+            'Row is incomplete: only ' + DATA.detectedRow.length + ' of 12 pitch classes found. ' +
             'Matrix and properties require all 12.</div>';
   }
   html += '</div>';
@@ -257,7 +257,7 @@ function posColor(i) { return POS_COLORS[i % 12] || "#888"; }
 
           '<div class="prop-row"><span class="prop-key">I-combinatorial</span>' +
           (hx.iCombinatorial
-            ? '<span class="badge-yes">Yes — combine with ' + esc(hx.iCombinatorial) + '</span>'
+            ? '<span class="badge-yes">Yes, combine with ' + esc(hx.iCombinatorial) + '</span>'
             : '<span class="badge-no">No</span>') + '</div>' +
 
           '<div class="prop-row"><span class="prop-key">R-combinatorial (palindromic hexachords)</span>' +
@@ -297,7 +297,7 @@ function posColor(i) { return POS_COLORS[i % 12] || "#888"; }
 (function buildSequence() {
   var el = document.getElementById("pane-sequence");
   if (!DATA.detectedRow) {
-    el.innerHTML = '<div class="error-msg">No row detected — cannot annotate sequence.</div>';
+    el.innerHTML = '<div class="error-msg">No row detected. Cannot annotate sequence.</div>';
     return;
   }
 

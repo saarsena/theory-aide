@@ -31,32 +31,48 @@
   .finding.warning { border-left-color: var(--warn); }
   .suggestion { background: var(--panel2); }
   .suggestion b { color: var(--accent); }
-  .footer { flex-shrink: 0; display: flex; justify-content: flex-end; }
+  .footer { flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; }
   .close-btn { background:#2f2f2f; color:#ddd; border:1px solid #444; border-radius:4px; padding:5px 22px; cursor:pointer; font-size:13px; }
   html[data-theme="light"] .close-btn { background:#dedad4; color:var(--text); border-color:#b0ada8; }
+  /* Shared Theory Aide pilot pattern: detail toggle, glossary terms, action handoff */
+  .detail-btn { background: transparent; color: var(--dim); border: 1px solid var(--line); border-radius: 4px; padding: 3px 10px; cursor: pointer; font-size: 11px; }
+  .detail-btn:hover { color: var(--text); }
+  body:not(.mode-detailed) .detail-only { display: none; }
+  #summary { font-size: 14px; line-height: 1.5; }
+  .term { border-bottom: 1px dotted currentColor; cursor: help; }
+  .next-link { background: var(--accent); color: #1a1a1a; border: 1px solid var(--accent); border-radius: 4px; padding: 6px 14px; cursor: pointer; font-size: 12px; font-weight: 600; }
   @media (max-width: 740px) { .grid { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
-<div class="hd"><div><h1>Voicing And Density</h1><div class="sub">Register, spacing, doubling, mud, and smoother voice leading.</div></div><button class="theme-btn" id="theme-btn">Light</button></div>
+<div class="hd"><div><h1>Voicing And Density</h1><div class="sub">Register, spacing, doubling, mud, and smoother voice leading.</div></div><button class="detail-btn" id="detail-btn" style="margin-left:auto">Show details</button><button class="theme-btn" id="theme-btn">Light</button></div>
 <div class="overview"><div id="summary"></div><div class="meta" id="meta"></div></div>
 <div class="content">
-  <h2>Voicing Read</h2><div class="grid" id="metrics"></div>
+  <div class="detail-only"><h2>Voicing Read</h2><div class="grid" id="metrics"></div></div>
   <h2>Findings</h2><div class="grid" id="findings"></div>
   <h2>Edits To Try</h2><div class="grid" id="suggestions"></div>
 </div>
-<div class="footer"><button class="close-btn" id="close">Close</button></div>
+<div class="footer"><button class="next-link" id="next-link">→ What should I do next?</button><button class="close-btn" id="close">Close</button></div>
 <script>
 var DATA = __VOICING_JSON__;
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
 (function(){var KEY="ta-theme";var saved="light";try{saved=localStorage.getItem(KEY)||"light";}catch(e){}document.documentElement.setAttribute("data-theme",saved);var btn=document.getElementById("theme-btn");btn.textContent=saved==="dark"?"Light":"Dark";btn.addEventListener("click",function(){var next=document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark";document.documentElement.setAttribute("data-theme",next);try{localStorage.setItem(KEY,next);}catch(e){}btn.textContent=next==="dark"?"Light":"Dark";});})();
 function closeDialog(){var msg={method:"close_and_send",params:["null"]};if(window.webkit&&window.webkit.messageHandlers&&window.webkit.messageHandlers.live)window.webkit.messageHandlers.live.postMessage(msg);else if(window.chrome&&window.chrome.webview)window.chrome.webview.postMessage(msg);}
 document.getElementById("close").addEventListener("click",closeDialog);document.addEventListener("keydown",function(e){if(e.key==="Escape")closeDialog();});
-document.getElementById("summary").textContent=DATA.summary;
+
+// ── Shared pilot helpers: glossary, Simple/Detailed toggle, action handoff ──
+var GLOSSARY={"tonic":"The home chord or note — where the music feels at rest.","subdominant":"Harmony that pulls away from home and sets up tension (the IV side).","dominant":"The tension chord that wants to fall back to the tonic (the V).","borrowed":"A chord taken from the parallel major/minor for extra color.","secondary dominant":"A V chord aimed at a chord other than the tonic, briefly making it feel like home.","syncopation":"Accents landing off the strongest beats, giving a pushed, lively feel.","voice leading":"How each line moves note-to-note from one chord to the next.","parallel fifths":"Two voices a 5th apart moving the same direction — the classic counterpoint no-no.","parallel octaves":"Two voices an octave apart moving together, collapsing two lines into one.","hidden fifth":"Both voices leap the same direction into a 5th — a softer parallel-5th.","hidden octave":"Both voices leap the same direction into an octave.","contrary motion":"Two voices moving in opposite directions — the most independent, strongest motion.","oblique motion":"One voice holds while the other moves.","similar motion":"Two voices moving the same direction by different amounts.","parallel motion":"Two voices moving the same direction by the same interval.","density":"How many notes sound at once or in quick succession — how full it feels.","register":"How high or low the notes sit overall."};
+var GLOSS_RE=new RegExp("\\b("+Object.keys(GLOSSARY).sort(function(a,b){return b.length-a.length;}).map(function(k){return k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");}).join("|")+")\\b","gi");
+function glossify(escaped){return String(escaped).replace(GLOSS_RE,function(m){var def=GLOSSARY[m.toLowerCase()];return def?'<span class="term" title="'+def.replace(/"/g,"&quot;")+'">'+m+'</span>':m;});}
+(function(){var KEY="ta-detail";var saved="simple";try{saved=localStorage.getItem(KEY)||"simple";}catch(e){}if(saved==="detailed")document.body.classList.add("mode-detailed");var b=document.getElementById("detail-btn");if(b){b.textContent=saved==="detailed"?"Hide details":"Show details";b.addEventListener("click",function(){var on=!document.body.classList.contains("mode-detailed");document.body.classList.toggle("mode-detailed",on);try{localStorage.setItem(KEY,on?"detailed":"simple");}catch(e){}b.textContent=on?"Hide details":"Show details";});}})();
+function sendNext(){var msg={method:"close_and_send",params:["__OPEN_WHATNEXT__"]};if(window.webkit&&window.webkit.messageHandlers&&window.webkit.messageHandlers.live)window.webkit.messageHandlers.live.postMessage(msg);else if(window.chrome&&window.chrome.webview)window.chrome.webview.postMessage(msg);}
+document.getElementById("next-link").addEventListener("click",sendNext);
+
+document.getElementById("summary").innerHTML=glossify(esc(DATA.summary));
 document.getElementById("meta").innerHTML=["Clip: "+DATA.clipName,"Range: "+DATA.rangeLabel,DATA.noteCount+" notes"].map(function(x){return '<span class="pill">'+esc(x)+'</span>';}).join("");
 document.getElementById("metrics").innerHTML=DATA.metrics.map(function(m){return '<section class="card"><h3>'+esc(m.label)+'</h3><div class="value">'+esc(m.value)+'</div><p>'+esc(m.detail)+'</p></section>';}).join("");
-document.getElementById("findings").innerHTML=DATA.findings.map(function(f){return '<section class="card finding '+esc(f.severity)+'"><h3>'+esc(f.label)+'</h3><p>'+esc(f.detail)+'</p></section>';}).join("");
-document.getElementById("suggestions").innerHTML=DATA.suggestions.map(function(s){return '<div class="suggestion"><b>Try:</b> '+esc(s)+'</div>';}).join("");
+document.getElementById("findings").innerHTML=DATA.findings.map(function(f){return '<section class="card finding '+esc(f.severity)+'"><h3>'+esc(f.label)+'</h3><p>'+glossify(esc(f.detail))+'</p></section>';}).join("");
+document.getElementById("suggestions").innerHTML=DATA.suggestions.map(function(s){return '<div class="suggestion"><b>Try:</b> '+glossify(esc(s))+'</div>';}).join("");
 </script>
 </body>
 </html>

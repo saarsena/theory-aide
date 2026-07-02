@@ -49,6 +49,7 @@ export interface CounterpointData {
     rangeStart: number;
     rangeEnd:   number;
     trackNames: string[];
+    headline:   string;
     pairs:      TrackPairSummary[];
     totals: {
         parallelFifths:  number;
@@ -245,19 +246,46 @@ export function buildCounterpointData(
     const sum = (fn: (p: TrackPairSummary) => number) => pairs.reduce((s, p) => s + fn(p), 0);
     const mc  = (k: keyof TrackPairSummary["motionCounts"]) => pairs.reduce((s, p) => s + p.motionCounts[k], 0);
 
-    return {
-        rangeStart, rangeEnd, trackNames, pairs, truncated,
-        totals: {
-            parallelFifths:  sum(p => p.parallelFifths.length),
-            parallelOctaves: sum(p => p.parallelOctaves.length),
-            parallelUnisons: sum(p => p.parallelUnisons.length),
-            hiddenFifths:    sum(p => p.hiddenFifths.length),
-            hiddenOctaves:   sum(p => p.hiddenOctaves.length),
-            motionCounts: {
-                parallel: mc("parallel"), similar: mc("similar"),
-                contrary: mc("contrary"), oblique:  mc("oblique"),
-                total:    mc("total"),
-            },
+    const totals = {
+        parallelFifths:  sum(p => p.parallelFifths.length),
+        parallelOctaves: sum(p => p.parallelOctaves.length),
+        parallelUnisons: sum(p => p.parallelUnisons.length),
+        hiddenFifths:    sum(p => p.hiddenFifths.length),
+        hiddenOctaves:   sum(p => p.hiddenOctaves.length),
+        motionCounts: {
+            parallel: mc("parallel"), similar: mc("similar"),
+            contrary: mc("contrary"), oblique:  mc("oblique"),
+            total:    mc("total"),
         },
     };
+
+    return {
+        rangeStart, rangeEnd, trackNames, pairs, truncated, totals,
+        headline: counterpointHeadline(trackNames.length, totals),
+    };
+}
+
+/** One plain-English sentence summarising the whole comparison. */
+function counterpointHeadline(
+    trackCount: number,
+    totals: CounterpointData["totals"],
+): string {
+    const tracks = `${trackCount} track${trackCount === 1 ? "" : "s"} compared`;
+
+    const hardFlags = totals.parallelFifths + totals.parallelOctaves;
+    const flagText = hardFlags === 0
+        ? "no parallel 5ths or octaves"
+        : `${hardFlags} parallel-5th/8ve flag${hardFlags === 1 ? "" : "s"}`;
+
+    const mc = totals.motionCounts;
+    let motionText: string;
+    if (mc.total === 0) {
+        motionText = "no overlapping motion to judge";
+    } else {
+        const kinds = ["contrary", "oblique", "similar", "parallel"] as const;
+        const top = kinds.reduce((best, k) => (mc[k] > mc[best] ? k : best), "contrary");
+        motionText = `motion mostly ${top}`;
+    }
+
+    return `${tracks} · ${flagText} · ${motionText}.`;
 }

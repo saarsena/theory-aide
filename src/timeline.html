@@ -58,6 +58,17 @@
   }
   .theme-btn:hover { color: var(--text); border-color: var(--dim); }
 
+  /* ── Shared Theory Aide pilot pattern ── */
+  .detail-btn { background: transparent; border: 1px solid var(--line); border-radius: 4px;
+                padding: 3px 10px; font-size: 11px; cursor: pointer; color: var(--dim); }
+  .detail-btn:hover { color: var(--text); border-color: var(--dim); }
+  .headline { font-size: 14px; line-height: 1.5; margin-top: 6px; }
+  .detail-wrap { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; }
+  body:not(.mode-detailed) .detail-only { display: none; }
+  .term { border-bottom: 1px dotted currentColor; cursor: help; }
+  .next-link { background: var(--accent); color: #1a1a1a; border: 1px solid var(--accent);
+               border-radius: 4px; padding: 5px 14px; cursor: pointer; font-size: 12px; font-weight: 600; }
+
   /* ── Range comparison ── */
   .compare {
     flex-shrink: 0;
@@ -160,10 +171,14 @@
   <div class="hd">
     <div class="hd-top">
       <h1>Harmonic Timeline</h1>
-      <button class="theme-btn" id="theme-btn">Light</button>
+      <div style="display:flex;gap:6px">
+        <button class="detail-btn" id="detail-btn">Show details</button>
+        <button class="theme-btn" id="theme-btn">Light</button>
+      </div>
     </div>
     <div class="sub" id="sub"></div>
     <div id="keys"></div>
+    <div class="headline" id="headline"></div>
   </div>
 
   <div class="compare" id="compare"></div>
@@ -171,6 +186,7 @@
   <div class="strip-wrap"><div class="strip" id="strip"></div></div>
   <div class="tension-wrap" title="Tension score"><div class="tension" id="tension"></div></div>
 
+  <div class="detail-wrap detail-only">
   <div class="table-wrap">
     <table>
       <thead><tr>
@@ -192,10 +208,12 @@
     <button class="pager-btn" id="next">Next →</button>
     <span class="pager-hint" id="pager-hint">← → keys</span>
   </div>
+  </div>
 
   <div class="footer">
     <div class="cands" id="cands"></div>
     <div style="display:flex;gap:8px">
+      <button class="next-link" id="next-link">→ What should I do next?</button>
       <button class="close-btn" id="copy-summary" style="background:transparent;border-color:var(--line);color:var(--dim)">Copy Summary</button>
       <button class="close-btn" id="close">Close</button>
     </div>
@@ -268,6 +286,14 @@ function hasHardWarning(s) {
   return !!(s.outliers && s.outliers.some(function(o) { return o.severity === "warn"; }));
 }
 
+// ── Shared pilot helpers: glossary, Simple/Detailed toggle, action handoff ──
+var GLOSSARY={"tonic":"The home chord or note — where the music feels at rest.","subdominant":"Harmony that pulls away from home and sets up tension (the IV side).","dominant":"The tension chord that wants to fall back to the tonic (the V).","borrowed":"A chord taken from the parallel major/minor for extra color.","secondary dominant":"A V chord aimed at a chord other than the tonic, briefly making it feel like home.","syncopation":"Accents landing off the strongest beats, giving a pushed, lively feel.","voice leading":"How each line moves note-to-note from one chord to the next.","parallel fifths":"Two voices a 5th apart moving the same direction — the classic counterpoint no-no.","parallel octaves":"Two voices an octave apart moving together, collapsing two lines into one.","hidden fifth":"Both voices leap the same direction into a 5th — a softer parallel-5th.","hidden octave":"Both voices leap the same direction into an octave.","contrary motion":"Two voices moving in opposite directions — the most independent, strongest motion.","oblique motion":"One voice holds while the other moves.","similar motion":"Two voices moving the same direction by different amounts.","parallel motion":"Two voices moving the same direction by the same interval.","density":"How many notes sound at once or in quick succession — how full it feels.","register":"How high or low the notes sit overall."};
+var GLOSS_RE=new RegExp("\\b("+Object.keys(GLOSSARY).sort(function(a,b){return b.length-a.length;}).map(function(k){return k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");}).join("|")+")\\b","gi");
+function glossify(escaped){return String(escaped).replace(GLOSS_RE,function(m){var def=GLOSSARY[m.toLowerCase()];return def?'<span class="term" title="'+def.replace(/"/g,"&quot;")+'">'+m+'</span>':m;});}
+(function(){var KEY="ta-detail";var saved="simple";try{saved=localStorage.getItem(KEY)||"simple";}catch(e){}if(saved==="detailed")document.body.classList.add("mode-detailed");var b=document.getElementById("detail-btn");if(b){b.textContent=saved==="detailed"?"Hide details":"Show details";b.addEventListener("click",function(){var on=!document.body.classList.contains("mode-detailed");document.body.classList.toggle("mode-detailed",on);try{localStorage.setItem(KEY,on?"detailed":"simple");}catch(e){}b.textContent=on?"Hide details":"Show details";});}})();
+function sendNext(){var msg={method:"close_and_send",params:["__OPEN_WHATNEXT__"]};if(window.webkit&&window.webkit.messageHandlers&&window.webkit.messageHandlers.live)window.webkit.messageHandlers.live.postMessage(msg);else if(window.chrome&&window.chrome.webview)window.chrome.webview.postMessage(msg);}
+document.getElementById("next-link").addEventListener("click",sendNext);
+
 // ── Header ────────────────────────────────────────────────────────────
 document.getElementById("sub").textContent =
   "Bars " + bars(DATA.rangeStart) + " to " + bars(DATA.rangeEnd) + "  ·  " +
@@ -289,6 +315,8 @@ if (DATA.modalColors && DATA.modalColors.length) {
   }).join("");
 }
 keysEl.innerHTML = keyHtml;
+
+document.getElementById("headline").innerHTML = glossify(esc(DATA.headline || ""));
 
 function summarizeChords(items) {
   if (!items || !items.length) return "No clear chords";
@@ -331,7 +359,7 @@ function renderRangeComparison() {
     card(compare.second) +
     '<div><div class="compare-title">Comparison</div>' +
       '<ul class="compare-list">' +
-        notes.map(function(note) { return '<li>' + esc(note) + '</li>'; }).join("") +
+        notes.map(function(note) { return '<li>' + glossify(esc(note)) + '</li>'; }).join("") +
       '</ul></div>';
   el.classList.add("show");
 }

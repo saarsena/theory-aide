@@ -27,6 +27,14 @@ body { background: var(--bg); color: var(--text); font-family: system-ui, sans-s
 .hdr-btn { background: var(--panel2); color: var(--dim); border: 1px solid var(--line2);
            border-radius: 4px; padding: 3px 10px; cursor: pointer; font-size: 11px; }
 .hdr-btn:hover { color: var(--text); }
+.detail-btn { background: var(--panel2); color: var(--dim); border: 1px solid var(--line2);
+              border-radius: 4px; padding: 3px 10px; cursor: pointer; font-size: 11px; }
+.detail-btn:hover { color: var(--text); }
+.headline { font-size: 14px; line-height: 1.5; padding: 8px 14px 0; flex-shrink: 0; }
+body:not(.mode-detailed) .detail-only { display: none; }
+.term { border-bottom: 1px dotted currentColor; cursor: help; }
+.next-link { background: var(--accent); color: #1a1a1a; border: 1px solid var(--accent);
+             border-radius: 4px; padding: 4px 12px; cursor: pointer; font-size: 11px; font-weight: 600; }
 
 .tabs { display: flex; border-bottom: 1px solid var(--line); padding: 0 14px;
         margin-top: 8px; gap: 0; flex-shrink: 0; }
@@ -117,12 +125,15 @@ tr:hover td { background: var(--panel); }
 <div class="hdr">
   <div class="hdr-title">Counterpoint Checker</div>
   <div class="hdr-sub" id="sub-line"></div>
+  <button class="next-link" id="next-link">→ What should I do next?</button>
+  <button class="detail-btn" id="detail-btn">Show details</button>
   <button class="hdr-btn" id="theme-btn">Light</button>
 </div>
+<div class="headline" id="headline"></div>
 <div class="tabs">
   <div class="tab active" data-tab="overview">Overview</div>
   <div class="tab" data-tab="flagged">Flagged</div>
-  <div class="tab" data-tab="pairs">By Pair</div>
+  <div class="tab detail-only" data-tab="pairs">By Pair</div>
 </div>
 <div class="pane active" id="pane-overview"></div>
 <div class="pane" id="pane-flagged"></div>
@@ -154,6 +165,15 @@ document.getElementById("sub-line").textContent =
   DATA.trackNames.length + " tracks · " + DATA.pairs.length + " pairs" +
   (DATA.truncated ? " (truncated — deselect more tracks)" : "") +
   " · b" + DATA.rangeStart.toFixed(2) + "–b" + DATA.rangeEnd.toFixed(2);
+
+// ── Shared pilot helpers: glossary, Simple/Detailed toggle, action handoff ──
+var GLOSSARY={"tonic":"The home chord or note — where the music feels at rest.","subdominant":"Harmony that pulls away from home and sets up tension (the IV side).","dominant":"The tension chord that wants to fall back to the tonic (the V).","borrowed":"A chord taken from the parallel major/minor for extra color.","secondary dominant":"A V chord aimed at a chord other than the tonic, briefly making it feel like home.","syncopation":"Accents landing off the strongest beats, giving a pushed, lively feel.","voice leading":"How each line moves note-to-note from one chord to the next.","parallel fifths":"Two voices a 5th apart moving the same direction — the classic counterpoint no-no.","parallel octaves":"Two voices an octave apart moving together, collapsing two lines into one.","hidden fifth":"Both voices leap the same direction into a 5th — a softer parallel-5th.","hidden octave":"Both voices leap the same direction into an octave.","contrary motion":"Two voices moving in opposite directions — the most independent, strongest motion.","oblique motion":"One voice holds while the other moves.","similar motion":"Two voices moving the same direction by different amounts.","parallel motion":"Two voices moving the same direction by the same interval.","density":"How many notes sound at once or in quick succession — how full it feels.","register":"How high or low the notes sit overall."};
+var GLOSS_RE=new RegExp("\\b("+Object.keys(GLOSSARY).sort(function(a,b){return b.length-a.length;}).map(function(k){return k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");}).join("|")+")\\b","gi");
+function glossify(escaped){return String(escaped).replace(GLOSS_RE,function(m){var def=GLOSSARY[m.toLowerCase()];return def?'<span class="term" title="'+def.replace(/"/g,"&quot;")+'">'+m+'</span>':m;});}
+(function(){var KEY="ta-detail";var saved="simple";try{saved=localStorage.getItem(KEY)||"simple";}catch(e){}if(saved==="detailed")document.body.classList.add("mode-detailed");var b=document.getElementById("detail-btn");if(b){b.textContent=saved==="detailed"?"Hide details":"Show details";b.addEventListener("click",function(){var on=!document.body.classList.contains("mode-detailed");document.body.classList.toggle("mode-detailed",on);try{localStorage.setItem(KEY,on?"detailed":"simple");}catch(e){}b.textContent=on?"Hide details":"Show details";});}})();
+function sendNext(){var msg={method:"close_and_send",params:["__OPEN_WHATNEXT__"]};if(window.webkit&&window.webkit.messageHandlers&&window.webkit.messageHandlers.live)window.webkit.messageHandlers.live.postMessage(msg);else if(window.chrome&&window.chrome.webview)window.chrome.webview.postMessage(msg);}
+document.getElementById("next-link").addEventListener("click",sendNext);
+document.getElementById("headline").innerHTML = glossify(esc(DATA.headline || ""));
 
 // Tab switching
 document.querySelectorAll(".tab").forEach(function(t) {
@@ -268,7 +288,7 @@ function flagTableHtml(events, truncated) {
   if (contraryPct >= 40) interp = "Strong contrary motion — voices are moving independently.";
   else if (contraryPct >= 20) interp = "Mix of contrary and parallel motion — moderate voice independence.";
   else interp = "Mostly parallel or similar motion — voices move together more than independently.";
-  html += '<div style="font-size:11px;color:var(--dim);margin-bottom:12px">' + esc(interp) + '</div>';
+  html += '<div style="font-size:11px;color:var(--dim);margin-bottom:12px">' + glossify(esc(interp)) + '</div>';
 
   // Aggregate interval distribution across all pairs
   var aggDist = new Map();
@@ -281,11 +301,11 @@ function flagTableHtml(events, truncated) {
   });
   var distArr = Array.from(aggDist.values()).sort(function(a, b) { return a.simple - b.simple; });
 
-  html += '<div class="section">' +
+  html += '<div class="section detail-only">' +
     '<div class="section-title">Harmonic Interval Distribution (combined)</div>' +
     ivGridHtml(distArr) + '</div>';
 
-  html += '<div style="font-size:10px;color:var(--dim2);margin-top:8px">' +
+  html += '<div class="detail-only" style="font-size:10px;color:var(--dim2);margin-top:8px">' +
     'Parallel 5ths/octaves are prohibited in classical counterpoint. In jazz and pop they are ' +
     'often intentional. Hidden 5ths/octaves = similar motion into a perfect interval where the ' +
     'upper voice leaps (contextually problematic). Unisons = voices merging.' +

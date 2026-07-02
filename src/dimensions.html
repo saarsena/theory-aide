@@ -67,12 +67,19 @@
     padding: 8px 9px; color: var(--text);
   }
   .move b { color: var(--accent); }
-  .footer { flex-shrink: 0; display: flex; justify-content: flex-end; }
+  .footer { flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; }
   .close-btn {
     background: #2f2f2f; color: #ddd; border: 1px solid #444;
     border-radius: 4px; padding: 5px 22px; cursor: pointer; font-size: 13px;
   }
   html[data-theme="light"] .close-btn { background: #dedad4; color: var(--text); border-color: #b0ada8; }
+  /* Shared Theory Aide pilot pattern: detail toggle, glossary terms, action handoff */
+  .detail-btn { background: transparent; color: var(--dim); border: 1px solid var(--line); border-radius: 4px; padding: 3px 10px; cursor: pointer; font-size: 11px; }
+  .detail-btn:hover { color: var(--text); }
+  body:not(.mode-detailed) .detail-only { display: none; }
+  #summary { font-size: 14px; line-height: 1.5; }
+  .term { border-bottom: 1px dotted currentColor; cursor: help; }
+  .next-link { background: var(--accent); color: #1a1a1a; border: 1px solid var(--accent); border-radius: 4px; padding: 6px 14px; cursor: pointer; font-size: 12px; font-weight: 600; }
   @media (max-width: 760px) { .cards { grid-template-columns: 1fr; } }
 </style>
 </head>
@@ -82,6 +89,7 @@
     <h1>Composition Dimensions</h1>
     <div class="sub">See what the idea is changing, then pick the next musical move.</div>
   </div>
+  <button class="detail-btn" id="detail-btn" style="margin-left:auto">Show details</button>
   <button class="theme-btn" id="theme-btn">Light</button>
 </div>
 
@@ -95,6 +103,7 @@
 </div>
 
 <div class="footer">
+  <button class="next-link" id="next-link">→ What should I do next?</button>
   <button class="close-btn" id="close">Close</button>
 </div>
 
@@ -131,9 +140,17 @@ function closeDialog() {
 document.getElementById("close").addEventListener("click", closeDialog);
 document.addEventListener("keydown", function(e) { if (e.key === "Escape") closeDialog(); });
 
+// ── Shared pilot helpers: glossary, Simple/Detailed toggle, action handoff ──
+var GLOSSARY={"tonic":"The home chord or note — where the music feels at rest.","subdominant":"Harmony that pulls away from home and sets up tension (the IV side).","dominant":"The tension chord that wants to fall back to the tonic (the V).","borrowed":"A chord taken from the parallel major/minor for extra color.","secondary dominant":"A V chord aimed at a chord other than the tonic, briefly making it feel like home.","syncopation":"Accents landing off the strongest beats, giving a pushed, lively feel.","voice leading":"How each line moves note-to-note from one chord to the next.","parallel fifths":"Two voices a 5th apart moving the same direction — the classic counterpoint no-no.","parallel octaves":"Two voices an octave apart moving together, collapsing two lines into one.","hidden fifth":"Both voices leap the same direction into a 5th — a softer parallel-5th.","hidden octave":"Both voices leap the same direction into an octave.","contrary motion":"Two voices moving in opposite directions — the most independent, strongest motion.","oblique motion":"One voice holds while the other moves.","similar motion":"Two voices moving the same direction by different amounts.","parallel motion":"Two voices moving the same direction by the same interval.","density":"How many notes sound at once or in quick succession — how full it feels.","register":"How high or low the notes sit overall."};
+var GLOSS_RE=new RegExp("\\b("+Object.keys(GLOSSARY).sort(function(a,b){return b.length-a.length;}).map(function(k){return k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");}).join("|")+")\\b","gi");
+function glossify(escaped){return String(escaped).replace(GLOSS_RE,function(m){var def=GLOSSARY[m.toLowerCase()];return def?'<span class="term" title="'+def.replace(/"/g,"&quot;")+'">'+m+'</span>':m;});}
+(function(){var KEY="ta-detail";var saved="simple";try{saved=localStorage.getItem(KEY)||"simple";}catch(e){}if(saved==="detailed")document.body.classList.add("mode-detailed");var b=document.getElementById("detail-btn");if(b){b.textContent=saved==="detailed"?"Hide details":"Show details";b.addEventListener("click",function(){var on=!document.body.classList.contains("mode-detailed");document.body.classList.toggle("mode-detailed",on);try{localStorage.setItem(KEY,on?"detailed":"simple");}catch(e){}b.textContent=on?"Hide details":"Show details";});}})();
+function sendNext(){var msg={method:"close_and_send",params:["__OPEN_WHATNEXT__"]};if(window.webkit&&window.webkit.messageHandlers&&window.webkit.messageHandlers.live)window.webkit.messageHandlers.live.postMessage(msg);else if(window.chrome&&window.chrome.webview)window.chrome.webview.postMessage(msg);}
+document.getElementById("next-link").addEventListener("click",sendNext);
+
 document.getElementById("summary").innerHTML =
   esc(DATA.summary).replace(esc(DATA.primaryChange), '<span class="focus">' + esc(DATA.primaryChange) + '</span>') +
-  '<div class="sub" style="margin-top:4px">' + esc(DATA.primaryChangeReason) + '</div>';
+  '<div class="sub" style="margin-top:4px">' + glossify(esc(DATA.primaryChangeReason)) + '</div>';
 
 document.getElementById("meta").innerHTML = [
   "Key: " + DATA.keyLabel,
@@ -147,11 +164,11 @@ document.getElementById("meta").innerHTML = [
 document.getElementById("cards").innerHTML = DATA.dimensions.map(function(card) {
   return '<section class="card ' + esc(card.id) + '">' +
     '<h2>' + esc(card.title) + '</h2>' +
-    '<div class="headline">' + esc(card.headline) + '</div>' +
-    '<ul>' + card.observations.map(function(item) {
-      return '<li>' + esc(item) + '</li>';
+    '<div class="headline">' + glossify(esc(card.headline)) + '</div>' +
+    '<ul class="detail-only">' + card.observations.map(function(item) {
+      return '<li>' + glossify(esc(item)) + '</li>';
     }).join("") + '</ul>' +
-    '<div class="move"><b>Next move:</b> ' + esc(card.nextMove) + '</div>' +
+    '<div class="move"><b>Next move:</b> ' + glossify(esc(card.nextMove)) + '</div>' +
   '</section>';
 }).join("");
 </script>

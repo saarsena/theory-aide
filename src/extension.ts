@@ -203,10 +203,28 @@ function runAnalysis(
     });
 }
 
+/** One plain-English sentence for the top of the Harmonic Timeline panel. */
+function timelineHeadline(analysis: TimelineAnalysis): string {
+    const segs = analysis.segments;
+    const avgTension = segs.length
+        ? Math.round(segs.reduce((s, x) => s + (x.tension || 0), 0) / segs.length)
+        : 0;
+    const tensionWord = avgTension >= 60 ? "high tension"
+        : avgTension >= 30 ? "moderate tension"
+        : "low tension";
+    const keyText = analysis.key?.label
+        ? `You're in ${analysis.key.label}`
+        : "Key is unclear here";
+    const prog = analysis.progressions?.[0];
+    const progText = prog ? ` — ${prog.label}` : "";
+    return `${keyText} · ${tensionWord}${progText}.`;
+}
+
 function timelineModalData(analysis: TimelineAnalysis) {
     return {
         rangeStart: analysis.rangeStart,
         rangeEnd: analysis.rangeEnd,
+        headline: timelineHeadline(analysis),
         key: analysis.key,
         inferredAgrees: analysis.inferredAgrees,
         trackNames: analysis.trackNames,
@@ -249,6 +267,18 @@ export function activate(activation: ActivationContext) {
     const song = context.application.song;
     let timelineRunning = false;
     let dimensionsRunning = false;
+
+    // Sentinel a panel returns (via close_and_send) to hand the user off to
+    // "What Do I Do Next?" for the same material. See the action-handoff button
+    // in the pilot modals.
+    const OPEN_WHATNEXT = "__OPEN_WHATNEXT__";
+    const openWhatNext = async (
+        notes: TimedNote[], start: number, end: number, label: string,
+    ): Promise<void> => {
+        const analysis = runAnalysis(song, notes, start, end);
+        const data = buildGuidedNextMoveData(analysis, notes, label);
+        await showHtml(context, nextHtml, "__NEXT_JSON__", data, 820, 700);
+    };
 
     // ── Harmonic Timeline: what do all tracks spell together? ────────
 
@@ -335,7 +365,8 @@ export function activate(activation: ActivationContext) {
                 }
 
                 const analysis = runAnalysis(song, notes, rangeStart, rangeEnd);
-                await showHtml(context, timelineHtml, "__TIMELINE_JSON__", timelineModalData(analysis), 1040, 760);
+                const result = await showHtml(context, timelineHtml, "__TIMELINE_JSON__", timelineModalData(analysis), 1040, 760);
+                if (result === OPEN_WHATNEXT) await openWhatNext(notes, rangeStart, rangeEnd, "Selected range");
             } finally {
                 timelineRunning = false;
             }
@@ -513,7 +544,8 @@ export function activate(activation: ActivationContext) {
 
                 const analysis = runAnalysis(song, notes, rangeStart, rangeEnd);
                 const data = buildCompositionDimensionsData(analysis, notes);
-                await showHtml(context, dimensionsHtml, "__DIMENSIONS_JSON__", data, 840, 700);
+                const result = await showHtml(context, dimensionsHtml, "__DIMENSIONS_JSON__", data, 840, 700);
+                if (result === OPEN_WHATNEXT) await openWhatNext(notes, rangeStart, rangeEnd, "Selected range");
             } finally {
                 dimensionsRunning = false;
             }
@@ -538,7 +570,8 @@ export function activate(activation: ActivationContext) {
 
             const analysis = runAnalysis(song, notes, start, end);
             const data = buildCompositionDimensionsData(analysis, notes);
-            await showHtml(context, dimensionsHtml, "__DIMENSIONS_JSON__", data, 840, 700);
+            const result = await showHtml(context, dimensionsHtml, "__DIMENSIONS_JSON__", data, 840, 700);
+            if (result === OPEN_WHATNEXT) await openWhatNext(notes, start, end, clip.name || "Untitled clip");
         })().catch(err => {
             console.error("[theory-aide] dimensions clip failed:", err);
             void showMessage(context, "Error", "Failed to run Composition Dimensions analysis.");
@@ -573,7 +606,8 @@ export function activate(activation: ActivationContext) {
             }
 
             const data = buildRhythmPhrasingData(notes, start, end, clip.name || "Untitled clip");
-            await showHtml(context, rhythmHtml, "__RHYTHM_JSON__", data, 820, 700);
+            const result = await showHtml(context, rhythmHtml, "__RHYTHM_JSON__", data, 820, 700);
+            if (result === OPEN_WHATNEXT) await openWhatNext(notes, start, end, clip.name || "Untitled clip");
         })().catch(err => {
             console.error("[theory-aide] rhythm phrasing failed:", err);
             void showMessage(context, "Error", "Failed to run Rhythm And Phrasing analysis.");
@@ -602,7 +636,8 @@ export function activate(activation: ActivationContext) {
             }
 
             const data = buildVoicingData(notes, start, end, clip.name || "Untitled clip");
-            await showHtml(context, voicingHtml, "__VOICING_JSON__", data, 820, 700);
+            const result = await showHtml(context, voicingHtml, "__VOICING_JSON__", data, 820, 700);
+            if (result === OPEN_WHATNEXT) await openWhatNext(notes, start, end, clip.name || "Untitled clip");
         })().catch(err => {
             console.error("[theory-aide] voicing density failed:", err);
             void showMessage(context, "Error", "Failed to run Voicing And Density analysis.");
@@ -830,7 +865,8 @@ export function activate(activation: ActivationContext) {
                 }
 
                 const data = buildCounterpointData(notes, rangeStart, rangeEnd);
-                await showHtml(context, counterpointHtml, "__COUNTERPOINT_JSON__", data, 860, 660);
+                const result = await showHtml(context, counterpointHtml, "__COUNTERPOINT_JSON__", data, 860, 660);
+                if (result === OPEN_WHATNEXT) await openWhatNext(notes, rangeStart, rangeEnd, "Selected range");
             } finally {
                 counterpointRunning = false;
             }

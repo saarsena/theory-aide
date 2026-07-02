@@ -5,7 +5,7 @@
     "build": "tsc --noEmit && tsx build.ts",
     "site": "tsc --noEmit -p site && tsx site/build.ts",
     "start": "tsx build.ts && extensions-cli run",
-    "package": "tsc --noEmit && tsx build.ts --production && extensions-cli package"
+    "package": "tsc --noEmit && tsx build.ts --production && tsx pack.ts"
   },
   "dependencies": {
     "@ableton-extensions/sdk": "file:./extensions-sdk-1.0.0-beta.0/ableton-extensions-sdk-1.0.0-beta.0.tgz"

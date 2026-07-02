@@ -4,6 +4,39 @@ All notable changes to Theory Aide are recorded here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/);
 this project is pre-1.0, so anything may still change.
 
+## [0.2.0] - 2026-07-02
+
+### Added
+
+- **Simplified panel UX** — piloted on the five densest panels (Harmonic
+  Timeline, Counterpoint Checker, Composition Dimensions, Voicing & Density,
+  Rhythm & Phrasing), based on user feedback that the panels were overwhelming:
+  - A one-sentence **plain-English headline** at the top of each panel that
+    answers "what am I looking at" before any table or grid.
+  - Panels open in a **simple view** by default; a **Show details** button
+    reveals the full tables, metric grids, and interval distributions. The
+    choice is remembered between sessions.
+  - **Plain-language tooltips** on theory jargon — hover terms like *parallel
+    fifths*, *contrary motion*, or *tonic* (dotted underline) for a one-line
+    definition in plain words.
+  - A **→ What should I do next?** button that closes the panel and opens
+    *What Do I Do Next?* for the same material, turning analysis into action.
+  - The remaining panels get the same treatment once the pilot is validated.
+- **Website proof of concept (`site/`).** The seed of a free Theory Aide
+  teaching site: a counterpoint concept page that runs the extension's own
+  analysis engine — and the actual Counterpoint Checker panel — live in the
+  browser against curated examples (parallel fifths, contrary motion, a hidden
+  octave). Fully static, no server. Build with `npm run site`. Not part of the
+  extension `.ablx`.
+
+### Changed
+
+- **Versioned packaging.** `npm run package` now names the archive from
+  `manifest.json` — e.g. `Theory-Aide-0.2.0.ablx` — instead of a fixed name.
+  The manifest version had been stuck at 0.1.0 while actual releases reached
+  0.1.9; it is now the single source of truth (bumped to 0.2.0), so Live and
+  the filename report the same version.
+
 ## [v0.1.8] - 2026-06-26
 
 ### Added

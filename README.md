@@ -26,6 +26,13 @@ See [DESIGN.md](DESIGN.md) for the full positioning and roadmap, and
 
 All commands appear in the right-click context menu inside Live's arrangement or session view.
 
+The densest panels (Harmonic Timeline, Counterpoint, Composition Dimensions,
+Voicing & Density, Rhythm & Phrasing) open in a **simple view**: a plain-English
+headline plus the actionable findings. Click **Show details** for the full
+tables and metrics (the choice is remembered), hover dotted-underlined theory
+terms for plain-language definitions, and use **→ What should I do next?** to
+jump straight from analysis to suggested next moves.
+
 ### Arrangement selection (right-click a MIDI track with a time selection)
 
 | Command | What it does |
@@ -74,7 +81,8 @@ npm install
 npm run build      # type-check + bundle → dist/extension.js
 npx tsx tests/smoke.ts   # engine smoke tests
 npm start          # build + load into Live (needs .env with EXTENSION_HOST_PATH)
-npm run package    # production .ablx
+npm run package    # production .ablx, named Theory-Aide-<version>.ablx from manifest.json
+npm run site       # build the website proof of concept → site/dist/
 ```
 
 ## Layout
@@ -96,7 +104,12 @@ src/
   theory/timbre.ts          timbre, texture, and dynamics analysis
   theory/voicing.ts         voicing density and register analysis
   *.html                    modal UIs (one per command)
+site/
+  index.html                teaching-site proof of concept (counterpoint page)
+  src/main.ts               runs the engine + real panels in the browser
+  src/examples.ts           curated note examples with teaching copy
 tests/smoke.ts              engine assertions
+pack.ts                     versioned .ablx packaging (reads manifest.json)
 ```
 
 MIT © 2026 saarsena

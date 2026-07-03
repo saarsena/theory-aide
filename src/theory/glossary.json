@@ -19,5 +19,6 @@
   "frequency": "How many times per second something vibrates. In sound, faster means higher.",
   "hertz": "The unit for frequency: one hertz is one back-and-forth per second.",
   "pitch": "How high or low a note sounds, set by its frequency.",
-  "octave": "The distance between a note and the note vibrating twice as fast. They sound like the same note, higher."
+  "octave": "The distance between a note and the note vibrating twice as fast. They sound like the same note, higher.",
+  "interval": "The distance between two notes, counted in semitones and heard as a flavor."
 }

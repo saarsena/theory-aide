@@ -21,7 +21,9 @@ see_also:
 
 Turn your volume down a touch, then drag the slider and press **Hear it**.
 The green line is the air pressure at your ear, slowed about 100 times so
-your eye can follow what your ear is doing:
+your eye can follow what your ear is doing.
+
+**Twist some knobs!**
 
 <div class="demo">
   <div class="demo-label">Live demo: one note, as moving air</div>
@@ -30,6 +32,7 @@ your eye can follow what your ear is doing:
   <canvas class="viz" id="note-canvas"></canvas>
 </div>
 
+<br>  
 Drag right and two things happen together: the wave squeezes tighter, and the
 sound gets higher. That is the entire relationship. **Faster is higher.**
 There is nothing else hiding underneath; a "high" note is just air moving
@@ -54,8 +57,8 @@ play together. Which frequencies got picked, and why there are twelve per
 Before you leave the slider, try this: park it at 110, then 220, then 440,
 then 880. Each doubling lands on a note that feels like the same note, only
 higher, and every one of them is named A. That doubling distance is called
-an [[octave]], and why doubling works that way is the next article on this
-trail.
+an [[octave]], and why doubling works that way is
+[[pitch-and-octave|the next article on this trail]].
 
 ## In your music
 

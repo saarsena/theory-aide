@@ -26,5 +26,8 @@
   "tempo": "How fast the beats come, measured in beats per minute (BPM).",
   "semitone": "The smallest step on the piano roll: one row up or down. Twelve make an octave.",
   "consonance": "The smooth, settled quality of intervals whose waves fit together simply.",
-  "dissonance": "The rough, restless quality of intervals whose waves never settle."
+  "dissonance": "The rough, restless quality of intervals whose waves never settle.",
+  "chord": "Several notes sounding together, heard as one object with a mood.",
+  "triad": "The basic three-note chord: a root, a third, and a fifth, stacked.",
+  "root": "The note a chord is built from and named after."
 }

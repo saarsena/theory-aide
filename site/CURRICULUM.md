@@ -140,8 +140,9 @@ keys, melodies, chords.
   note gets its job from where home is · demo: analyzer key inference
 - `melody` · Contour, steps versus leaps, range, and why melodies breathe.
   What makes a line singable even when nothing sings it
-- `triads` · Stack two thirds and you have a chord. Major, minor, diminished,
-  augmented, straight off the piano roll · demo: analyzer chord recognition
+- `triads` **(exists)** · Stack two thirds and you have a chord. Major,
+  minor, diminished, augmented, straight off the piano roll · demo: three
+  live tones, named by the engine's chord recognizer
 - `inversions` · Same notes, different bass, different feel. Why the bottom
   note matters most
 

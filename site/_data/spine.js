@@ -13,5 +13,5 @@ export default [
     { slug: "pitch-and-octave", title: "Pitch and octave" },
     { slug: "the-piano-roll", title: "The piano roll" },
     { slug: "intervals", title: "Intervals" },
-    { slug: "counterpoint", title: "Counterpoint" },
+    { slug: "triads", title: "Triads" },
 ];

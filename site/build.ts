@@ -7,7 +7,7 @@ import * as esbuild from "esbuild";
 const production = process.argv.includes("--production");
 
 await esbuild.build({
-    entryPoints: ["site/src/main.ts", "site/src/waves.ts"],
+    entryPoints: ["site/src/main.ts", "site/src/waves.ts", "site/src/note.ts"],
     outdir: "site/dist",
     bundle: true,
     format: "iife",

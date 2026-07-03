@@ -58,6 +58,7 @@
     border-radius: 5px; padding: 7px 14px; cursor: pointer; font-size: 13px; font-weight: 600;
   }
   #example-picker button:hover, .btn-row button:hover { border-color: var(--accent); }
+  .btn-row input[type="range"] { flex: 1 1 220px; accent-color: var(--accent); }
   #example-picker button.active, .btn-row button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
   #example-blurb, .demo-blurb { font-size: 14px; color: #333; margin-bottom: 14px; max-width: 72ch; }
   #panel-frame {
@@ -73,6 +74,21 @@
   .dict-def { display: block; font-size: 13px; color: var(--dim); }
   .backlink { font-size: 13px; }
 
+  /* Articles (encyclopedia pages) */
+  .toc {
+    display: inline-block; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 8px; padding: 12px 20px 12px 16px; margin: 16px 0 4px;
+  }
+  .toc-title { font-size: 12px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--dim); margin-bottom: 6px; }
+  .toc ol { margin: 0 0 0 20px; font-size: 13px; }
+  .toc li { margin-bottom: 2px; }
+  .toc a { text-decoration: none; }
+  .see-also ul { list-style: none; margin-left: 0; }
+  .see-also a { text-decoration: none; }
+  .article-meta { margin-top: 28px; font-size: 12px; color: var(--dim); }
+  .comments-slot { margin-top: 8px; }
+  .footer p { margin-bottom: 8px; max-width: none; }
+
   .footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--dim); font-size: 13px; }
   @media (max-width: 640px) { .dict-list { columns: 1; } }
 </style>
@@ -82,9 +98,9 @@
   <header class="masthead">
     <a class="brand" href="/">Theory Aide</a>
     <nav>
-      <a href="/concepts/counterpoint/">Concepts</a>
+      <a href="/concepts/">Concepts</a>
       <a href="/dictionary/">Dictionary</a>
-      <a href="/math/">The Math</a>
+      <a href="/concepts/math/">The Math</a>
     </nav>
     <div class="tag">Music theory, in plain English, inside your music.</div>
   </header>
@@ -92,11 +108,19 @@
 {{ content | safe }}
   </main>
   <footer class="footer">
+    <p>
     Theory Aide is free and open source, a lasting tool for people around the
     world to learn to speak the language of music. The analyses on this site run
     the same engine as the
     <a href="https://github.com/saarsena/theory-aide">Theory Aide extension for Ableton Live</a>;
     the site and the extension can never disagree, because they share one brain.
+    </p>
+    {# TODO: replace the href below with your actual Ko-fi page URL. #}
+    <p>
+    This site was created with the intention of expressing mutual aid. If you
+    find it useful and have the means,
+    <a href="https://ko-fi.com/">toss a coin in my hat here</a>.
+    </p>
   </footer>
 </div>
 </body>

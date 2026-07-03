@@ -1,0 +1,36 @@
+---
+layout: base.njk
+---
+{# Encyclopedia article layout. Wikipedia-shaped, no community edits:
+   heading, plain-English lead, Contents box (once there are 3+ sections),
+   body, See also, category line, and the empty comments mount point. #}
+<article>
+  <h1>{{ heading or title }}</h1>
+
+  {% if lead %}<p class="lede">{{ lead | wikilinks | safe }}</p>{% endif %}
+
+  {{ content | toc | safe }}
+
+  {{ content | wikilinks | safe }}
+
+  {% if see_also %}
+  <section class="see-also">
+    <h2>See also</h2>
+    <ul>
+      {%- for item in see_also %}
+      <li>{{ ("[[" + item + "]]") | wikilinks | safe }}</li>
+      {%- endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  {% if category %}
+  <div class="article-meta">Category: {{ category }}</div>
+  {% endif %}
+
+  {# Comments mount point. Empty and invisible today. When comments arrive,
+     a client-side script will find this section by id and fill it; comment
+     threads key on the page URL, which is why article slugs are permanent.
+     Do not rename or remove this id. #}
+  <section class="comments-slot" id="comments"></section>
+</article>

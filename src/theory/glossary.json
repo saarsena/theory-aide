@@ -15,5 +15,9 @@
   "similar motion": "Two voices moving the same direction by different amounts.",
   "parallel motion": "Two voices moving the same direction by the same interval.",
   "density": "How many notes sound at once or in quick succession. How full it feels.",
-  "register": "How high or low the notes sit overall."
+  "register": "How high or low the notes sit overall.",
+  "frequency": "How many times per second something vibrates. In sound, faster means higher.",
+  "hertz": "The unit for frequency: one hertz is one back-and-forth per second.",
+  "pitch": "How high or low a note sounds, set by its frequency.",
+  "octave": "The distance between a note and the note vibrating twice as fast. They sound like the same note, higher."
 }

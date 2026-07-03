@@ -1,0 +1,23 @@
+---
+layout: base.njk
+title: Concepts
+permalink: /concepts/
+eleventyExcludeFromCollections: true
+---
+<h1>Concepts</h1>
+
+<p class="lede">
+  The encyclopedia half of Theory Aide: one idea per article, explained in
+  plain English first, with the real analysis engine embedded where seeing it
+  work beats reading about it. Jargon links to the
+  <a href="/dictionary/">dictionary</a>. New articles accumulate one at a time.
+</p>
+
+<div class="cards">
+{%- for art in collections.article %}
+  <a class="card" href="{{ art.url }}">
+    <h3>{{ art.data.title }}</h3>
+    <p>{{ art.data.summary }}</p>
+  </a>
+{%- endfor %}
+</div>

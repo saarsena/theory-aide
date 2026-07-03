@@ -20,5 +20,11 @@
   "hertz": "The unit for frequency: one hertz is one back-and-forth per second.",
   "pitch": "How high or low a note sounds, set by its frequency.",
   "octave": "The distance between a note and the note vibrating twice as fast. They sound like the same note, higher.",
-  "interval": "The distance between two notes, counted in semitones and heard as a flavor."
+  "interval": "The distance between two notes, counted in semitones and heard as a flavor.",
+  "beat": "The steady pulse under music, the thing your foot taps.",
+  "bar": "A group of beats, most often four, marked by the heavier grid lines.",
+  "tempo": "How fast the beats come, measured in beats per minute (BPM).",
+  "semitone": "The smallest step on the piano roll: one row up or down. Twelve make an octave.",
+  "consonance": "The smooth, settled quality of intervals whose waves fit together simply.",
+  "dissonance": "The rough, restless quality of intervals whose waves never settle."
 }

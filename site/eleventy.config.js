@@ -6,6 +6,7 @@
 // The filename is the slug is the permanent URL (/concepts/<slug>/) — see
 // site/README.md for the authoring guide and the slug-stability rule.
 import { readFileSync, readdirSync } from "node:fs";
+import spine from "./_data/spine.js";
 
 // Canonical glossary (same file the dictionary pages render from).
 const glossary = JSON.parse(
@@ -68,6 +69,19 @@ export default function (eleventyConfig) {
 
     eleventyConfig.addFilter("wikilinks", wikilinks);
     eleventyConfig.addFilter("toc", toc);
+
+    // Track 1 spine lookup: where (if anywhere) an article sits on the
+    // ordered path, and its neighbors for prev/next navigation.
+    eleventyConfig.addFilter("spineInfo", (fileSlug) => {
+        const i = spine.findIndex((s) => s.slug === fileSlug);
+        if (i < 0) return null;
+        return {
+            index: i + 1,
+            total: spine.length,
+            prev: i > 0 ? spine[i - 1] : null,
+            next: i < spine.length - 1 ? spine[i + 1] : null,
+        };
+    });
 
     // Give Markdown h2/h3 headings ids (slugified from their text) so the
     // Contents box and #fragment links work without an extra dependency.

@@ -45,6 +45,10 @@ The style we agree to write in. Every article gets held against these.
    they protect (independence, clarity, tension), never enforced as law.
 10. **The prose rules hold everywhere.** No em dashes, plain sentences, no
     LLM cadence. See `site/README.md`.
+11. **Claims get sources.** History, research, numbers, and other people's
+    ideas are named inline and cited in a References section at the foot of
+    the article. Plain English does not mean unsourced. Mechanics in
+    `site/README.md`.
 
 ## Part 2: The spiral, four depth rings
 
@@ -65,6 +69,29 @@ is ever "on the wrong page."
 - **Ring 3 · Guru.** The four wings: jazz and modal harmony, classical craft,
   beyond tonality, and the deep math. Each wing is optional and none is "the"
   ending; a guru picks their obsessions.
+
+### The two tracks (added 2026-07-03)
+
+On top of rings (depth) and trails (topic) sits the reading contract, taken
+with gratitude from Misner, Thorne, and Wheeler's *Gravitation*, the physics
+textbook famously built as two interleaved tracks through one book:
+
+- **Track 1 is the spine.** One ordered chain of articles, drawn from
+  across the trails, that is complete on its own: read only Track 1, in
+  order, and you have genuinely learned to speak music. Spine articles
+  show their position ("Track 1 · article 4 of 28") and carry previous/next
+  navigation, so a beginner can simply keep pressing next. The order lives
+  in one file (`site/_data/spine.js`) and grows as articles ship.
+- **Track 2 is everything else.** The math trail, the guru wings, the deep
+  dives. Track 2 always assumes Track 1 and is always *reached from* a
+  Track 1 moment (a hook, a link, a "that story is over here"), but no
+  Track 1 article ever requires it. Skipping Track 2 costs depth, never
+  continuity.
+
+The two properties to protect: **Track 1 stays complete** (never park an
+essential concept in Track 2) and **Track 2 is never load-bearing** (if a
+spine article can't be understood without a Track 2 page, either the spine
+article is missing a paragraph or the Track 2 page belongs on the spine).
 
 ## Part 3: The trails
 
@@ -100,9 +127,9 @@ opened a theory book starts.
 Purpose: the vocabulary everything else is written in: intervals, scales,
 keys, melodies, chords.
 
-- `intervals` · The distance between two notes, counted in semitones, heard
-  as flavor. The interval, not the note, is what your ear reacts to · demo:
-  waves ratios
+- `intervals` **(exists)** · The distance between two notes, counted in
+  semitones, heard as flavor. The interval, not the note, is what your ear
+  reacts to · demo: two live tones, seven selectable intervals
 - `steps-and-leaps` · Half steps, whole steps, and jumps: the difference
   between a melody that walks and one that vaults
 - `the-major-scale` · The step pattern most Western music walks on, and how
@@ -269,6 +296,9 @@ and is never required by any of them.
 
 - `math` **(exists)** · The math behind music: a note is a number, and
   consonance is arithmetic · demo: waves animation
+- `organizing-time` **(exists)** · Music is the art of organizing time: hear
+  a rhythm accelerate into a pitch, then ride the zoom lens from form down
+  to timbre · demo: pulse accelerator
 - `harmonics` · One note is already a chord: the overtone series, and why
   timbre is a recipe of sines · demo: waves (extended)
 - `beating-and-tuning` · Two frequencies almost agreeing: beats as audible
@@ -329,9 +359,10 @@ The page tree as it should eventually exist. Descriptions only; pages marked
   (harmony, counterpoint, rhythm, math and acoustics, form). Exists.
 - `/concepts/<slug>/` · The articles. The trail lists in Part 3 are the
   complete planned inventory, roughly 75 articles. Two exist.
-- `/trails/` *(future)* · The curriculum overlay: the eight trails and the
-  side trail, each with its purpose sentence and reading order. This is the
-  "start here" page for anyone who wants a path instead of a wander.
+- `/trails/` *(future)* · The curriculum overlay: Track 1 (the spine,
+  presented as "start here" with its full reading order) plus the eight
+  trails and the side trail, each with its purpose sentence. The spine data
+  already exists (`site/_data/spine.js`); this page presents it.
 - `/trails/<trail>/` *(future)* · One page per trail: the ordered article
   list, ring by ring, with one line on why each article is where it is.
   Needs a small template; the ordering data could live in front matter or

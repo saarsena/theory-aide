@@ -5,6 +5,13 @@ layout: base.njk
    heading, plain-English lead, Contents box (once there are 3+ sections),
    body, See also, category line, and the empty comments mount point. #}
 <article>
+  {%- set spinePos = page.fileSlug | spineInfo %}
+  {% if spinePos %}
+  <div class="track-bar">Track 1 · article {{ spinePos.index }} of {{ spinePos.total }}</div>
+  {% else %}
+  <div class="track-bar track-2">Track 2 · depth beyond the spine</div>
+  {% endif %}
+
   <h1>{{ heading or title }}</h1>
 
   {% if lead %}<p class="lede">{{ lead | wikilinks | safe }}</p>{% endif %}
@@ -12,6 +19,13 @@ layout: base.njk
   {{ content | toc | safe }}
 
   {{ content | wikilinks | safe }}
+
+  {% if spinePos %}
+  <nav class="spine-nav" aria-label="Track 1 navigation">
+    {% if spinePos.prev %}<a href="/concepts/{{ spinePos.prev.slug }}/">← {{ spinePos.prev.title }}</a>{% else %}<span></span>{% endif %}
+    {% if spinePos.next %}<a href="/concepts/{{ spinePos.next.slug }}/">{{ spinePos.next.title }} →</a>{% endif %}
+  </nav>
+  {% endif %}
 
   {% if see_also %}
   <section class="see-also">
@@ -21,6 +35,18 @@ layout: base.njk
       <li>{{ ("[[" + item + "]]") | wikilinks | safe }}</li>
       {%- endfor %}
     </ul>
+  </section>
+  {% endif %}
+
+  {% if references %}
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      {%- for ref in references %}
+      <li>{{ ref.author }}{% if ref.year %} ({{ ref.year }}){% endif %}.
+        <em>{% if ref.url %}<a href="{{ ref.url }}">{{ ref.title }}</a>{% else %}{{ ref.title }}{% endif %}</em>{% if ref.source %}. {{ ref.source }}{% endif %}.</li>
+      {%- endfor %}
+    </ol>
   </section>
   {% endif %}
 

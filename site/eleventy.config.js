@@ -31,8 +31,10 @@ const articleSlugs = new Set(
 function wikilinks(html) {
     if (typeof html !== "string") return html;
     return html.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (_m, target, display) => {
-        const text = (display ?? target).trim();
-        const key = target.trim().toLowerCase();
+        // Collapse internal whitespace: prose wiki-links may wrap across
+        // source lines ("[[parallel\nmotion|...]]").
+        const text = (display ?? target).trim().replace(/\s+/g, " ");
+        const key = target.trim().toLowerCase().replace(/\s+/g, " ");
         const slug = slugify(key);
         if (articleSlugs.has(slug)) {
             return `<a href="/concepts/${slug}/">${text}</a>`;

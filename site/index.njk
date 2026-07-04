@@ -1,38 +1,37 @@
 ---
 layout: base.njk
-title: Home
+title: Music is Math
 ---
-<h1>Learn to speak the language of music</h1>
+<h1><a class="title-link" href="https://www.youtube.com/watch?v=YSi78g2CXCM&list=RDYSi78g2CXCM&start_radio=1">Music is Math</a></h1>
 
 <p class="lede">
-  Theory Aide is a free, open-source project for understanding what music is
-  doing. Plain English first, with the full depth one click away. No
-  subscription, no $900 software. The concepts, a dictionary without gatekeeping,
-  and real analysis you can watch working.
+  Theory Aide is a free and open-source project for understanding what your
+  music is doing. The goal is to provide a tool that helps people better
+  express creativity while also understanding the theory, or "rules," that
+  underlie it.
 </p>
+
+<p>
+  Music theory isn't hard. It's just kinda weird. It's not intuitive because,
+  in a very real way, it's just made-up rules. That undersells the fact that
+  modern theory is heavily steeped in math, and the rules we decided upon
+  rely on ideas that go back to ancient Greece. You don't have to speak the
+  language, but it sure does help. As such, I want to do what I can to make
+  this stuff as accessible as possible.
+</p>
+
+<p>This is that project.</p>
 
 <div class="cards">
-  <a class="card" href="/concepts/">
-    <h3>Concepts</h3>
-    <p>One idea at a time, explained plainly, with a live analyzer you can poke.
-    First up: counterpoint.</p>
+  <a class="card" href="/concepts/{{ spine[0].slug }}/">
+    <h3>Start the course</h3>
+    <p>Track 1: {{ spine | length }} articles in order, from "what is a note"
+    to counterpoint, each with something to hear. Press next as you go; the
+    spine will hold.</p>
   </a>
   <a class="card" href="/dictionary/">
-    <h3>Dictionary</h3>
-    <p>Theory jargon in one honest sentence each. The same definitions the
-    extension shows as tooltips.</p>
-  </a>
-  <a class="card" href="/concepts/math/">
-    <h3>The Math</h3>
-    <p>Music is applied mathematics you can hear. See the waveforms, the ratios,
-    and why consonance is arithmetic.</p>
+    <h3>The dictionary</h3>
+    <p>Every theory term in one honest sentence, the same definitions the
+    tools show as tooltips.</p>
   </a>
 </div>
-
-<h2>One brain, two homes</h2>
-<p>
-  Everything on this site runs the same TypeScript analysis engine as the
-  <a href="https://github.com/saarsena/theory-aide">Theory Aide extension for
-  Ableton Live</a>. The site teaches the ideas; the extension catches them in
-  the music you're actually making. Learn it here, hear it there.
-</p>

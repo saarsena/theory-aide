@@ -11,6 +11,7 @@
 import { buildCounterpointData } from "../../src/theory/counterpoint.js";
 import counterpointHtml from "../../src/counterpoint.html";
 import { EXAMPLES, type SiteExample } from "./examples.js";
+import { createPlayer, type PNote } from "./lib/player.js";
 
 // Small web-only overrides injected into the panel document:
 //   - hide the Close / "What should I do next?" buttons (Live-modal plumbing
@@ -30,11 +31,38 @@ const picker = document.getElementById("example-picker") as HTMLElement;
 const blurb = document.getElementById("example-blurb") as HTMLElement;
 const frame = document.getElementById("panel-frame") as HTMLIFrameElement;
 
+// Playable mini-roll of the example above the panel, so the reader sees
+// and hears the two voices before reading the checker's verdict. One step
+// = one beat here (bpm 30 with sixteenth-step timing = 120 BPM beats);
+// the heavy grid lines and top numbers mark the four bars.
+const player = createPlayer({
+    canvas: document.getElementById("example-canvas") as HTMLCanvasElement,
+    playBtn: document.getElementById("example-play") as HTMLButtonElement,
+    topMidi: 74,
+    rows: 28,
+    steps: 16,
+    bpm: 30,
+});
+
+function toRoll(example: SiteExample): PNote[] {
+    return example.notes.map((n) => ({
+        midi: n.pitch,
+        step: n.start,
+        len: n.end - n.start,
+        voice: n.track === "Bass" ? 0 : 1,
+    }));
+}
+
 function select(example: SiteExample): void {
     for (const btn of picker.querySelectorAll("button")) {
         btn.classList.toggle("active", btn.dataset["id"] === example.id);
     }
     blurb.textContent = example.blurb;
+    const midis = example.notes.map((n) => n.pitch);
+    const top = Math.max(...midis) + 2;
+    const bottom = Math.min(...midis) - 2;
+    player.setView(top, top - bottom + 1);
+    player.setNotes(toRoll(example));
     frame.srcdoc = panelDoc(example);
 }
 

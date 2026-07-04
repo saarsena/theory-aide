@@ -29,5 +29,11 @@
   "dissonance": "The rough, restless quality of intervals whose waves never settle.",
   "chord": "Several notes sounding together, heard as one object with a mood.",
   "triad": "The basic three-note chord: a root, a third, and a fifth, stacked.",
-  "root": "The note a chord is built from and named after."
+  "root": "The note a chord is built from and named after.",
+  "scale": "A chosen set of notes defined by a pattern of steps, repeating every octave.",
+  "key": "The gravity field of a scale: one note is home, and every other note is heard by its distance from home.",
+  "melody": "A sequence of single notes heard as one continuous line with a shape.",
+  "contour": "The overall shape of a melody: where it rises, peaks, and falls.",
+  "voice": "One continuous musical line in a texture, whether or not anyone is singing.",
+  "circle of fifths": "The twelve keys arranged in a wheel so neighbors differ by one note. Distance on the circle is harmonic distance."
 }

@@ -20,6 +20,13 @@ layout: base.njk
 
   {{ content | wikilinks | safe }}
 
+  {% if mountain %}
+  <aside class="mountain">
+    <strong>A mountain, not a page.</strong>
+    {{ mountain | wikilinks | safe }}
+  </aside>
+  {% endif %}
+
   {% if spinePos %}
   <nav class="spine-nav" aria-label="Track 1 navigation">
     {% if spinePos.prev %}<a href="/concepts/{{ spinePos.prev.slug }}/">← {{ spinePos.prev.title }}</a>{% else %}<span></span>{% endif %}

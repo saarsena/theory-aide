@@ -32,6 +32,7 @@ Front matter fields:
 | `category` | yes | one of: fundamentals, harmony, counterpoint, rhythm, math and acoustics, form (add sparingly) |
 | `see_also` | no | list of wiki-link targets for the See also section |
 | `references` | no | list of sources, rendered as a References section (see Citations below) |
+| `mountain` | no | one short paragraph admitting the topic's true depth, rendered as the "A mountain, not a page" aside after the body. Use it on any article whose subject has a literature of its own (scales, melody, keys...): the article is the Track 1 footpath, and this aside is where we say so honestly and point at what lies beyond |
 
 Everything else comes from the layout automatically: the Contents box appears
 once an article has three or more `##` sections, the See also section renders

@@ -14,4 +14,11 @@ export default [
     { slug: "the-piano-roll", title: "The piano roll" },
     { slug: "intervals", title: "Intervals" },
     { slug: "triads", title: "Triads" },
+    { slug: "the-major-scale", title: "The major scale" },
+    { slug: "melody", title: "Melody" },
+    { slug: "keys", title: "Keys" },
+    { slug: "the-circle-of-fifths", title: "The circle of fifths" },
+    { slug: "voices", title: "Voices" },
+    { slug: "motion-types", title: "Motion types" },
+    { slug: "counterpoint", title: "Counterpoint" },
 ];

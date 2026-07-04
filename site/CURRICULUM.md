@@ -39,7 +39,10 @@ The style we agree to write in. Every article gets held against these.
    trail is there because for some readers (the author included) seeing the
    arithmetic is the moment it clicks.
 8. **One idea per article.** If an article needs "and" in its title, it is
-   probably two articles.
+   probably two articles. And when the one idea is the visible tip of a
+   whole literature (scales, melody, keys), the article says so out loud:
+   the "A mountain, not a page" aside (`mountain` front matter) admits the
+   depth and points at it, instead of pretending one page settled it.
 9. **No gatekeeping tone.** Jargon is always wiki-linked to a plain
    definition. "Guru" means fluent, not initiated. Rules are explained by what
    they protect (independence, clarity, tension), never enforced as law.
@@ -132,14 +135,17 @@ keys, melodies, chords.
   reacts to · demo: two live tones, seven selectable intervals
 - `steps-and-leaps` · Half steps, whole steps, and jumps: the difference
   between a melody that walks and one that vaults
-- `the-major-scale` · The step pattern most Western music walks on, and how
-  to build it from any note in the piano roll
+- `the-major-scale` **(exists)** · The step pattern most Western music walks
+  on, and how to build it from any note in the piano roll · demo: mini-roll
+  scale climb from any root
 - `minor-scales` · Natural, harmonic, melodic: three flavors of sad and what
   each is for
-- `keys` · What "in C major" means. The tonic as home, and how every other
-  note gets its job from where home is · demo: analyzer key inference
-- `melody` · Contour, steps versus leaps, range, and why melodies breathe.
-  What makes a line singable even when nothing sings it
+- `keys` **(exists)** · What "in C major" means. The tonic as home, and how
+  every other note gets its job from where home is · demo: same melody,
+  landed vs hanging ending
+- `melody` **(exists)** · Contour, steps versus leaps, range, and why
+  melodies breathe. What makes a line singable even when nothing sings it ·
+  demo: three shapes on the mini-roll
 - `triads` **(exists)** · Stack two thirds and you have a chord. Major,
   minor, diminished, augmented, straight off the piano roll · demo: three
   live tones, named by the engine's chord recognizer
@@ -169,8 +175,9 @@ Ring 2:
 - `harmonic-function` · Tonic, subdominant, dominant: home, away, and the
   pull back home. Three jobs behind all seven chords · demo: explain panel
   T/S/D badges
-- `the-circle-of-fifths` · The map of keys: why neighbors share notes and
-  what "closely related" actually measures
+- `the-circle-of-fifths` **(exists)** · The map of keys: why neighbors share
+  notes and what "closely related" actually measures · demo: clickable
+  wheel, hear each key's distance from C
 - `modes` · One scale, seven homes. Dorian, Lydian, Mixolydian and the rest,
   taught the way an improviser learns them · demo: analyzer
 - `borrowed-chords` · Stealing from the parallel key for color, and why the
@@ -205,11 +212,12 @@ independent. At Ring 3 it becomes the classical craft wing.
 
 Ring 1:
 
-- `voices` · What a "voice" is when nothing is singing: your bass, lead, and
-  pad are voices whether you meant it or not
-- `motion-types` · Parallel, similar, oblique, contrary: the four ways two
-  lines can move, and which ones protect independence · demo: counterpoint
-  panel
+- `voices` **(exists)** · What a "voice" is when nothing is singing: your
+  bass, lead, and pad are voices whether you meant it or not · demo:
+  bass and lead, together and soloed
+- `motion-types` **(exists)** · Parallel, similar, oblique, contrary: the
+  four ways two lines can move, and which ones protect independence · demo:
+  two voices, four motions, engine-verified examples
 - `counterpoint` **(exists)** · Making two melodies work together: the one
   rule that matters most · demo: counterpoint panel
 

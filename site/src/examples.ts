@@ -1,9 +1,12 @@
 // Curated note examples for the teaching site. Each one is a small,
-// deliberate two-voice fragment designed to trigger a specific engine
+// deliberate two-voice passage designed to trigger a specific engine
 // finding, so the reader sees the concept and the analysis side by side.
+// Every claim in a blurb was verified against the engine before it was
+// written (motion counts and flags checked, not assumed).
 //
 // Pitches use MIDI numbers with Ableton's convention (middle C = C3 = 60),
-// matching how the extension labels notes.
+// matching how the extension labels notes. All examples are 4 bars:
+// 8 notes per voice, 2 beats each.
 
 import type { TimedNote } from "../../src/theory/timeline.js";
 
@@ -19,7 +22,7 @@ export interface SiteExample {
 }
 
 /** One monophonic voice: equal-length notes starting at `start`. */
-function line(track: string, pitches: number[], dur = 1, start = 0): TimedNote[] {
+function line(track: string, pitches: number[], dur = 2, start = 0): TimedNote[] {
     return pitches.map((pitch, i) => ({
         pitch,
         start: start + i * dur,
@@ -34,49 +37,51 @@ export const EXAMPLES: SiteExample[] = [
         id: "parallel-fifths",
         title: "Parallel fifths, on purpose",
         blurb:
-            "Two voices locked a fifth apart, marching up together: C–D–E–F over " +
-            "F–G–A–B♭. Every single move is a parallel fifth, the classic " +
-            "counterpoint no-no. Listen with your eyes: the two lines never act " +
-            "independently, so they fuse into one thick line. The checker flags " +
-            "all three moves and reports the motion as 100% parallel.",
+            "For the first two bars the lead is locked a fifth above the bass, " +
+            "marching up in step with it, and the two lines fuse into one thick " +
+            "line. Then the lead breaks free and moves its own way. Play it and " +
+            "listen for the moment the music becomes two voices. The checker " +
+            "flags all four locked moves as parallel fifths and finds nothing " +
+            "to flag in the free half.",
         rangeStart: 0,
-        rangeEnd: 4,
+        rangeEnd: 16,
         notes: [
-            ...line("Lead", [60, 62, 64, 65]),
-            ...line("Bass", [53, 55, 57, 58]),
+            ...line("Bass", [48, 50, 52, 53, 55, 52, 50, 48]),
+            ...line("Lead", [55, 57, 59, 60, 62, 64, 65, 64]),
         ],
     },
     {
         id: "contrary-motion",
         title: "Contrary motion, clean",
         blurb:
-            "The same rising lead line, but now the bass is walking that lead like a bitch. Woop! " +
-            "The voices pull apart and each one is clearly its own melody. " +
-            "This is contrary motion, the strongest and most independent (and therefore best) way two " +
-            "lines can move. The checker finds nothing to flag: no parallels, no " +
-            "hidden intervals, motion 100% contrary.",
+            "Two mirrored arches: the lead climbs while the bass walks down, " +
+            "then both turn around. The bass is walking that lead like a bitch. " +
+            "Woop! Each line is unmistakably its own melody. This is contrary " +
+            "motion, the strongest and most independent way two lines can move, " +
+            "and the checker finds nothing to flag: no parallels, no hidden " +
+            "intervals, motion 100% contrary.",
         rangeStart: 0,
-        rangeEnd: 5,
+        rangeEnd: 16,
         notes: [
-            ...line("Lead", [60, 62, 64, 65, 67]),
-            ...line("Bass", [55, 53, 52, 50, 48]),
+            ...line("Bass", [55, 53, 52, 50, 48, 50, 52, 53]),
+            ...line("Lead", [60, 62, 64, 65, 67, 65, 64, 62]),
         ],
     },
     {
         id: "hidden-octave",
         title: "A hidden octave",
         blurb:
-            "This one is sneakier, like a ninja. The two voices start out fine, then the first move " +
-            "is contrary. But then both voices leap upward at once and land exactly " +
-            "an octave apart. They didn't move in parallel octaves, yet the effect " +
-            "is similar: two independent lines suddenly collapse into one. That's a " +
-            "hidden octave, and the checker catches it even though no rule about " +
-            "parallel motion was technically broken.",
+            "This one is sneakier, like a ninja. Three bars of perfectly healthy " +
+            "motion, and then at the start of bar three both voices leap upward " +
+            "at once and land exactly an octave apart. They never moved in " +
+            "parallel octaves, yet for that moment the two lines collapse into " +
+            "one. That is a hidden octave: the checker flags exactly that one " +
+            "landing and nothing else.",
         rangeStart: 0,
-        rangeEnd: 3,
+        rangeEnd: 16,
         notes: [
-            ...line("Lead", [62, 64, 72]),
-            ...line("Bass", [57, 55, 60]),
+            ...line("Bass", [53, 55, 57, 55, 60, 57, 53, 48]),
+            ...line("Lead", [62, 64, 62, 64, 72, 71, 69, 65]),
         ],
     },
 ];

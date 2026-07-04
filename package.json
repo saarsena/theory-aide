@@ -4,6 +4,7 @@
   "scripts": {
     "build": "tsc --noEmit && tsx build.ts",
     "site": "tsc --noEmit -p site && tsx site/build.ts && eleventy --config=site/eleventy.config.js",
+    "site:prod": "tsc --noEmit -p site && tsx site/build.ts --production && eleventy --config=site/eleventy.config.js",
     "site:dev": "tsx site/build.ts && eleventy --config=site/eleventy.config.js --serve --port=8124",
     "start": "tsx build.ts && extensions-cli run",
     "package": "tsc --noEmit && tsx build.ts --production && tsx pack.ts"

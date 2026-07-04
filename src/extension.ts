@@ -438,13 +438,14 @@ export function activate(activation: ActivationContext) {
         "theory.reference",
     );
 
-    // ── TEMP: Open Website test ───────────────────────────────────────
-    // The SDK has no openUrl API; this tests whether the Node runtime's
-    // child_process escape hatch can launch the system browser. If it
-    // works, the URL becomes theoryaide.fishfvch.com once that's live.
+    // ── Open Website ──────────────────────────────────────────────────
+    // The SDK has no openUrl API; the Node runtime's child_process escape
+    // hatch launches the system browser instead (verified in Live on
+    // Windows). Unsanctioned, may break in a future host; worth an
+    // Ableton feature request.
 
     context.commands.registerCommand("theory.openWebsite", (_arg: unknown) => {
-        const url = "http://localhost:8124/"; // Eleventy dev server (npm run site:dev)
+        const url = "https://www.fishfvch.com/";
         const cmd =
             process.platform === "win32"  ? `start "" "${url}"` :
             process.platform === "darwin" ? `open "${url}"` :
@@ -459,7 +460,7 @@ export function activate(activation: ActivationContext) {
 
     void context.ui.registerContextMenuAction(
         "Scene",
-        "Theory Aide > Open Website (test)…",
+        "Theory Aide > Open Website…",
         "theory.openWebsite",
     );
 

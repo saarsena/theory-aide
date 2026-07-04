@@ -12,8 +12,12 @@ I am trying to make music theory useful inside the writing process.
 
 It is not meant to replace taste. It is meant to support you and make you more confident in your ability to express creativity.
 
-See [DESIGN.md](DESIGN.md) for the full positioning and roadmap, and
-[CHANGELOG.md](CHANGELOG.md) for release history.
+Theory Aide is also a website: **[www.fishfvch.com](https://www.fishfvch.com)**,
+a free music theory course, dictionary, and set of live demos running the
+exact same analysis engine as the extension. Learn it on the site, catch it
+in your music. The site's sources live in this repo under `site/`
+(authoring guide: [site/README.md](site/README.md), curriculum map:
+[site/CURRICULUM.md](site/CURRICULUM.md)).
 
 ![11](11.png)
 ![22](22.png)

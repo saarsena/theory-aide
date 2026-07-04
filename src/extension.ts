@@ -91,7 +91,7 @@ function liveKey(song: Song<"1.0.0">): { root: number; scale: Scale; label: stri
     const scale = pattern
         ? new Scale(root, pattern)
         : Scale.fromIntervals(root, song.scaleIntervals.map(Number), liveName);
-    const rootName = noteName(root);
+    const rootName = noteName(root, pattern ? keyUsesFlats(root, pattern) : false);
     return { root, scale, label: `${rootName} ${liveName}` };
 }
 
@@ -473,10 +473,11 @@ export function activate(activation: ActivationContext) {
             const primerData = lk
                 ? {
                     key: { root: lk.root, scaleName: lk.scale.patternName, label: lk.label },
+                    useFlats,
                     scaleNotes: lk.scale.notes,
                     scaleNoteNames: lk.scale.notes.map(pc => noteName(pc, useFlats)),
                 }
-                : { key: null, scaleNotes: [], scaleNoteNames: [] };
+                : { key: null, useFlats: false, scaleNotes: [], scaleNoteNames: [] };
             await showHtml(context, primerHtml, "__PRIMER_JSON__", primerData, 840, 660);
         })().catch(err => {
             console.error("[theory-aide] primer failed:", err);
@@ -1095,6 +1096,7 @@ interface DiatonicChordInfo {
 
 interface ReferenceData {
     key: { root: number; scaleName: string; label: string; source: "live" | "unavailable" };
+    useFlats: boolean;
     scaleNoteNames: string[];
     scaleNotes: number[];
     scaleFormula: number[];
@@ -1134,6 +1136,7 @@ function buildReferenceData(song: Song<"1.0.0">): ReferenceData {
 
     return {
         key:          { root, scaleName, label, source },
+        useFlats,
         scaleNoteNames: scale.notes.map(pc => noteName(pc, useFlats)),
         scaleNotes:   scale.notes,
         scaleFormula: pattern ? [...pattern] : [],

@@ -3,7 +3,7 @@
 // so the UI can show *why* a key won).
 
 import { ROMAN, PARALLEL_MODE } from "./data.js";
-import { Chord, Scale, buildDiatonicChords, mod12, noteName } from "./core.js";
+import { Chord, Scale, buildDiatonicChords, keyUsesFlats, mod12, noteName } from "./core.js";
 
 // Candidate keys: 12 majors + 12 natural minors. More modes tend to tie
 // with a parent major and confuse the result more than they help.
@@ -68,7 +68,7 @@ export function inferKey(chords: readonly Chord[], topN = 3): KeyCandidate[] {
             score: Math.round(score * 1000) / 1000,
             diatonicCount,
             totalChords: chords.length,
-            label: keyLabel(root, scaleName),
+            label: keyLabel(root, scaleName, keyUsesFlats(root, scaleName)),
         });
     }
 
@@ -148,7 +148,11 @@ export function romanForChord(chord: Chord, scale: Scale): RomanLabel {
         }
     }
 
-    return { label: `?(${chord.name})`, borrowed: false, secondary: false };
+    return {
+        label: `?(${chord.getName(keyUsesFlats(scale.root, scale.patternName))})`,
+        borrowed: false,
+        secondary: false,
+    };
 }
 
 function scalePatternExists(name: string): boolean {

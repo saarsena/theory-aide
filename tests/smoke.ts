@@ -1,7 +1,7 @@
 // Smoke tests for the theory engine. Run with: npx tsx tests/smoke.ts
 // Golden values follow the chordgen-m4l / Composition Aide conventions.
 
-import { Chord, Scale, recognizeChord, noteName } from "../src/theory/core.js";
+import { Chord, Scale, keyUsesFlats, recognizeChord, noteName } from "../src/theory/core.js";
 import { inferKey, romanForChord, harmonicFunction, detectProgressions, type RomanLabel } from "../src/theory/analyzer.js";
 import { analyzeTimeline, type TimedNote } from "../src/theory/timeline.js";
 import { buildCompositionDimensionsData } from "../src/theory/dimensions.js";
@@ -54,6 +54,28 @@ check("infer C major from I-V-vi-IV", inferKey(IVViIV, 1)[0]?.label, "C major");
 const am = [new Chord(9, "minor"), new Chord(2, "minor"),
             new Chord(4, "major"), new Chord(9, "minor")];
 check("infer A minor from i-iv-V-i", inferKey(am, 1)[0]?.label, "A minor");
+
+// ── Enharmonic spelling ──────────────────────────────────────────────
+
+check("D minor spells with flats", keyUsesFlats(2, "natural_minor"), true);
+check("A major spells with sharps", keyUsesFlats(9, "major"), false);
+check("G dorian spells with flats (signature of F major)",
+    keyUsesFlats(7, "dorian"), true);
+check("D dorian spells plain (signature of C major)",
+    keyUsesFlats(2, "dorian"), false);
+check("pc 8 minor spells sharp (G# minor, five sharps, not Ab minor)",
+    keyUsesFlats(8, "natural_minor"), false);
+check("Bb chord name under flat spelling",
+    new Chord(10, "major").getName(true), "Bb");
+
+const bbm = [new Chord(10, "minor"), new Chord(3, "minor"),
+             new Chord(5, "major"), new Chord(10, "minor")];
+check("infer Bb minor (not A#) from i-iv-V-i", inferKey(bbm, 1)[0]?.label, "Bb minor");
+
+const fMaj = [new Chord(5, "major"), new Chord(10, "major"),
+              new Chord(0, "major"), new Chord(5, "major")];
+check("infer F major with flat spelling from I-IV-V-I",
+    inferKey(fMaj, 1)[0]?.label, "F major");
 
 // ── Roman numerals ───────────────────────────────────────────────────
 

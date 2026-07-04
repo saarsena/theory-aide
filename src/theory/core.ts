@@ -23,6 +23,39 @@ export function intervalBetween(a: number, b: number): number {
     return mod12(b - a);
 }
 
+// ── Enharmonic spelling ─────────────────────────────────────────────
+
+/** Semitones UP from a mode's tonic to its relative major's tonic, i.e.
+ *  the key whose signature the mode borrows (G dorian spells like F major). */
+const RELATIVE_MAJOR_OFFSET: Record<string, number> = {
+    "major":            0,
+    "lydian":           7,
+    "mixolydian":       5,
+    "dorian":           10,
+    "phrygian":         8,
+    "natural_minor":    3,
+    "harmonic_minor":   3,
+    "melodic_minor":    3,
+    "locrian":          1,
+    "pentatonic_major": 0,
+    "pentatonic_minor": 3,
+    "blues":            3,
+};
+
+/** Majors conventionally written with flats: F, Bb, Eb, Ab, Db, Gb. */
+const FLAT_MAJOR_ROOTS = new Set([5, 10, 3, 8, 1, 6]);
+
+/**
+ * Whether a key is conventionally spelled with flats (Bb in D minor, not
+ * A#). Decided by the relative major's key signature, so it covers every
+ * mode. Unknown/custom scales default to sharps.
+ */
+export function keyUsesFlats(root: number, scaleName: string): boolean {
+    const offset = RELATIVE_MAJOR_OFFSET[scaleName];
+    if (offset === undefined) return false;
+    return FLAT_MAJOR_ROOTS.has(mod12(root + offset));
+}
+
 // ── Scale ───────────────────────────────────────────────────────────
 
 export class Scale {

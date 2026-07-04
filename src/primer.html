@@ -563,7 +563,9 @@ var DATA = __PRIMER_JSON__;
 })();
 
 // ── Constants (must be defined before any IIFE that uses them) ────────
-var NOTE_NAMES = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+var NOTE_NAMES = DATA.useFlats
+  ? ["C","Db","D","Eb","E","F","Gb","G","Ab","A","Bb","B"]
+  : ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
 // White-key pitch classes in keyboard order
 var WHITE_KEYS_PCS = [0,2,4,5,7,9,11];
 // Black key definitions: pitch class + left-px offset within one octave
@@ -820,8 +822,7 @@ function countFifths(pcs) {
 function getRelativeMajor(root, scaleName) {
   if (!scaleName.includes("minor")) return "";
   var relRoot = ((root + 3) % 12 + 12) % 12;
-  var names = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
-  return names[relRoot] + " major";
+  return NOTE_NAMES[relRoot] + " major";
 }
 
 function buildPiano(scaleNotes, root) {

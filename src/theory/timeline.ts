@@ -3,7 +3,7 @@
 // of stable harmony, and flag notes that fight the chord and key.
 // This is the part neither a VST nor a single-clip tool can do.
 
-import { Chord, Scale, mod12, noteName, recognizeChord } from "./core.js";
+import { Chord, Scale, keyUsesFlats, mod12, noteName, recognizeChord } from "./core.js";
 import {
     KeyCandidate,
     RomanLabel,
@@ -571,15 +571,9 @@ export interface AnalyzeTimelineOptions {
     liveKey?: { root: number; scale: Scale; label: string } | undefined;
 }
 
-export function keyUsesFlats(root: number, scaleName: string): boolean {
-    if (scaleName === "major") {
-        return [5, 10, 3, 8, 1, 6].includes(mod12(root));
-    }
-    if (scaleName === "natural_minor") {
-        return [2, 7, 0, 5, 10, 3, 8].includes(mod12(root));
-    }
-    return false;
-}
+// Spelling policy lives in core.ts now; re-exported so existing imports
+// from this module keep working.
+export { keyUsesFlats };
 
 export function analyzeTimeline(
     notes: readonly TimedNote[],

@@ -96,6 +96,49 @@ essential concept in Track 2) and **Track 2 is never load-bearing** (if a
 spine article can't be understood without a Track 2 page, either the spine
 article is missing a paragraph or the Track 2 page belongs on the spine).
 
+### Track 2: the clusters (added 2026-07-04)
+
+Track 2 grows in named clusters, not one at a time. A cluster is a short
+teaching order through existing stubs (Part 3 still owns the stubs), and
+every Track 2 article must name the spine article(s) it hangs off, so
+nothing ends up like `organizing-time` did: live, good, and reachable from
+exactly one sentence. Slugs below are the Part 3 stub names.
+
+1. **The math of sound** (exists: `math`, `organizing-time`; next:
+   `harmonics`). Hangs off `what-is-a-note`, `pitch-and-octave` (which
+   already promises the harmonics story), `the-piano-roll`, `intervals`.
+2. **Harmony, continued** (exists: `roman-numerals`; next:
+   `seventh-chords` then `progressions` then `cadences`). Hangs off
+   `triads`, `keys`, `the-circle-of-fifths`.
+3. **Time and phrasing** (`the-beat` then `meter` then `subdivision` then
+   `rests-and-space` then `phrasing`; later `syncopation`, `groove`).
+   Hangs off `the-piano-roll`, `organizing-time`, `melody`. The spine
+   skipped rhythm entirely, so this cluster runs closest to the
+   load-bearing line: watch it. The extension's Rhythm & Phrasing panel
+   (phrase detection, breath points, the "delayed answer" move) finally
+   gets its teaching material here.
+4. **The modal ascent** (`minor-scales` then `modes` then
+   `borrowed-chords`; the Ring 3 wing `modal-interchange` and
+   `chord-scale-thinking` waits for the harmony cluster to catch up).
+   Hangs off `the-major-scale`, `keys`, `the-circle-of-fifths`.
+
+**The interleave rule (decided 2026-07-04):** clusters 3 and 4 are one
+climb. A mode is a palette; phrasing is how you say anything with it, and
+teaching modes without phrasing trains scale-runners. The climb follows the
+sequence the site's author was actually taught (blues boxes first, then
+modes across the whole neck, then which modes speak over which chords and
+progressions): **safe palette, then phrasing, then palettes, then
+application.** The safe palette is `pentatonic-and-blues`, five notes you
+can't get wrong, which is why the blues box teaches phrasing: pitch anxiety
+is removed and all attention lands on when, how long, and where to breathe.
+Suggested reading order: `pentatonic-and-blues`, `the-beat`, `meter`,
+`rests-and-space`, `phrasing`, `minor-scales`, `modes`, `borrowed-chords`,
+with `chord-scale-thinking` (the "what speaks over what" assignment) as the
+Ring 3 summit. The modal articles demo improvised phrases, not scale
+charts, in the improv-instructor voice that is this site's origin story.
+The planned `/tracks/` page presents Track 1 as the course and these
+clusters as the named paths beyond it.
+
 ## Part 3: The trails
 
 Eight trails plus one optional side trail. Each article stub is
@@ -140,6 +183,9 @@ keys, melodies, chords.
   scale climb from any root
 - `minor-scales` · Natural, harmonic, melodic: three flavors of sad and what
   each is for
+- `pentatonic-and-blues` **(exists)** · Five notes you can't get wrong: the
+  improviser's sandbox, where phrasing gets learned because pitch is safe ·
+  demo: dice-rolled phrases over a drone, safe palette vs all twelve notes
 - `keys` **(exists)** · What "in C major" means. The tonic as home, and how
   every other note gets its job from where home is · demo: same melody,
   landed vs hanging ending
@@ -159,10 +205,11 @@ and at Ring 3 it becomes the jazz and modal wing.
 
 Ring 1:
 
-- `chords-in-a-key` · The seven chords a key gives you for free, and why
-  most songs never need more · demo: explain panel, Roman numerals
-- `roman-numerals` · Naming chords by their job instead of their letter, so
-  a progression means the same thing in every key · demo: explain panel
+- `roman-numerals` **(exists)** · The seven chords a key gives you for
+  free, and naming them by their job instead of their letter, so a
+  progression means the same thing in every key · demo: engine-named
+  progressions across all twelve keys (absorbed the former
+  `chords-in-a-key` stub; one lesson, decided 2026-07-04)
 - `progressions` · Why some chord orders feel inevitable and others feel
   random. The pull, in plain terms · demo: harmonic timeline
 - `seventh-chords` · Add one more third and chords learn to lean. Major 7,

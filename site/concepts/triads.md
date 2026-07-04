@@ -13,6 +13,7 @@ lead: >-
   chord you have ever heard is a triad or a triad wearing accessories.
 see_also:
   - intervals|Intervals
+  - roman-numerals|Roman numerals
   - triad
   - chord
   - root
@@ -78,8 +79,8 @@ pattern. When the Theory Aide extension explains a clip or spells your
 arrangement's harmony beat by beat, the code doing the naming is the exact
 code in the demo above, unmodified: it measures the intervals in the stack
 and recognizes the flavor. Which triads a key gives you for free, and why
-they come out major in some slots and minor in others, is the next article
-on the harmony trail, and it is where chords stop being objects and start
-being a language.
+they come out major in some slots and minor in others, is
+[[roman-numerals|Roman numerals]], and it is where chords stop being
+objects and start being a language.
 
 <script src="/assets/triads.js"></script>

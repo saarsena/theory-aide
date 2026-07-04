@@ -24,6 +24,7 @@ see_also:
   - melody
   - contour
   - intervals|Intervals
+  - pentatonic-and-blues|Pentatonic and blues
   - voices|Voices
 ---
 ## Three shapes

@@ -23,6 +23,7 @@ see_also:
   - scale
   - semitone
   - keys|Keys
+  - pentatonic-and-blues|Pentatonic and blues
   - the-piano-roll|The piano roll
 ---
 ## Climb it

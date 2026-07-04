@@ -63,8 +63,11 @@ rhythm: countable, tappable, the territory of the [[beat]]. Above it, the
 same slices fuse into [[pitch]]. A note is a rhythm too fast to count, and
 [[frequency]] in [[hertz]] is just "events per second" wearing a lab coat;
 the 220 back-and-forths from [[what-is-a-note|What is a note]] are a drum
-roll your ear gave up counting. Composers have known this border is fake
-for a while. Stockhausen wrote a whole essay on rhythm and pitch being one
+roll your ear gave up counting. This is one of two roads into the same
+country: here we follow time, and watch rhythm speed up into pitch, while
+[[math|The math behind music]] follows ratio, and watches those pitches
+stack into chords and keys until the numbers no longer fit. Composers have
+known this border is fake for a while. Stockhausen wrote a whole essay on rhythm and pitch being one
 continuum, and then built pieces where one melts into the other.
 
 ## The zoom lens

@@ -35,5 +35,12 @@
   "melody": "A sequence of single notes heard as one continuous line with a shape.",
   "contour": "The overall shape of a melody: where it rises, peaks, and falls.",
   "voice": "One continuous musical line in a texture, whether or not anyone is singing.",
-  "circle of fifths": "The twelve keys arranged in a wheel so neighbors differ by one note. Distance on the circle is harmonic distance."
+  "circle of fifths": "The twelve keys arranged in a wheel so neighbors differ by one note. Distance on the circle is harmonic distance.",
+  "diatonic": "Belonging to the key: built only from the scale's own notes.",
+  "roman numeral": "A chord named by its scale degree instead of its letter, so the name survives a key change.",
+  "pentatonic": "A five-note scale with no semitones, so nothing in it clashes or demands resolution.",
+  "drone": "A note held or repeated under everything else, giving the ear a fixed home to measure against.",
+  "equal temperament": "Tuning that splits the octave into twelve identical steps, so every key is equally playable and equally, slightly, out of tune.",
+  "just intonation": "Tuning built from pure small-number ratios: flawless in one key, unusable in the others.",
+  "cent": "One hundredth of a semitone, the unit for measuring tiny differences in tuning."
 }

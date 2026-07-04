@@ -9,6 +9,8 @@ extensions-sdk-1.0.0-beta.0/
 /CHANGELOG.md
 /DESIGN.md
 /KNOWN_ISSUES.md
+/FEATURES.md
 *.midi
 DONE.md
 _site/
+*.sublime*

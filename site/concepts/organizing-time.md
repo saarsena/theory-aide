@@ -3,7 +3,7 @@ title: Organizing time
 heading: Music is the art of organizing time
 summary: >-
   Hear a rhythm accelerate until it becomes a pitch, then ride the zoom lens
-  from song form all the way down to timbre. It is time slices the whole way.
+  from song form all the way down to timbre. It is time slices all the way down.
 category: math and acoustics
 lead: >-
   Strip everything else away and a piece of music is a stack of decisions
@@ -48,21 +48,20 @@ to the moment you stop being able to count:
 
 Somewhere around twenty clicks per second something gives. Your ear stops
 reporting *events* and starts reporting *a tone*. Keep dragging and the tone
-rises like any other note; park at 110 and you are hearing A1, built out of
+rises like any other note. Park it at 110 and you are hearing A1, built out of
 nothing but the rhythm you were tapping a moment ago.
 
 ## The border in your ear
 
-Here is what did not change during that sweep: anything about the click. The
-demo plays one recorded click in a loop, and the slider only changes how
-often it repeats. The whole difference between rhythm and pitch, in that
-demo and in general, is speed.
+Nothing about the clicks changed during that sweep. The demo plays one 
+recorded click in a loop, and the slider only changes how often it repeats. 
+The whole difference between rhythm and pitch, in that demo and in general, is speed.
 
 Below roughly twenty events per second, you experience time slices as
 rhythm: countable, tappable, the territory of the [[beat]]. Above it, the
 same slices fuse into [[pitch]]. A note is a rhythm too fast to count, and
-[[frequency]] in [[hertz]] is just "events per second" wearing a lab coat;
-the 220 back-and-forths from [[what-is-a-note|What is a note]] are a drum
+[[frequency]] in [[hertz]] is just "events per second" dressed up with another name.
+The 220 back-and-forths from [[what-is-a-note|What is a note]] are a drum
 roll your ear gave up counting. This is one of two roads into the same
 country: here we follow time, and watch rhythm speed up into pitch, while
 [[math|The math behind music]] follows ratio, and watches those pitches

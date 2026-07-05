@@ -16,10 +16,15 @@ const E_RANGE = 110; // 220 / 2
 const eventsFromSlider = () => E_MIN * Math.pow(E_RANGE, Number(slider.value) / 1000);
 
 const WINDOW_SEC = 1;     // canvas shows one second of clicks
-const PHASE_STEP = 0.001; // radians per frame per event/sec ≈ 100× slower
 
 let events = eventsFromSlider();
-let phase = 0;
+// Visual scroll position, in whole click-cycles. Advanced by real elapsed
+// time (the audio clock while playing) rather than a fixed step per frame,
+// so the drawn clicks stay locked to the clicks you hear at any rate and
+// any refresh rate.
+let cyclesAccum = 0;
+let lastClock = 0;
+let clockAnchored = false;
 
 const css = (name: string) =>
     getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -78,6 +83,7 @@ function startClicks(): void {
     src.playbackRate.setValueAtTime(events / BASE_RATE, t);
     src.connect(gain);
     src.start();
+    clockAnchored = false; // re-anchor onto the audio clock next frame
     hearBtn.textContent = "Stop";
     hearBtn.classList.add("active");
 }
@@ -91,6 +97,7 @@ function stopClicks(): void {
     src.stop(t + 0.06);
     src = null;
     gain = null;
+    clockAnchored = false; // re-anchor off the audio clock next frame
     hearBtn.textContent = "Hear it";
     hearBtn.classList.remove("active");
 }
@@ -116,6 +123,15 @@ function draw(): void {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
 
+    // Advance the scroll by real elapsed seconds, using the audio clock
+    // while playing so the picture cannot drift from the sound.
+    const now = (audio && src) ? audio.currentTime : performance.now() / 1000;
+    if (!clockAnchored) { lastClock = now; clockAnchored = true; }
+    let dt = now - lastClock;
+    lastClock = now;
+    if (dt < 0 || dt > 0.25) dt = 0; // ignore clock-source switches and tab sleeps
+    cyclesAccum += events * dt;
+
     const base = h * 0.82;
     ctx.strokeStyle = css("--line") || "#c8c4bd";
     ctx.lineWidth = 1;
@@ -131,7 +147,7 @@ function draw(): void {
     ctx.lineWidth = 1.5;
     ctx.beginPath();
     for (let px = 0; px <= w; px++) {
-        const cyc = cycles * (px / w) - phase / (2 * Math.PI);
+        const cyc = cycles * (px / w) - cyclesAccum;
         const frac = ((cyc % 1) + 1) % 1;
         const y = base - h * 0.62 * Math.exp(-frac * 14);
         if (px === 0) ctx.moveTo(px, y);
@@ -141,9 +157,8 @@ function draw(): void {
 
     ctx.fillStyle = css("--dim") || "#666";
     ctx.font = "11px system-ui, sans-serif";
-    ctx.fillText("the clicks, slowed about 100×: still just clicks", 10, 16);
+    ctx.fillText("the clicks you hear, drawn in real time", 10, 16);
 
-    phase += events * PHASE_STEP * 2 * Math.PI;
     requestAnimationFrame(draw);
 }
 

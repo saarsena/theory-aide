@@ -67,6 +67,8 @@ export default [
             { slug: "subdivision", title: "Subdivision" },
             { slug: "rests-and-space", title: "Rests and space" },
             { slug: "phrasing", title: "Phrasing" },
+            { slug: "minor-scales", title: "Minor scales" },
+            { slug: "modes", title: "Modes" },
         ],
     },
 ];

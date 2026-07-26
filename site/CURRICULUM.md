@@ -124,7 +124,7 @@ with previous/next links on every clustered article, and presented on the
    load-bearing line: watch it. The extension's Rhythm & Phrasing panel
    (phrase detection, breath points, the "delayed answer" move) finally
    gets its teaching material here.
-4. **The modal ascent** (`minor-scales` then `modes` then
+4. **The modal ascent** (exists: `minor-scales`, `modes`; next:
    `borrowed-chords`; the Ring 3 wing `modal-interchange` and
    `chord-scale-thinking` waits for the harmony cluster to catch up).
    Hangs off `the-major-scale`, `keys`, `the-circle-of-fifths`.
@@ -190,8 +190,10 @@ keys, melodies, chords.
 - `the-major-scale` **(exists)** · The step pattern most Western music walks
   on, and how to build it from any note in the piano roll · demo: mini-roll
   scale climb from any root
-- `minor-scales` · Natural, harmonic, melodic: three flavors of sad and what
-  each is for
+- `minor-scales` **(exists)** · The same notes, a new home: relative keys as
+  the keyhole into the modes, then the three minors as one missing magnet and
+  two repairs · demo: the movable home (white keys resting on C or A, with
+  natural/harmonic/melodic switches over a drone)
 - `pentatonic-and-blues` **(exists)** · Five notes you can't get wrong: the
   improviser's sandbox, where phrasing gets learned because pitch is safe ·
   demo: dice-rolled phrases over a drone, safe palette vs all twelve notes
@@ -234,8 +236,10 @@ Ring 2:
 - `the-circle-of-fifths` **(exists)** · The map of keys: why neighbors share
   notes and what "closely related" actually measures · demo: clickable
   wheel, hear each key's distance from C
-- `modes` · One scale, seven homes. Dorian, Lydian, Mixolydian and the rest,
-  taught the way an improviser learns them · demo: analyzer
+- `modes` **(exists)** · Seven homes, one bass: the mode lives in the drone,
+  not the scale, taught the way an improviser learns them · demo: white keys
+  over a movable drone, move-the-home and one-root views, Locrian's missing
+  fifth audible
 - `borrowed-chords` · Stealing from the parallel key for color, and why the
   minor iv in a major song hits like it does · demo: explain panel borrowed
   badges

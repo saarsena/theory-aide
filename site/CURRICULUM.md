@@ -117,7 +117,8 @@ with previous/next links on every clustered article, and presented on the
    `seventh-chords` then `progressions` then `cadences`). Hangs off
    `triads`, `keys`, `the-circle-of-fifths`.
 3. **Time and phrasing** (exists: `the-beat`, `meter`, `subdivision`,
-   `rests-and-space`; next: `phrasing`; later `syncopation`, `groove`).
+   `rests-and-space`, `phrasing`, the cluster's core run complete; later
+   `syncopation`, `groove`).
    Hangs off `the-piano-roll`, `organizing-time`, `melody`. The spine
    skipped rhythm entirely, so this cluster runs closest to the
    load-bearing line: watch it. The extension's Rhythm & Phrasing panel
@@ -322,8 +323,10 @@ Ring 1:
 
 Ring 2:
 
-- `phrasing` · Musical sentences: where lines breathe, and why four and
-  eight keep showing up · demo: rhythm panel
+- `phrasing` **(exists)** · Musical sentences: where lines breathe, and why
+  four and eight keep showing up · demo: one pentatonic sentence five ways
+  (question / answer / both / no breaths / delayed answer), presets verified
+  against the rhythm engine
 - `groove` · Velocity, micro-timing, repetition: why two identical patterns
   feel different · demo: rhythm panel
 - `polyrhythm` · Two pulses at once: three against two, and why it shimmers

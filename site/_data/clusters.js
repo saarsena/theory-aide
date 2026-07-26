@@ -66,6 +66,7 @@ export default [
             { slug: "meter", title: "Meter" },
             { slug: "subdivision", title: "Subdivision" },
             { slug: "rests-and-space", title: "Rests and space" },
+            { slug: "phrasing", title: "Phrasing" },
         ],
     },
 ];

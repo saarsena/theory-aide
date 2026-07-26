@@ -116,7 +116,7 @@ with previous/next links on every clustered article, and presented on the
 2. **Harmony, continued** (exists: `roman-numerals`; next:
    `seventh-chords` then `progressions` then `cadences`). Hangs off
    `triads`, `keys`, `the-circle-of-fifths`.
-3. **Time and phrasing** (exists: `the-beat`; next: `meter` then
+3. **Time and phrasing** (exists: `the-beat`, `meter`; next:
    `subdivision` then `rests-and-space` then `phrasing`; later
    `syncopation`, `groove`).
    Hangs off `the-piano-roll`, `organizing-time`, `melody`. The spine
@@ -171,8 +171,9 @@ opened a theory book starts.
 - `the-beat` **(exists)** · The pulse your foot finds. Tempo as beats per
   minute, and why 128 BPM feels different from 90 · demo: metronome, 40 to
   220 BPM, with the half-time regrouping audible at the top
-- `meter` · How beats group into bars: what 4/4 actually says, and the
-  neighbors (3/4, 6/8) · *(spiral: Trail 5)*
+- `meter` **(exists)** · How beats group into bars: what 4/4 actually says,
+  and the neighbors (3/4, 6/8) · demo: Bolton's identical-clicks illusion,
+  then an accent picker with six pulses cut 3+3 vs 2+2+2 · *(spiral: Trail 5)*
 - `the-piano-roll` · The piano roll is a map: pitch up, time across. Reading
   Live's grid as real notation, because it is
 
@@ -304,7 +305,7 @@ Purpose: rhythm, from finding the pulse to breaking the grid on purpose.
 Ring 0:
 
 - `the-beat` **(exists)** · *(spiral: Trail 1)*
-- `meter` · *(spiral: Trail 1)*
+- `meter` **(exists)** · *(spiral: Trail 1)*
 
 Ring 1:
 

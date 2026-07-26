@@ -63,6 +63,7 @@ export default [
         articles: [
             { slug: "pentatonic-and-blues", title: "Pentatonic and blues" },
             { slug: "the-beat", title: "The beat" },
+            { slug: "meter", title: "Meter" },
         ],
     },
 ];

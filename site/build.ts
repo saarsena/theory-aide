@@ -15,6 +15,7 @@ await esbuild.build({
         "site/src/roll.ts",
         "site/src/pulse.ts",
         "site/src/beat.ts",
+        "site/src/meter.ts",
         "site/src/intervals.ts",
         "site/src/triads.ts",
         "site/src/scale.ts",

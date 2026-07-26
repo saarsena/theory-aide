@@ -13,6 +13,7 @@ extensions-sdk-1.0.0-beta.0/
 *.midi
 DONE.md
 _site/
-*.sublime*extensions-sdk/
+*.sublime*
+extensions-sdk/
 extensions-sdk-1.0.0-beta.0
 extensions-sdk-1.0.0-beta.0.zip

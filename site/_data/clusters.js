@@ -73,6 +73,7 @@ export default [
             { slug: "minor-scales", title: "Minor scales" },
             { slug: "modes", title: "Modes" },
             { slug: "borrowed-chords", title: "Borrowed chords" },
+            { slug: "chord-scale-thinking", title: "Chord-scale thinking" },
         ],
     },
 ];

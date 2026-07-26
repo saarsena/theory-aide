@@ -126,7 +126,7 @@ with previous/next links on every clustered article, and presented on the
    (phrase detection, breath points, the "delayed answer" move) finally
    gets its teaching material here.
 4. **The modal ascent** (exists: `minor-scales`, `modes`,
-   `borrowed-chords`, the cluster's core run complete; the Ring 3 wing `modal-interchange` and
+   `borrowed-chords`, and the Ring 3 summit `chord-scale-thinking`; the Ring 3 wing `modal-interchange` and
    `chord-scale-thinking` waits for the harmony cluster to catch up).
    Hangs off `the-major-scale`, `keys`, `the-circle-of-fifths`.
 
@@ -265,8 +265,10 @@ Ring 3 (the jazz and modal wing):
   where jazz keeps its spice
 - `the-ii-V-I` · The engine of jazz harmony: why this three-chord cell is
   everywhere and how to hear it coming
-- `chord-scale-thinking` · Every chord implies a scale; every scale implies
-  chords. The improviser's two-way street
+- `chord-scale-thinking` **(exists)** · Every chord implies a scale; every
+  scale implies chords. The improviser's two-way street · demo: the
+  pentatonic dice over a ii-V-I, four pools (chord tones / frozen scale /
+  moving palette / lydian color), the identical-notes claim engine-verified
 - `modal-interchange` · Borrowing systematized: the full palette of parallel
   modes as one big pantry
 - `substitutions` · Tritone subs and friends: swapping a chord for one that

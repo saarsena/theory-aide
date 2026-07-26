@@ -26,6 +26,7 @@ await esbuild.build({
         "site/src/progressions.ts",
         "site/src/cadences.ts",
         "site/src/chordscale.ts",
+        "site/src/energy.ts",
         "site/src/intervals.ts",
         "site/src/triads.ts",
         "site/src/scale.ts",

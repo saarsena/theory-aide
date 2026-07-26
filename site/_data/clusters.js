@@ -51,6 +51,21 @@ export default [
         ],
     },
     {
+        id: "the-big-picture",
+        name: "The big picture",
+        purpose:
+            "Form and arrangement: how minutes of music hold together, and " +
+            "where a track keeps its tension.",
+        hangsOff: [
+            { slug: "the-piano-roll", title: "The piano roll" },
+            { slug: "voices", title: "Voices" },
+            { slug: "melody", title: "Melody" },
+        ],
+        articles: [
+            { slug: "energy", title: "Energy" },
+        ],
+    },
+    {
         id: "the-climb",
         name: "The climb",
         purpose:

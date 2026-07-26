@@ -130,6 +130,13 @@ with previous/next links on every clustered article, and presented on the
    `chord-scale-thinking` waits for the harmony cluster to catch up).
    Hangs off `the-major-scale`, `keys`, `the-circle-of-fifths`.
 
+5. **The big picture** (added 2026-07-26; exists: `energy`; next:
+   `sections` then `texture`). Hangs off `the-piano-roll`, `voices`,
+   `melody`. Born from the "progressions are a trap in dance music"
+   debate: the audience of a loop-based DAW tool is exactly who that
+   argument is about, and this cluster is where the site addresses form
+   and arrangement as tension's other home.
+
 **The interleave rule (decided 2026-07-04):** clusters 3 and 4 are one
 climb. A mode is a palette; phrasing is how you say anything with it, and
 teaching modes without phrasing trains scale-runners. The climb follows the
@@ -363,8 +370,12 @@ Purpose: form and arrangement, how minutes of music hold together.
   standard floor plans and why they persist · demo: form analysis
 - `repetition-and-variation` · The fundamental trade: enough repetition to
   hold on, enough change to stay awake
-- `energy` · How arrangements breathe: density, register, and activity as
-  an energy curve across the song · demo: dimensions panel
+- `energy` **(exists)** · How arrangements breathe: density, register, and
+  activity as an energy curve across the song, framed by the progressions
+  debate · demo: the budget (chord journey vs arrangement journey) and the
+  implied journey (mode-shifting melody over a parked drone, the timeline's
+  heard chords, dorian flag, and tension arc quoted verbatim) · longer than
+  house length on purpose, the flagship argument piece
 - `texture` · Layers and their roles: who has the foreground, who has the
   floor, who is glue · demo: timbre panel
 - `dynamics-and-timbre` · Loudness and tone color as arrangement tools, not

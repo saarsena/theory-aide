@@ -46,6 +46,7 @@ export default [
         articles: [
             { slug: "roman-numerals", title: "Roman numerals" },
             { slug: "seventh-chords", title: "Seventh chords" },
+            { slug: "progressions", title: "Progressions" },
         ],
     },
     {

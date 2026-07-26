@@ -113,8 +113,8 @@ with previous/next links on every clustered article, and presented on the
 1. **The math of sound** (exists: `math`, `organizing-time`; next:
    `harmonics`). Hangs off `what-is-a-note`, `pitch-and-octave` (which
    already promises the harmonics story), `the-piano-roll`, `intervals`.
-2. **Harmony, continued** (exists: `roman-numerals`, `seventh-chords`;
-   next: `progressions` then `cadences`). Hangs off
+2. **Harmony, continued** (exists: `roman-numerals`, `seventh-chords`,
+   `progressions`; next: `cadences`). Hangs off
    `triads`, `keys`, `the-circle-of-fifths`.
 3. **Time and phrasing** (exists: `the-beat`, `meter`, `subdivision`,
    `rests-and-space`, `phrasing`, the cluster's core run complete; later
@@ -221,8 +221,10 @@ Ring 1:
   progression means the same thing in every key · demo: engine-named
   progressions across all twelve keys (absorbed the former
   `chords-in-a-key` stub; one lesson, decided 2026-07-04)
-- `progressions` · Why some chord orders feel inevitable and others feel
-  random. The pull, in plain terms · demo: harmonic timeline
+- `progressions` **(exists)** · Why some chord orders feel inevitable and
+  others feel random. The pull, in plain terms · demo: one chord pool, four
+  orderings (pop loop, dark start, schoolbook, wanderer), three named by
+  detectProgressions and the wanderer verified to match nothing
 - `seventh-chords` **(exists)** · Add one more third and chords learn to
   lean. Major 7, dominant 7, minor 7, half-diminished · demo: the flavor lab
   (four qualities on one root, triad/+7th toggle) and the lean (G-C vs G7-C,

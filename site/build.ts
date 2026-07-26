@@ -24,6 +24,7 @@ await esbuild.build({
         "site/src/borrowed.ts",
         "site/src/sevenths.ts",
         "site/src/progressions.ts",
+        "site/src/cadences.ts",
         "site/src/intervals.ts",
         "site/src/triads.ts",
         "site/src/scale.ts",

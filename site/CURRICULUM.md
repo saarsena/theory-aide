@@ -114,7 +114,8 @@ with previous/next links on every clustered article, and presented on the
    `harmonics`). Hangs off `what-is-a-note`, `pitch-and-octave` (which
    already promises the harmonics story), `the-piano-roll`, `intervals`.
 2. **Harmony, continued** (exists: `roman-numerals`, `seventh-chords`,
-   `progressions`; next: `cadences`). Hangs off
+   `progressions`, `cadences`, the cluster's core run complete, which
+   unblocks the climb's Ring 3 summit `chord-scale-thinking`). Hangs off
    `triads`, `keys`, `the-circle-of-fifths`.
 3. **Time and phrasing** (exists: `the-beat`, `meter`, `subdivision`,
    `rests-and-space`, `phrasing`, the cluster's core run complete; later
@@ -229,8 +230,10 @@ Ring 1:
   lean. Major 7, dominant 7, minor 7, half-diminished · demo: the flavor lab
   (four qualities on one root, triad/+7th toggle) and the lean (G-C vs G7-C,
   the tritone resolving), names verified against the recognizer
-- `cadences` · How music punctuates: full stops, commas, and question marks
-  at the ends of phrases
+- `cadences` **(exists)** · How music punctuates: full stops, commas, and
+  question marks at the ends of phrases · demo: one phrase, four endings
+  (authentic, plagal, half, deceptive) with a silent breath bar, the first
+  two named by the engine's templates
 
 Ring 2:
 

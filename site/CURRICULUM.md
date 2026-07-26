@@ -116,9 +116,9 @@ with previous/next links on every clustered article, and presented on the
 2. **Harmony, continued** (exists: `roman-numerals`; next:
    `seventh-chords` then `progressions` then `cadences`). Hangs off
    `triads`, `keys`, `the-circle-of-fifths`.
-3. **Time and phrasing** (exists: `the-beat`, `meter`; next:
-   `subdivision` then `rests-and-space` then `phrasing`; later
-   `syncopation`, `groove`).
+3. **Time and phrasing** (exists: `the-beat`, `meter`, `subdivision`;
+   next: `rests-and-space` then `phrasing`; later `syncopation`,
+   `groove`).
    Hangs off `the-piano-roll`, `organizing-time`, `melody`. The spine
    skipped rhythm entirely, so this cluster runs closest to the
    load-bearing line: watch it. The extension's Rhythm & Phrasing panel
@@ -309,8 +309,10 @@ Ring 0:
 
 Ring 1:
 
-- `subdivision` · Eighths, sixteenths, triplets: slicing the beat, and what
-  the grid settings in Live actually choose
+- `subdivision` **(exists)** · Eighths, sixteenths, triplets: slicing the
+  beat, and what the grid settings in Live actually choose · demo: slice
+  picker over a steady bar, plus the beats-or-slices flip (one train,
+  weights decide)
 - `rests-and-space` · Silence as material: the notes you don't play are
   doing work
 - `syncopation` · Accents landing off the strong beats: the pushed, alive

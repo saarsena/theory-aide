@@ -16,6 +16,7 @@ await esbuild.build({
         "site/src/pulse.ts",
         "site/src/beat.ts",
         "site/src/meter.ts",
+        "site/src/subdivision.ts",
         "site/src/intervals.ts",
         "site/src/triads.ts",
         "site/src/scale.ts",

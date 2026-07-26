@@ -65,6 +65,7 @@ export default [
             { slug: "the-beat", title: "The beat" },
             { slug: "meter", title: "Meter" },
             { slug: "subdivision", title: "Subdivision" },
+            { slug: "rests-and-space", title: "Rests and space" },
         ],
     },
 ];

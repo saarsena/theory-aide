@@ -6,8 +6,12 @@ layout: base.njk
    body, See also, category line, and the empty comments mount point. #}
 <article>
   {%- set spinePos = page.fileSlug | spineInfo %}
+  {%- set clusterPos = false %}
+  {%- if not spinePos %}{% set clusterPos = page.fileSlug | clusterInfo %}{% endif %}
   {% if spinePos %}
   <div class="track-bar">Track 1 · article {{ spinePos.index }} of {{ spinePos.total }}</div>
+  {% elif clusterPos %}
+  <div class="track-bar track-2">Track 2 · <a href="/tracks/">{{ clusterPos.name }}</a>{% if clusterPos.total > 1 %} · article {{ clusterPos.index }} of {{ clusterPos.total }}{% endif %}</div>
   {% else %}
   <div class="track-bar track-2">Track 2 · depth beyond the spine</div>
   {% endif %}
@@ -31,6 +35,11 @@ layout: base.njk
   <nav class="spine-nav" aria-label="Track 1 navigation">
     {% if spinePos.prev %}<a href="/concepts/{{ spinePos.prev.slug }}/">← {{ spinePos.prev.title }}</a>{% else %}<span></span>{% endif %}
     {% if spinePos.next %}<a href="/concepts/{{ spinePos.next.slug }}/">{{ spinePos.next.title }} →</a>{% endif %}
+  </nav>
+  {% elif clusterPos and (clusterPos.prev or clusterPos.next) %}
+  <nav class="spine-nav" aria-label="{{ clusterPos.name }} navigation">
+    {% if clusterPos.prev %}<a href="/concepts/{{ clusterPos.prev.slug }}/">← {{ clusterPos.prev.title }}</a>{% else %}<span></span>{% endif %}
+    {% if clusterPos.next %}<a href="/concepts/{{ clusterPos.next.slug }}/">{{ clusterPos.next.title }} →</a>{% endif %}
   </nav>
   {% endif %}
 

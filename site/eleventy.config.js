@@ -7,6 +7,7 @@
 // site/README.md for the authoring guide and the slug-stability rule.
 import { readFileSync, readdirSync } from "node:fs";
 import spine from "./_data/spine.js";
+import clusters from "./_data/clusters.js";
 
 // Canonical glossary (same file the dictionary pages render from).
 const glossary = JSON.parse(
@@ -83,6 +84,24 @@ export default function (eleventyConfig) {
             prev: i > 0 ? spine[i - 1] : null,
             next: i < spine.length - 1 ? spine[i + 1] : null,
         };
+    });
+
+    // Track 2 cluster lookup: which named reading path (if any) an article
+    // belongs to, and its neighbors within that path. Mirrors spineInfo;
+    // spine membership wins, so this is only consulted off the spine.
+    eleventyConfig.addFilter("clusterInfo", (fileSlug) => {
+        for (const cluster of clusters) {
+            const i = cluster.articles.findIndex((a) => a.slug === fileSlug);
+            if (i < 0) continue;
+            return {
+                name: cluster.name,
+                index: i + 1,
+                total: cluster.articles.length,
+                prev: i > 0 ? cluster.articles[i - 1] : null,
+                next: i < cluster.articles.length - 1 ? cluster.articles[i + 1] : null,
+            };
+        }
+        return null;
     });
 
     // Give Markdown h2/h3 headings ids (slugified from their text) so the

@@ -104,14 +104,21 @@ every Track 2 article must name the spine article(s) it hangs off, so
 nothing ends up like `organizing-time` did: live, good, and reachable from
 exactly one sentence. Slugs below are the Part 3 stub names.
 
+Shipped cluster order lives in `site/_data/clusters.js` (the Track 2
+mirror of the spine file): each cluster's shipped articles in reading
+order, surfaced as a track bar ("Track 2 · The climb · article 2 of 2")
+with previous/next links on every clustered article, and presented on the
+`/tracks/` page (shipped 2026-07-25) alongside the full spine.
+
 1. **The math of sound** (exists: `math`, `organizing-time`; next:
    `harmonics`). Hangs off `what-is-a-note`, `pitch-and-octave` (which
    already promises the harmonics story), `the-piano-roll`, `intervals`.
 2. **Harmony, continued** (exists: `roman-numerals`; next:
    `seventh-chords` then `progressions` then `cadences`). Hangs off
    `triads`, `keys`, `the-circle-of-fifths`.
-3. **Time and phrasing** (`the-beat` then `meter` then `subdivision` then
-   `rests-and-space` then `phrasing`; later `syncopation`, `groove`).
+3. **Time and phrasing** (exists: `the-beat`; next: `meter` then
+   `subdivision` then `rests-and-space` then `phrasing`; later
+   `syncopation`, `groove`).
    Hangs off `the-piano-roll`, `organizing-time`, `melody`. The spine
    skipped rhythm entirely, so this cluster runs closest to the
    load-bearing line: watch it. The extension's Rhythm & Phrasing panel
@@ -161,8 +168,9 @@ opened a theory book starts.
   and flats, and why the piano roll's rows are striped
 - `loud-and-soft` · Amplitude, velocity, dynamics: the other axis of sound,
   and what those 0 to 127 numbers in Live mean
-- `the-beat` · The pulse your foot finds. Tempo as beats per minute, and why
-  128 BPM feels different from 90
+- `the-beat` **(exists)** · The pulse your foot finds. Tempo as beats per
+  minute, and why 128 BPM feels different from 90 · demo: metronome, 40 to
+  220 BPM, with the half-time regrouping audible at the top
 - `meter` · How beats group into bars: what 4/4 actually says, and the
   neighbors (3/4, 6/8) · *(spiral: Trail 5)*
 - `the-piano-roll` · The piano roll is a map: pitch up, time across. Reading
@@ -295,7 +303,7 @@ Purpose: rhythm, from finding the pulse to breaking the grid on purpose.
 
 Ring 0:
 
-- `the-beat` · *(spiral: Trail 1)*
+- `the-beat` **(exists)** · *(spiral: Trail 1)*
 - `meter` · *(spiral: Trail 1)*
 
 Ring 1:
@@ -415,10 +423,12 @@ The page tree as it should eventually exist. Descriptions only; pages marked
   (harmony, counterpoint, rhythm, math and acoustics, form). Exists.
 - `/concepts/<slug>/` · The articles. The trail lists in Part 3 are the
   complete planned inventory, roughly 75 articles. Two exist.
-- `/trails/` *(future)* · The curriculum overlay: Track 1 (the spine,
-  presented as "start here" with its full reading order) plus the eight
-  trails and the side trail, each with its purpose sentence. The spine data
-  already exists (`site/_data/spine.js`); this page presents it.
+- `/tracks/` · Track 1 in full reading order plus the Track 2 clusters
+  with their shipped articles. Exists (2026-07-25), rendered from
+  `site/_data/spine.js` and `site/_data/clusters.js`.
+- `/trails/` *(future)* · The deeper curriculum overlay: the eight trails
+  and the side trail, each with its purpose sentence, ring by ring. Parked
+  until enough articles exist to order.
 - `/trails/<trail>/` *(future)* · One page per trail: the ordered article
   list, ring by ring, with one line on why each article is where it is.
   Needs a small template; the ordering data could live in front matter or

@@ -1,0 +1,56 @@
+---
+layout: base.njk
+title: The two tracks
+summary: >-
+  Track 1 is the course: one ordered path that is complete on its own.
+  Track 2 is everything beyond it, organized into named reading paths.
+permalink: /tracks/
+---
+<h1>The two tracks</h1>
+
+<p class="lede">
+  This site is built as two interleaved tracks through one encyclopedia, an
+  idea borrowed with gratitude from Misner, Thorne, and Wheeler's
+  <em>Gravitation</em>, the physics textbook famously written that way.
+  Track 1 is the course. Track 2 is the depth.
+</p>
+
+<h2>Track 1: the spine</h2>
+
+<p>
+  One ordered chain of articles that is complete on its own: read only these,
+  in order, and you have genuinely learned to speak music. Every spine
+  article carries previous and next links, so you can simply keep pressing
+  next.
+</p>
+
+<ol>
+  {%- for a in spine %}
+  <li><a href="/concepts/{{ a.slug }}/">{{ a.title }}</a></li>
+  {%- endfor %}
+</ol>
+
+<h2>Track 2: the paths beyond</h2>
+
+<p>
+  Everything off the spine assumes Track 1 but is never required by it.
+  Skipping Track 2 costs depth, never continuity. It grows in named reading
+  paths, each hanging off particular spine articles, and each path below
+  lists what has shipped so far, in reading order. More lands as it is
+  written.
+</p>
+
+{%- for c in clusters %}
+<h3>{{ c.name }}</h3>
+<p>{{ c.purpose }}
+  Grows out of
+  {%- for s in c.hangsOff %}
+  <a href="/concepts/{{ s.slug }}/">{{ s.title }}</a>{% if not loop.last %},{% else %}.{% endif %}
+  {%- endfor %}
+</p>
+<ol>
+  {%- for a in c.articles %}
+  <li><a href="/concepts/{{ a.slug }}/">{{ a.title }}</a></li>
+  {%- endfor %}
+</ol>
+{%- endfor %}

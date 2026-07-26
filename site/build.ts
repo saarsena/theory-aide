@@ -14,6 +14,7 @@ await esbuild.build({
         "site/src/octave.ts",
         "site/src/roll.ts",
         "site/src/pulse.ts",
+        "site/src/beat.ts",
         "site/src/intervals.ts",
         "site/src/triads.ts",
         "site/src/scale.ts",

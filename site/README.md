@@ -50,6 +50,20 @@ marked Track 2. When a spine-worthy article ships, add it to the list in
 reading order; reorder freely (URLs never move, only the nav links).
 Restart the dev server after editing the spine, it is read at build start.
 
+## The clusters (Track 2)
+
+`site/_data/clusters.js` is the spine's Track 2 mirror: the named reading
+paths beyond the course (the cluster contract is in `site/CURRICULUM.md`).
+Each cluster has a `name`, a one-sentence `purpose`, the spine articles it
+`hangsOff`, and its shipped `articles` in reading order. A Track 2 article
+listed in a cluster gets a "Track 2 · \<cluster\> · article N of M" bar and
+previous/next navigation within its path; one not listed anywhere falls
+back to the generic Track 2 bar, which is the signal to go add it to a
+cluster. The `/tracks/` page renders the spine and all clusters from these
+two data files. An article belongs to at most one cluster. Same rules as
+the spine: add on ship, reorder freely, restart the dev server after
+editing.
+
 ## Wiki-links
 
 In article body, lead, and `see_also`, write `[[target]]` or

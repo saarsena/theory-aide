@@ -124,8 +124,8 @@ with previous/next links on every clustered article, and presented on the
    load-bearing line: watch it. The extension's Rhythm & Phrasing panel
    (phrase detection, breath points, the "delayed answer" move) finally
    gets its teaching material here.
-4. **The modal ascent** (exists: `minor-scales`, `modes`; next:
-   `borrowed-chords`; the Ring 3 wing `modal-interchange` and
+4. **The modal ascent** (exists: `minor-scales`, `modes`,
+   `borrowed-chords`, the cluster's core run complete; the Ring 3 wing `modal-interchange` and
    `chord-scale-thinking` waits for the harmony cluster to catch up).
    Hangs off `the-major-scale`, `keys`, `the-circle-of-fifths`.
 
@@ -240,9 +240,9 @@ Ring 2:
   not the scale, taught the way an improviser learns them · demo: white keys
   over a movable drone, move-the-home and one-root views, Locrian's missing
   fifth audible
-- `borrowed-chords` · Stealing from the parallel key for color, and why the
-  minor iv in a major song hits like it does · demo: explain panel borrowed
-  badges
+- `borrowed-chords` **(exists)** · Stealing from the parallel key for color,
+  and why the minor iv in a major song hits like it does · demo: one loop,
+  three loans (iv, bVII, bVI), engine-verified against the borrowed badges
 - `secondary-dominants` · A dominant aimed at a chord that isn't home,
   briefly making it feel like home · demo: explain panel
 - `modulation` · Changing key without the seams showing: pivots, common

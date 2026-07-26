@@ -46,6 +46,8 @@
   "lydian": "A major mode with a sharp fourth: floating and weightless, the wondrous major.",
   "mixolydian": "A major mode with a flat seventh: the bluesy, rock dominant that will not fully resolve.",
   "locrian": "The mode on the seventh degree, with a diminished home chord and no stable fifth, so it barely works as a key.",
+  "parallel key": "A major and minor key sharing the same home note but different notes (C major and C minor): the pair borrowing pulls from.",
+  "modal interchange": "Borrowing systematized: treating all seven parallel modes as one shared pantry of chords.",
   "natural minor": "Major with the 3rd, 6th, and 7th lowered a semitone: the default minor palette.",
   "harmonic minor": "Natural minor with the 7th raised back up, so the dominant chord pulls home again.",
   "melodic minor": "Natural minor with the 6th and 7th raised, so a line can climb to home in even steps.",

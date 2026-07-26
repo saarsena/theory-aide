@@ -22,6 +22,7 @@ await esbuild.build({
         "site/src/minorscales.ts",
         "site/src/modesdemo.ts",
         "site/src/borrowed.ts",
+        "site/src/sevenths.ts",
         "site/src/intervals.ts",
         "site/src/triads.ts",
         "site/src/scale.ts",

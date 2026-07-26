@@ -113,8 +113,8 @@ with previous/next links on every clustered article, and presented on the
 1. **The math of sound** (exists: `math`, `organizing-time`; next:
    `harmonics`). Hangs off `what-is-a-note`, `pitch-and-octave` (which
    already promises the harmonics story), `the-piano-roll`, `intervals`.
-2. **Harmony, continued** (exists: `roman-numerals`; next:
-   `seventh-chords` then `progressions` then `cadences`). Hangs off
+2. **Harmony, continued** (exists: `roman-numerals`, `seventh-chords`;
+   next: `progressions` then `cadences`). Hangs off
    `triads`, `keys`, `the-circle-of-fifths`.
 3. **Time and phrasing** (exists: `the-beat`, `meter`, `subdivision`,
    `rests-and-space`, `phrasing`, the cluster's core run complete; later
@@ -223,8 +223,10 @@ Ring 1:
   `chords-in-a-key` stub; one lesson, decided 2026-07-04)
 - `progressions` · Why some chord orders feel inevitable and others feel
   random. The pull, in plain terms · demo: harmonic timeline
-- `seventh-chords` · Add one more third and chords learn to lean. Major 7,
-  dominant 7, minor 7, half-diminished
+- `seventh-chords` **(exists)** · Add one more third and chords learn to
+  lean. Major 7, dominant 7, minor 7, half-diminished · demo: the flavor lab
+  (four qualities on one root, triad/+7th toggle) and the lean (G-C vs G7-C,
+  the tritone resolving), names verified against the recognizer
 - `cadences` · How music punctuates: full stops, commas, and question marks
   at the ends of phrases
 
